@@ -6,12 +6,12 @@ const DashboardEcommerce = () => {
 
   return (
     <React.Fragment>
-      <div className="page-content">
+      <div className="">
         <Container fluid>
           <Row>
             <Col>
               <div className="h-100">
-                <Section rightClickBtn={toggleRightColumn} />
+                {/* <Section rightClickBtn={toggleRightColumn} /> */}
                 <Row></Row>
                 <Row>
                   <Col xl={8}></Col>

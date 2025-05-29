@@ -1,44 +1,38 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-//Layouts
 import NonAuthLayout from "../Layouts/NonAuthLayout";
 import VerticalLayout from "../Layouts/index";
 
-//routes
 import { authProtectedRoutes, publicRoutes } from "./allRoutes";
+
+const renderRouteElement = (element) => {
+  if (typeof element === "function") {
+    return React.createElement(element);
+  }
+  // Already JSX
+  return element;
+};
 
 const Index = () => {
   return (
-    <React.Fragment>
-      <Routes>
-        <Route>
-          {publicRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={
-                <NonAuthLayout>
-                  {React.createElement(route.element)}
-                </NonAuthLayout>
-              }
-              key={idx}
-              exact={true}
-            />
-          ))}
-        </Route>
+    <Routes>
+      {publicRoutes.map((route, idx) => (
+        <Route
+          key={idx}
+          path={route.path}
+          element={<NonAuthLayout>{renderRouteElement(route.element)}</NonAuthLayout>}
+        />
+      ))}
 
-        <Route>
-          {authProtectedRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={<VerticalLayout>{route.component}</VerticalLayout>}
-              key={idx}
-              exact={true}
-            />
-          ))}
-        </Route>
-      </Routes>
-    </React.Fragment>
+      {authProtectedRoutes.map((route, idx) => (
+        <Route
+          key={idx}
+          path={route.path}
+          element={<VerticalLayout>{renderRouteElement(route.element)}</VerticalLayout>}
+        />
+      ))}
+    </Routes>
   );
 };
 

@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate  } from "react-router-dom";
 import { Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
 
 //import images
 import logoSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
 import logoLight from "../assets/images/logo-light.png";
+
+import { toast } from "react-toastify";
+import ProfileDropdown from '../Components/Common/ProfileDropdown';
 
 import { createSelector } from "reselect";
 
@@ -16,6 +19,9 @@ const Header = ({ headerClass }) => {
       sidebarVisibilitytype: state.sidebarVisibilitytype,
     })
   );
+
+
+ 
 
   const [search, setSearch] = useState(false);
   const toogleSearch = () => {
@@ -102,9 +108,12 @@ const Header = ({ headerClass }) => {
                   <span></span>
                 </span>
               </button>
+
+     
             </div>
 
             <div className="d-flex align-items-center">
+              
               <Dropdown
                 isOpen={search}
                 toggle={toogleSearch}
@@ -135,6 +144,8 @@ const Header = ({ headerClass }) => {
                   </Form>
                 </DropdownMenu>
               </Dropdown>
+      <ProfileDropdown />
+
             </div>
           </div>
         </div>

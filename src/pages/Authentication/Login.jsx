@@ -4,19 +4,24 @@ import {
   CardBody,
   Col,
   Container,
-  Input,
-  Label,
   Row,
-  Button,
   Form,
   FormFeedback,
-  Alert,
-  Spinner,
+
 } from "reactstrap";
 
-import ParticlesAuth from "./ParticlesAuth";
+import {CONSTANTS} from "../../Components/constants/common"
 
-import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+
+import ParticlesAuth from "./ParticlesAuth";
+import { jwtDecode } from "jwt-decode";
+
+import BaseInput from "../../Components/BASE/BaseInput";
+import BaseButton from "../../Components/BASE/BaseButton";
+
+
+import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../../Components/Common/withRouter";
 // Formik validation
 import * as Yup from "yup";
@@ -24,8 +29,11 @@ import { useFormik } from "formik";
 
 import logoLight from "../../assets/images/logo-light.png";
 
+import authService from "../../api/apiServices";
+
 const Login = (props) => {
-  console.log("props", props);
+  const navigate = useNavigate();
+
   document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
 
   const [passwordShow, setPasswordShow] = useState(false);
@@ -38,25 +46,64 @@ const Login = (props) => {
       password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email")
-        .required("Please Enter Your Email"),
-      password: Yup.string().required("Please Enter Your Password"),
+      email: Yup.string().email("Invalid email").required("Email is required"),
+      password: Yup.string().required("Password is required"),
     }),
-    onSubmit: (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
+      setSubmitting(true);
       setLoading(true);
-      console.log("Login values:", values);
+      setError("");
+      try {
+        
+        const response = await authService.login({
+      email: values.email,
+      password: values.password,
+    });
 
-      setTimeout(() => {
+        const accessToken = response?.data?.data?.token;
+        const decodedToken = jwtDecode(accessToken);
+
+        if (!accessToken) {
+          toast.error("Login response missing token");
+          setLoading(false);
+          return;
+        }
+
+        toast.success(" Login successful!");
+        sessionStorage.setItem("token", accessToken);
+        sessionStorage.setItem("userId", decodedToken.id);
+        sessionStorage.setItem("email", decodedToken.email);
+        sessionStorage.setItem("password", decodedToken.role);
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: decodedToken.id,
+            email: decodedToken.email,
+            role: decodedToken.role,
+          })
+        );
+
+        navigate("/dashboard");
+
+        // Redirect if needed, e.g. navigate("/dashboard")
+      } catch (err) {
+        if (!err.response) {
+          toast.error("No Server Response");
+        } else if (err.response.status === 400) {
+          toast.error("Missing email or password");
+        } else if (err.response.status === 401) {
+          toast.error("Unauthorized");
+        } else {
+          toast.error("Login failed");
+        }
+      } finally {
         setLoading(false);
-        setError("Invalid credentials");
-      }, 1500);
+      }
     },
   });
 
   document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
   return (
-    <React.Fragment>
       <ParticlesAuth>
         <div className="auth-page-content mt-lg-5">
           <Container>
@@ -85,37 +132,19 @@ const Login = (props) => {
                         Sign in to continue to Velzon.
                       </p>
                     </div>
-                    {error && error ? (
-                      <Alert color="danger"> {error} </Alert>
-                    ) : null}
+
                     <div className="p-2 mt-4">
-                      <Form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          validation.handleSubmit();
-                          return false;
-                        }}
-                        action="#"
-                      >
+                      <Form onSubmit={validation.handleSubmit}>
                         <div className="mb-3">
-                          <Label htmlFor="email" className="form-label">
-                            Email
-                          </Label>
-                          <Input
-                            name="email"
-                            className="form-control"
-                            placeholder="Enter email"
-                            type="email"
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            value={validation.values.email || ""}
-                            invalid={
-                              validation.touched.email &&
-                              validation.errors.email
-                                ? true
-                                : false
-                            }
+                          <BaseInput
+                            id={CONSTANTS.email}
+                            name={CONSTANTS.email}
+                            label={CONSTANTS.Email}
+                            placeholder="Enter your email"
+                            type={CONSTANTS.email}
+                            formik={validation}
                           />
+
                           {validation.touched.email &&
                           validation.errors.email ? (
                             <FormFeedback type="invalid">
@@ -130,60 +159,49 @@ const Login = (props) => {
                               Forgot password?
                             </Link>
                           </div>
-                          <Label
-                            className="form-label"
-                            htmlFor="password-input"
-                          >
-                            Password
-                          </Label>
-                          <div className="position-relative auth-pass-inputgroup mb-3">
-                            <Input
-                              name="password"
-                              value={validation.values.password || ""}
-                              type={passwordShow ? "text" : "password"}
-                              className="form-control pe-5"
-                              placeholder="Enter Password"
-                              onChange={validation.handleChange}
-                              onBlur={validation.handleBlur}
-                              invalid={
-                                validation.touched.password &&
-                                validation.errors.password
-                                  ? true
-                                  : false
-                              }
-                            />
-                            {validation.touched.password &&
-                            validation.errors.password ? (
-                              <FormFeedback type="invalid">
-                                {validation.errors.password}
-                              </FormFeedback>
-                            ) : null}
-                            <button
-                              className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted"
-                              type="button"
-                              id="password-addon"
-                              onClick={() => setPasswordShow(!passwordShow)}
-                            >
-                              <i className="ri-eye-fill align-middle"></i>
-                            </button>
-                          </div>
+
+                          {validation.touched.password &&
+                          validation.errors.password ? (
+                            // Show InputGroup WITH eye icon only when there's a validation error
+                            <div className="position-relative auth-pass-inputgroup mb-3">
+                              <BaseInput
+                                id={CONSTANTS.password}
+                                name={CONSTANTS.password}
+                                label={CONSTANTS.Password}
+                                placeholder="Enter Password"
+                                formik={validation}
+                                showPasswordToggle={true}
+                                passwordShown={passwordShow}
+                                setPasswordShown={setPasswordShow}
+                              />
+                            </div>
+                          ) : (
+                            // Show plain input only if no error
+                            <div className="position-relative">
+                              <BaseInput
+                                id={CONSTANTS.password}
+                                name={CONSTANTS.password}
+                                label={CONSTANTS.Password}
+                                placeholder="Enter Password"
+                                formik={validation}
+                                showPasswordToggle={true}
+                                passwordShown={passwordShow}
+                                setPasswordShown={setPasswordShow}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         <div className="mt-4">
-                          <Button
-                            color="success"
-                            disabled={error ? null : loading ? true : false}
-                            className="btn btn-success w-100"
+                          <BaseButton
                             type="submit"
+                            color="success"
+                            block={true}
+                            loading={loading}
+                            disabled={!!error}
                           >
-                            {loading ? (
-                              <Spinner size="sm" className="me-2">
-                                {" "}
-                                Loading...{" "}
-                              </Spinner>
-                            ) : null}
-                            Sign In
-                          </Button>
+                            {!loading ? "Sign In" : null}
+                          </BaseButton>
                         </div>
                       </Form>
                     </div>
@@ -194,7 +212,7 @@ const Login = (props) => {
           </Container>
         </div>
       </ParticlesAuth>
-    </React.Fragment>
+  
   );
 };
 
