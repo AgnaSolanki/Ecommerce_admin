@@ -1,4 +1,3 @@
-// src/components/Common/BaseInput.js
 import React from "react";
 import {
   Input,
@@ -32,21 +31,20 @@ const BaseInput = ({
         {label}
       </Label>
 
-      {showPasswordToggle && isInvalid ? (
-        // WHEN error exists — show input group
-        <div className="position-relative auth-pass-inputgroup mb-3">
-          <InputGroup className="is-invalid">
-            <Input
-              id={id}
-              name={name}
-              type={inputType}
-              placeholder={placeholder}
-              className="form-control"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values[name] || ""}
-              invalid
-            />
+      <div className="position-relative auth-pass-inputgroup mb-3">
+        <InputGroup className={isInvalid ? "is-invalid" : ""}>
+          <Input
+            id={id}
+            name={name}
+            type={inputType}
+            placeholder={placeholder}
+            className="form-control"
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values[name] || ""}
+            invalid={!!isInvalid}
+          />
+          {showPasswordToggle && (
             <InputGroupText
               onClick={() => setPasswordShown(!passwordShown)}
               style={{ cursor: "pointer" }}
@@ -59,45 +57,14 @@ const BaseInput = ({
                 }
               />
             </InputGroupText>
-          </InputGroup>
-          <FormFeedback className="d-block">{formik.errors[name]}</FormFeedback>
-        </div>
-      ) : (
-        // WHEN no error — show plain input with absolute-positioned eye
-        <div className="position-relative">
-          <Input
-            id={id}
-            name={name}
-            type={inputType}
-            placeholder={placeholder}
-            className="form-control pe-5"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values[name] || ""}
-            invalid={!!isInvalid}
-          />
-          {isInvalid && (
-            <FormFeedback className="d-block">
-              {formik.errors[name]}
-            </FormFeedback>
           )}
-          {  showPasswordToggle && (
-            <button
-              className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted"
-              type="button"
-              onClick={() => setPasswordShown(!passwordShown)}
-            >
-              <i
-                className={
-                  passwordShown
-                    ? "ri-eye-off-fill align-middle"
-                    : "ri-eye-fill align-middle"
-                }
-              />
-            </button>
-          )}
-        </div>
-      )}
+        </InputGroup>
+        {isInvalid && (
+          <FormFeedback className="d-block">
+            {formik.errors[name]}
+          </FormFeedback>
+        )}
+      </div>
     </div>
   );
 };

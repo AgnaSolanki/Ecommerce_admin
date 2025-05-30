@@ -65,7 +65,7 @@ const Login = (props) => {
         sessionStorage.setItem("token", accessToken);
         sessionStorage.setItem("userId", decodedToken.id);
         sessionStorage.setItem("email", decodedToken.email);
-        sessionStorage.setItem("password", decodedToken.role);
+        sessionStorage.setItem("role", decodedToken.role);
         sessionStorage.setItem(
           "user",
           JSON.stringify({
