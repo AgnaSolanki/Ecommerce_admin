@@ -1,6 +1,7 @@
 // src/components/Common/BaseButton.js
 import React from "react";
-import { Button, Spinner } from "reactstrap";
+import { Button} from "reactstrap";
+import BaseLoader from "./BaseLoader";
 
 const BaseButton = ({
   type = "button",
@@ -20,7 +21,7 @@ const BaseButton = ({
       disabled={disabled || loading}
       onClick={onClick}
     >
-      {loading && <Spinner size="sm" className="me-2" />}
+     {loading && <BaseLoader className="me-2" />}
       {children}
     </Button>
   );

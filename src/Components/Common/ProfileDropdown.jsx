@@ -6,19 +6,16 @@ import {
   DropdownMenu,
   DropdownToggle,
 } from "reactstrap";
+import { LOGIN_ROUTE } from "../../api/apiRoutes";
 
 import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
 
 const ProfileDropdown = () => {
-
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
   const navigate = useNavigate();
 
-
-
   const handleLogout = () => {
-    navigate("/logout", { replace: true });
-  
+    navigate(LOGIN_ROUTE, { replace: true });
   };
 
   return (
@@ -36,7 +33,6 @@ const ProfileDropdown = () => {
               alt="Header Avatar"
             />
             <span className="text-start ms-xl-2">
-           
               <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">
                 Founder
               </span>
@@ -44,7 +40,6 @@ const ProfileDropdown = () => {
           </span>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-
           <DropdownItem onClick={handleLogout}>
             <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
             <span className="align-middle" data-key="t-logout">

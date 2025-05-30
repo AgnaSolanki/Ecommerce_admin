@@ -1,9 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-
 import NonAuthLayout from "../Layouts/NonAuthLayout";
 import VerticalLayout from "../Layouts/index";
-
 import { authProtectedRoutes, publicRoutes } from "./allRoutes";
 
 const renderRouteElement = (element) => {

@@ -4,26 +4,28 @@ import { Navigate } from "react-router-dom";
 import DashboardEcommerce from "../pages/DashboardEcommerce";
 import Logout from "../pages/Authentication/Logout";
 
+import {LOGIN_ROUTE, LOGOUT_ROUTE, DASHBOARD_ROUTE, HOME, INDEX } from "../api/apiRoutes";
+
 
 
 //login
 import Login from "../pages/Authentication/Login";
 
 const authProtectedRoutes = [
-  { path: "/dashboard", element: DashboardEcommerce },
-  { path: "/index", element: DashboardEcommerce },
- 
+  { path: DASHBOARD_ROUTE, element: DashboardEcommerce },
+  { path: INDEX, element: DashboardEcommerce },
+
   {
-    path: "/",
+    path: HOME,
     exact: true,
-    element: <Navigate to="/login" />,
+    element: <Navigate to={LOGIN_ROUTE} />,
   },
-  { path: "*", element: <Navigate to="/login" /> },
+  { path: "*", element: <Navigate to={LOGIN_ROUTE} /> },
 ];
 
 const publicRoutes = [
-  { path: "/login", element: Login },
-  { path: "/logout", element: Logout },
+  { path: LOGIN_ROUTE, element: Login },
+  { path: LOGOUT_ROUTE, element: Logout },
 ];
 
 export { authProtectedRoutes, publicRoutes };
