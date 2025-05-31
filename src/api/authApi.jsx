@@ -1,13 +1,12 @@
-// src/api/authApi.js
+
 import axios from "axios";
 
 const authApi = axios.create({
-  baseURL: import.meta.env.VITE_BASE_API, 
+  baseURL: import.meta.env.VITE_BASE_API,
   headers: {
     "Content-Type": "application/json",
   },
 });
-
 
 authApi.interceptors.request.use(
   (config) => {
