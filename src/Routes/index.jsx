@@ -8,7 +8,7 @@ const renderRouteElement = (element) => {
   if (typeof element === "function") {
     return React.createElement(element);
   }
-  // Already JSX
+ 
   return element;
 };
 

@@ -140,7 +140,7 @@ const Login = (props) => {
                       </div>
 
                       <div className="mb-3">
-                        <div className="float-end">
+                        <div className="float-en">
                           <Link to="/forgot-password" className="text-muted">
                             Forgot password?
                           </Link>
