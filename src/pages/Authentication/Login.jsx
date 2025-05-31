@@ -25,13 +25,10 @@ import { loginValidationSchema } from "../../Components/constants/validation";
 
 const Login = (props) => {
   const navigate = useNavigate();
-
-  document.title = "Login | Velzon - React Admin & Dashboard Template";
-
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  
   const validation = useFormik({
     initialValues: {
       [CONSTANTS.email]: "",
@@ -47,10 +44,10 @@ const Login = (props) => {
           email: values.email,
           password: values.password,
         });
-
+        
         const accessToken = response?.data?.data?.token;
         const decodedToken = jwtDecode(accessToken);
-
+        
         toast.success(response?.data?.message);
         sessionStorage.setItem("token", accessToken);
         sessionStorage.setItem("userId", decodedToken.id);
@@ -66,23 +63,22 @@ const Login = (props) => {
         );
         navigate(LoginRoutes.DASHBOARD_ROUTE);
       } catch (err) {
-  console.log("Login error:", err.response?.data.message);
-
-  let errorMessage = err?.response?.data?.message;
-
-  if (Array.isArray(errorMessage)) {
-    errorMessage = errorMessage.join(", ");
-  }
-
-  toast.error(errorMessage);
-
-
+        console.log("Login error:", err.response?.data.message);
+        
+        let errorMessage = err?.response?.data?.message;
+        
+        if (Array.isArray(errorMessage)) {
+          errorMessage = errorMessage.join(", ");
+        }
+        
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
+
     },
   });
-
+      document.title = "Login | Velzon - React Admin & Dashboard Template";
   return (
     <ParticlesAuth>
       <div className="auth-page-content mt-lg-5">
@@ -112,7 +108,6 @@ const Login = (props) => {
                   <div className="text-center mt-2">
                     <h5 className="text-primary">Welcome Back !</h5>
                   </div>
-
                   <div className="p-2 mt-4">
                     <Form onSubmit={validation.handleSubmit}>
                       <div className="mb-3">

@@ -43,11 +43,6 @@ const ProfileDropdown = () => {
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
 
-    // Prevent back navigation after logout
-    window.history.pushState(null, null, window.location.href);
-    window.onpopstate = () => {
-      navigate(LoginRoutes.LOGIN, { replace: true });
-    };
   };
 
   return (

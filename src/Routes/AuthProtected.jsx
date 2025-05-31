@@ -6,5 +6,4 @@ const AuthProtected = () => {
   const token = sessionStorage.getItem("token");
   return token ? <Outlet /> : <Navigate to="/login" replace />;
 };
-
 export default AuthProtected;
