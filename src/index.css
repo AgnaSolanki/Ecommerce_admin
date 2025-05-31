@@ -71,3 +71,30 @@ button:focus-visible {
   border-radius: 12px;
   margin-left: 40%;
 }
+.model-no,
+.model-yes {
+  border: none !important;
+  display: inline inline-block !important;
+  width: 100px !important;
+
+}
+
+.model-no {
+  background-color: #405189;
+  color: #ffffff;
+}
+
+.model-no:hover {
+  background-color: #2e3a5e;
+  transform: translateY(-1px);
+}
+
+.model-yes {
+  background-color: #17a2b8 !important;
+  color: #ffffff;
+}
+
+.model-yes:hover {
+  background-color: #138a9b;
+  transform: translateY(-1px);
+}

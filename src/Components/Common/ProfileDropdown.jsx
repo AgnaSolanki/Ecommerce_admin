@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import BaseButton from "../BASE/BaseButton";
 import {
   Dropdown,
   DropdownItem,
@@ -9,11 +10,12 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
 } from "reactstrap";
-import { LOGIN_ROUTE } from "../../api/apiRoutes";
+
+import { LoginRoutes } from "../../Routes/Constant";
 
 import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
+import { CONSTANTS } from "../constants/common";
 
 const ProfileDropdown = () => {
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
@@ -24,22 +26,28 @@ const ProfileDropdown = () => {
   const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
-    const userData = sessionStorage.getItem("user");
+    const userData = sessionStorage.getItem(CONSTANTS.user);
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
         setUserEmail(parsedUser.email || "");
         setUserRole(parsedUser.role || "");
       } catch (err) {
-        console.error("Error parsing user data from sessionStorage:", err);
+        console.error(err);
       }
     }
   }, []);
 
   const handleLogout = () => {
-    sessionStorage.clear(); // or sessionStorage.removeItem("user");
+    sessionStorage.clear();
     setShowLogoutModal(false);
-    navigate(LOGIN_ROUTE, { replace: true });
+    navigate(LoginRoutes.LOGIN, { replace: true });
+
+    // Prevent back navigation after logout
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = () => {
+      navigate(LoginRoutes.LOGIN, { replace: true });
+    };
   };
 
   return (
@@ -49,7 +57,7 @@ const ProfileDropdown = () => {
         toggle={() => setIsProfileDropdown(!isProfileDropdown)}
         className="ms-sm-3 header-item topbar-user"
       >
-        <DropdownToggle tag="button" type="button" className="btn">
+        <DropdownToggle tag="button" type={CONSTANTS.Button} className="btn">
           <span className="d-flex align-items-center">
             <img
               className="rounded-circle header-profile-user"
@@ -77,7 +85,7 @@ const ProfileDropdown = () => {
         </DropdownMenu>
       </Dropdown>
 
-      {/* Logout Confirmation */}
+      {/* Logout Confirmation Modal */}
       <Modal
         isOpen={showLogoutModal}
         toggle={() => setShowLogoutModal(false)}
@@ -88,19 +96,16 @@ const ProfileDropdown = () => {
           Confirm Logout
         </ModalHeader>
         <ModalBody>Are you sure you want to log out?</ModalBody>
-        <ModalFooter>
-          <Button
-            style={{ backgroundColor: "#405189", color: "white" }}
+        <ModalFooter className="model-footer">
+          <BaseButton
+            className="model-no"
             onClick={() => setShowLogoutModal(false)}
           >
             No
-          </Button>
-          <Button
-            style={{ backgroundColor: "#17a2b8", color: "white" }}
-            onClick={handleLogout}
-          >
+          </BaseButton>
+          <BaseButton className="model-yes" onClick={handleLogout}>
             Yes
-          </Button>
+          </BaseButton>
         </ModalFooter>
       </Modal>
     </>
