@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import DashboardEcommerce from "../pages/DashboardEcommerce";
-import { LoginRoutes } from "./Constant";
+import { LoginRoutes } from "./Routes";
 import Login from "../pages/Authentication/Login";
 
 const authProtectedRoutes = [
