@@ -25,6 +25,7 @@ import {
   validation as fieldValidation,
   emailRegex,
   passwordRegex,
+  inputField,
 } from "../../Components/constants/validation";
 
 const validateLogin = (values) => {
@@ -141,7 +142,7 @@ const Login = () => {
                           id={CONSTANTS.email}
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
-                          placeholder={CONSTANTS.EmailPlaceholder}
+                          placeholder={inputField(CONSTANTS.Email)}
                           type={CONSTANTS.email}
                           formik={validation}
                         />
@@ -165,7 +166,7 @@ const Login = () => {
                             id={CONSTANTS.password}
                             name={CONSTANTS.password}
                             label={CONSTANTS.Password}
-                            placeholder={CONSTANTS.PasswordPlaceholder}
+                            placeholder={inputField(CONSTANTS.Password)}
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}

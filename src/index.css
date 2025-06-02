@@ -102,3 +102,7 @@ button:focus-visible {
   justify-content: flex-end;
   
 }
+.lord-icon{
+  width: 120px;
+  height: 120px;
+}

@@ -11,6 +11,7 @@ import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
 import {
   emailRegex,
+  inputField,
   otpRegex,
   passwordRegex,
   validation,
@@ -136,8 +137,7 @@ const ForgetPasswordPage = () => {
                       src="https://cdn.lordicon.com/rhvddzym.json"
                       trigger="loop"
                       colors="primary:#0ab39c"
-                      className="avatar-xl"
-                      style={{ width: "120px", height: "120px" }}
+                      className="avatar-xl lord-icon"
                     ></lord-icon>
                   </div>
 
@@ -150,7 +150,7 @@ const ForgetPasswordPage = () => {
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
                           type={CONSTANTS.email}
-                          placeholder={CONSTANTS.EmailPlaceholder}
+                          placeholder={inputField(CONSTANTS.Email)}
                           formik={validation}
                           disabled={submitted}
                         />
@@ -164,7 +164,7 @@ const ForgetPasswordPage = () => {
                             name={CONSTANTS.otp}
                             label={CONSTANTS.OTP}
                             type={CONSTANTS.text}
-                            placeholder={CONSTANTS.OTPPlaceholder}
+                            placeholder={inputField(CONSTANTS.OTP)}
                             formik={validation}
                           />
 
@@ -173,7 +173,7 @@ const ForgetPasswordPage = () => {
                             name={CONSTANTS.newPassword}
                             label={CONSTANTS.NewPassword}
                             type={CONSTANTS.password}
-                            placeholder={CONSTANTS.NewPasswordPlaceholder}
+                            placeholder={inputField(CONSTANTS.Password)}
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
@@ -185,7 +185,7 @@ const ForgetPasswordPage = () => {
                             name={CONSTANTS.confirmPassword}
                             label={CONSTANTS.ConfirmPassword}
                             type={CONSTANTS.password}
-                            placeholder={CONSTANTS.ConfirmPasswordPlaceholder}
+                            placeholder={inputField(CONSTANTS.ConfirmPassword)}
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
