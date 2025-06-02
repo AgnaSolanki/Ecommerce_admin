@@ -3,4 +3,5 @@ export const LoginRoutes = {
     LOGIN: "/login",
     DASHBOARD_ROUTE: "/dashboard",
     RESET: "/forgot-password",
+    PROFILE: "/profile"
 };

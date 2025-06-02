@@ -3,9 +3,11 @@ import DashboardEcommerce from "../pages/DashboardEcommerce";
 import { LoginRoutes } from "./Routes";
 import Login from "../pages/Authentication/Login";
 import ForgetPasswordPage from "../pages/Authentication/ForgetPasswordPage";
+import UserProfile from "../pages/Authentication/user-profile";
 
 const authProtectedRoutes = [
   { path: LoginRoutes.DASHBOARD_ROUTE, element: DashboardEcommerce },
+  { path: LoginRoutes.PROFILE, element: UserProfile },
   {
     path: LoginRoutes.HOME,
     exact: true,
