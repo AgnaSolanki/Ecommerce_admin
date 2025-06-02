@@ -1,4 +1,3 @@
-
 export const LoginRoutes = {
     Home: "/",
     LOGIN: "/login",

@@ -16,7 +16,7 @@ import logoLight from "../../assets/images/logo-light.png";
 import ParticlesAuth from "../Authentication/ParticlesAuth";
 import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
-import { LoginRoutes } from "../../Routes/Constant";
+import { LoginRoutes } from "../../Routes/Routes";
 import BaseInput from "../../Components/BASE/BaseInput";
 import { validation } from "../../Components/constants/validation";
 
@@ -108,8 +108,7 @@ const ForgetPasswordPage = () => {
     },
   });
 
-  document.title =
-    "forgot-password | Velzon - React Admin & Dashboard Template";
+  document.title = "forgot-password";
 
   return (
     <ParticlesAuth>
@@ -158,17 +157,6 @@ const ForgetPasswordPage = () => {
                   </Alert>
 
                   <div className="p-2">
-                    {forgetError && (
-                      <Alert color="danger" style={{ marginTop: "13px" }}>
-                        {forgetError}
-                      </Alert>
-                    )}
-                    {forgetSuccessMsg && (
-                      <Alert color="success" style={{ marginTop: "13px" }}>
-                        {forgetSuccessMsg}
-                      </Alert>
-                    )}
-
                     <Form onSubmit={validation.handleSubmit}>
                       {/* Email */}
                       <div className="mb-4">
@@ -181,12 +169,6 @@ const ForgetPasswordPage = () => {
                           formik={validation}
                           disabled={submitted}
                         />
-                        {validation.errors.email &&
-                          validation.touched.email && (
-                            <FormFeedback className="d-block">
-                              {validation.errors.email}
-                            </FormFeedback>
-                          )}
                       </div>
 
                       {/* Step 2 fields */}
@@ -200,11 +182,7 @@ const ForgetPasswordPage = () => {
                             placeholder={CONSTANTS.OTPPlaceholder}
                             formik={validation}
                           />
-                          {validation.errors.otp && validation.touched.otp && (
-                            <FormFeedback className="d-block">
-                              {validation.errors.otp}
-                            </FormFeedback>
-                          )}
+                          
 
                           <BaseInput
                             id={CONSTANTS.newPassword}
@@ -217,12 +195,8 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                           />
-                          {validation.errors.newPassword &&
-                            validation.touched.newPassword && (
-                              <FormFeedback className="d-block">
-                                {validation.errors.newPassword}
-                              </FormFeedback>
-                            )}
+                        
+                        
 
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
@@ -235,12 +209,7 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                           />
-                          {validation.errors.confirmPassword &&
-                            validation.touched.confirmPassword && (
-                              <FormFeedback className="d-block">
-                                {validation.errors.confirmPassword}
-                              </FormFeedback>
-                            )}
+                       
                         </>
                       )}
 

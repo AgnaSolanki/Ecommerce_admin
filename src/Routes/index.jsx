@@ -22,7 +22,6 @@ const Index = () => {
           element={<NonAuthLayout>{renderRouteElement(route.element)}</NonAuthLayout>}
         />
       ))}
-
       {authProtectedRoutes.map((route, idx) => (
         <Route
           key={idx}

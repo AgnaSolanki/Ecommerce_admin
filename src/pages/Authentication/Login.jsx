@@ -20,13 +20,13 @@ import withRouter from "../../Components/Common/withRouter";
 import { useFormik } from "formik";
 import logoLight from "../../assets/images/logo-light.png";
 import authService from "../../api/apiServices";
-import { LoginRoutes } from "../../Routes/Constant";
-import {validation} from "../../Components/constants/validation";
+import { LoginRoutes } from "../../Routes/Routes";
+import { validation } from "../../Components/constants/validation";
 
 const validateLogin = (values) => {
   const errors = {};
-  const emailValidation = validation("Email");
-  const passwordValidation = validation("Password");
+  const emailValidation = validation(CONSTANTS.Email);
+  const passwordValidation = validation(CONSTANTS.Password);
 
   if (!values[CONSTANTS.email]) {
     errors[CONSTANTS.email] = emailValidation.required;
@@ -50,7 +50,7 @@ const validateLogin = (values) => {
 const Login = () => {
   const navigate = useNavigate();
 
-  document.title = "Login | Velzon - React Admin & Dashboard Template";
+  document.title = "Login";
 
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
@@ -90,14 +90,10 @@ const Login = () => {
         );
         navigate(LoginRoutes.DASHBOARD_ROUTE);
       } catch (err) {
-        console.log("Login error:", err.response?.data.message);
-
         let errorMessage = err?.response?.data?.message;
-
         if (Array.isArray(errorMessage)) {
           errorMessage = errorMessage.join(", ");
         }
-
         toast.error(errorMessage);
       } finally {
         setLoading(false);
@@ -173,12 +169,6 @@ const Login = () => {
                             setPasswordShown={setPasswordShow}
                           />
                         </div>
-
-                        {validation.touched.password && validation.errors.password && (
-                          <FormFeedback className="d-block">
-                            {validation.errors.password}
-                          </FormFeedback>
-                        )}
                       </div>
 
                       <div className="mt-4">
