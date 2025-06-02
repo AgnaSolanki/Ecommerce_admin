@@ -12,6 +12,7 @@ const authProtectedRoutes = [
     element: <Navigate to={LoginRoutes.LOGIN} />,
   },
   { path: "*", element: <Navigate to={LoginRoutes.LOGIN} /> },
+  { path: "*", element: <Navigate to={LoginRoutes.LOGIN} /> },
 ];
 const publicRoutes = [
   { path: LoginRoutes.LOGIN, element: Login },
