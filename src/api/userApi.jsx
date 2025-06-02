@@ -7,8 +7,8 @@ const userApi = {
 
   // ✅ Add this
   forgetPassword: (data) => apiService.post(FORGET_PASS, data),
-  changePassword: ({ email, otp, newPassword, confirmPassword }) =>
-    apiService.put(CHANGE_PASSWORD, { email, otp, newPassword, confirmPassword }),
+  changePassword: (data) =>
+    apiService.put(CHANGE_PASSWORD, data),
 };
 
 export default userApi;

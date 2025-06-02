@@ -21,9 +21,33 @@ import { useFormik } from "formik";
 import logoLight from "../../assets/images/logo-light.png";
 import authService from "../../api/apiServices";
 import { LoginRoutes } from "../../Routes/Constant";
-import { loginValidationSchema } from "../../Components/constants/validation";
+import {validation} from "../../Components/constants/validation";
 
-const Login = (props) => {
+const validateLogin = (values) => {
+  const errors = {};
+  const emailValidation = validation("Email");
+  const passwordValidation = validation("Password");
+
+  if (!values[CONSTANTS.email]) {
+    errors[CONSTANTS.email] = emailValidation.required;
+  } else if (
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values[CONSTANTS.email])
+  ) {
+    errors[CONSTANTS.email] = emailValidation.invalidEmail;
+  }
+
+  if (!values[CONSTANTS.password]) {
+    errors[CONSTANTS.password] = passwordValidation.required;
+  } else if (values[CONSTANTS.password].length < 8) {
+    errors[CONSTANTS.password] = passwordValidation.minLength(8);
+  } else if (!/[A-Z]/.test(values[CONSTANTS.password])) {
+    errors[CONSTANTS.password] = passwordValidation.passwordPattern;
+  }
+
+  return errors;
+};
+
+const Login = () => {
   const navigate = useNavigate();
 
   document.title = "Login | Velzon - React Admin & Dashboard Template";
@@ -37,7 +61,7 @@ const Login = (props) => {
       [CONSTANTS.email]: "",
       [CONSTANTS.password]: "",
     },
-    validationSchema: loginValidationSchema,
+    validate: validateLogin,
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       setLoading(true);
@@ -66,17 +90,15 @@ const Login = (props) => {
         );
         navigate(LoginRoutes.DASHBOARD_ROUTE);
       } catch (err) {
-  console.log("Login error:", err.response?.data.message);
+        console.log("Login error:", err.response?.data.message);
 
-  let errorMessage = err?.response?.data?.message;
+        let errorMessage = err?.response?.data?.message;
 
-  if (Array.isArray(errorMessage)) {
-    errorMessage = errorMessage.join(", ");
-  }
+        if (Array.isArray(errorMessage)) {
+          errorMessage = errorMessage.join(", ");
+        }
 
-  toast.error(errorMessage);
-
-
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -133,41 +155,29 @@ const Login = (props) => {
                       </div>
 
                       <div className="mb-3">
-                        <div className="float-end">
+                        <div className="float-en">
                           <Link to={LoginRoutes.RESET} className="text-muted">
                             Forgot password?
                           </Link>
                         </div>
 
-                        {validation.touched.password &&
-                        validation.errors.password ? (
-                          // Show InputGroup WITH eye icon only when there's a validation error
-                          <div className="position-relative auth-pass-inputgroup mb-3">
-                            <BaseInput
-                              id={CONSTANTS.password}
-                              name={CONSTANTS.password}
-                              label={CONSTANTS.Password}
-                              placeholder={CONSTANTS.PasswordPlaceholder}
-                              formik={validation}
-                              showPasswordToggle={true}
-                              passwordShown={passwordShow}
-                              setPasswordShown={setPasswordShow}
-                            />
-                          </div>
-                        ) : (
-                          // Show plain input only if no error
-                          <div className="position-relative">
-                            <BaseInput
-                              id={CONSTANTS.password}
-                              name={CONSTANTS.password}
-                              label={CONSTANTS.Password}
-                              placeholder={CONSTANTS.PasswordPlaceholder}
-                              formik={validation}
-                              showPasswordToggle={true}
-                              passwordShown={passwordShow}
-                              setPasswordShown={setPasswordShow}
-                            />
-                          </div>
+                        <div className="position-relative auth-pass-inputgroup mb-3">
+                          <BaseInput
+                            id={CONSTANTS.password}
+                            name={CONSTANTS.password}
+                            label={CONSTANTS.Password}
+                            placeholder={CONSTANTS.PasswordPlaceholder}
+                            formik={validation}
+                            showPasswordToggle={true}
+                            passwordShown={passwordShow}
+                            setPasswordShown={setPasswordShow}
+                          />
+                        </div>
+
+                        {validation.touched.password && validation.errors.password && (
+                          <FormFeedback className="d-block">
+                            {validation.errors.password}
+                          </FormFeedback>
                         )}
                       </div>
 

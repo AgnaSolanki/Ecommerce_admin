@@ -1,5 +1,3 @@
-import { Button } from "reactstrap";
-
 export const CONSTANTS = {
     Email: "Email",
     Password: "Password",
@@ -10,4 +8,13 @@ export const CONSTANTS = {
     Button: "Button",
     EmailPlaceholder: "Enter your email",
     PasswordPlaceholder: "Enter Password",
+    confirmPassword: "confirmPassword",
+    newPassword: "newPassword",
+    otp: "otp",
+    NewPasswordPlaceholder: "Enter new password",
+    ConfirmPasswordPlaceholder: "Confirm new password",
+    ConfirmPassword: "Confirm Password",
+    NewPassword: "New Password",
+    OTP: "OTP",
+    OTPPlaceholder: "Enter OTP",
 }

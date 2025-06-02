@@ -7,8 +7,8 @@ const authService = {
   forgetPassword: (data) => authApi.post(FORGET_PASS, data),
   sendOtpToEmail: (email) =>
     authApi.post(VERIFY_EMAIL, { email }),
-  changePassword: (email, otp, newPassword, confirmPassword) =>
-    authApi.put(CHANGE_PASSWORD, { email, otp, newPassword, confirmPassword }),
+  changePassword: (data) =>
+    authApi.put(CHANGE_PASSWORD, data),
 };
 
 export default authService;

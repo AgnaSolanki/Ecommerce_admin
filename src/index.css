@@ -66,8 +66,8 @@ button:focus-visible {
   }
 }
 .custom-logout-modal {
-  max-width: 600px;  
-  width: 90%;        
+  max-width: 600px;
+  width: 90%;
   border-radius: 12px;
   margin-left: 40%;
 }
@@ -76,7 +76,6 @@ button:focus-visible {
   border: none !important;
   display: inline inline-block !important;
   width: 100px !important;
-
 }
 
 .model-no {
@@ -97,4 +96,9 @@ button:focus-visible {
 .model-yes:hover {
   background-color: #138a9b;
   transform: translateY(-1px);
+}
+.float-en {
+  display: flex;
+  justify-content: flex-end;
+  
 }

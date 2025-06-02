@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React, { useState } from "react";
 import {
   Row,
@@ -7,82 +6,115 @@ import {
   Card,
   CardBody,
   Container,
-  FormFeedback,
-  Input,
-  Label,
   Form,
+  FormFeedback,
 } from "reactstrap";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
-import * as Yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-
 import logoLight from "../../assets/images/logo-light.png";
 import ParticlesAuth from "../Authentication/ParticlesAuth";
-import authService from "../../api/apiServices"; // Make sure this has sendOtpToEmail and resetPassword
+import authService from "../../api/apiServices";
+import { CONSTANTS } from "../../Components/constants/common";
+import { LoginRoutes } from "../../Routes/Constant";
+import BaseInput from "../../Components/BASE/BaseInput";
+import { validation } from "../../Components/constants/validation";
+
+// Custom validation logic using validation(field)
+const validateForgotPassword = (values, submitted) => {
+  const errors = {};
+  const emailValidation = validation("Email");
+  const otpValidation = validation("OTP");
+  const newPasswordValidation = validation("Password");
+  const confirmPasswordValidation = validation("Confirm Password");
+
+  if (!values[CONSTANTS.email]) {
+    errors[CONSTANTS.email] = emailValidation.required;
+  } else if (
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values[CONSTANTS.email])
+  ) {
+    errors[CONSTANTS.email] = emailValidation.invalidEmail;
+  }
+
+  if (submitted) {
+    if (!values[CONSTANTS.otp]) {
+      errors[CONSTANTS.otp] = otpValidation.otpRequired;
+    } else if (!/^\d{6}$/.test(values[CONSTANTS.otp])) {
+      errors[CONSTANTS.otp] = otpValidation.otpSixDigits;
+    }
+
+    if (!values[CONSTANTS.newPassword]) {
+      errors[CONSTANTS.newPassword] = newPasswordValidation.required;
+    } else if (values[CONSTANTS.newPassword].length < 8) {
+      errors[CONSTANTS.newPassword] = newPasswordValidation.minLength(8);
+    } else if (!/[A-Z]/.test(values[CONSTANTS.newPassword])) {
+      errors[CONSTANTS.newPassword] = newPasswordValidation.passwordPattern;
+    }
+
+    if (!values[CONSTANTS.confirmPassword]) {
+      errors[CONSTANTS.confirmPassword] = confirmPasswordValidation.required;
+    } else if (
+      values[CONSTANTS.confirmPassword] !== values[CONSTANTS.newPassword]
+    ) {
+      errors[CONSTANTS.confirmPassword] =
+        confirmPasswordValidation.passwordsMustMatch;
+    }
+  }
+
+  return errors;
+};
 
 const ForgetPasswordPage = () => {
+  const [passwordShow, setPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [forgetError, setForgetError] = useState("");
   const [forgetSuccessMsg, setForgetSuccessMsg] = useState("");
+  const navigate = useNavigate();
 
   const validation = useFormik({
     initialValues: {
-      email: "",
-      otp: "",
-      newPassword: "",
-      confirmPassword: "",
+      [CONSTANTS.email]: "",
+      [CONSTANTS.otp]: "",
+      [CONSTANTS.newPassword]: "",
+      [CONSTANTS.confirmPassword]: "",
     },
-    validationSchema: Yup.object().shape({
-      email: Yup.string()
-        .email("Invalid email")
-        .required("Please enter your email"),
-      ...(submitted && {
-        otp: Yup.string().required("OTP is required"),
-        newPassword: Yup.string().required("Password is required").min(6),
-        confirmPassword: Yup.string()
-          .oneOf([Yup.ref("newPassword")], "Passwords must match")
-          .required("Confirm Password is required"),
-      }),
-    }),
+    validate: (values) => validateForgotPassword(values, submitted),
     onSubmit: async (values) => {
       setForgetError("");
       setForgetSuccessMsg("");
 
       if (!submitted) {
         try {
-          await authService.sendOtpToEmail(values.email);
-          toast.success("OTP sent successfully!");
+          const response = await authService.sendOtpToEmail(
+            values[CONSTANTS.email]
+          );
+          toast.success(response?.message);
           setSubmitted(true);
         } catch (error) {
-          console.error("ERROR:", error);
-          toast.error(
-            error?.response?.data?.message ||
-              error?.message ||
-              "Something went wrong. Please try again."
-          );
+          toast.error(error?.response?.data?.message || error?.message);
         }
       } else {
         try {
-          await authService.changePassword({
-            email: values.email,
-            otp: values.otp,
-            newPassword: values.newPassword,
-            confirmPassword: values.confirmPassword,
+          const response = await authService.changePassword({
+            email: values[CONSTANTS.email],
+            otp: Number(values[CONSTANTS.otp]),
+            newPassword: values[CONSTANTS.newPassword],
+            confirmPassword: values[CONSTANTS.confirmPassword],
           });
-          toast.success("Password reset successfully!");
-          // Optional: redirect to login
+
+          toast.success(response?.message);
+          setTimeout(() => {
+            navigate(LoginRoutes.LOGIN);
+          }, 1500);
         } catch (error) {
-          console.error("Reset Error:", error);
-          toast.error(
-            error?.response?.data?.message || "Failed to reset password"
-          );
+          toast.error(error?.response?.data?.message);
         }
       }
     },
   });
 
-  document.title = "Reset Password | Velzon - React Admin & Dashboard Template";
+  document.title =
+    "forgot-password | Velzon - React Admin & Dashboard Template";
 
   return (
     <ParticlesAuth>
@@ -92,7 +124,10 @@ const ForgetPasswordPage = () => {
             <Col lg={12}>
               <div className="text-center mt-sm-5 mb-4 text-white-50">
                 <div>
-                  <Link to="/" className="d-inline-block auth-logo">
+                  <Link
+                    to={LoginRoutes.Home}
+                    className="d-inline-block auth-logo"
+                  >
                     <img src={logoLight} alt="" height="20" />
                   </Link>
                 </div>
@@ -109,7 +144,6 @@ const ForgetPasswordPage = () => {
                 <CardBody className="p-4">
                   <div className="text-center mt-2">
                     <h5 className="text-primary">Forgot Password?</h5>
-                    <p className="text-muted">Reset password with velzon</p>
                     <lord-icon
                       src="https://cdn.lordicon.com/rhvddzym.json"
                       trigger="loop"
@@ -143,73 +177,75 @@ const ForgetPasswordPage = () => {
                     <Form onSubmit={validation.handleSubmit}>
                       {/* Email */}
                       <div className="mb-4">
-                        <Label className="form-label">Email</Label>
-                        <Input
-                          name="email"
-                          type="email"
-                          placeholder="Enter email"
-                          {...validation.getFieldProps("email")}
-                          invalid={
-                            validation.touched.email &&
-                            !!validation.errors.email
-                          }
-                          disabled={submitted} // 👈 Disable after OTP is sent
+                        <BaseInput
+                          id={CONSTANTS.email}
+                          name={CONSTANTS.email}
+                          label={CONSTANTS.Email}
+                          type={CONSTANTS.email}
+                          placeholder={CONSTANTS.EmailPlaceholder}
+                          formik={validation}
+                          disabled={submitted}
                         />
-                        <FormFeedback>{validation.errors.email}</FormFeedback>
+                        {validation.errors.email &&
+                          validation.touched.email && (
+                            <FormFeedback className="d-block">
+                              {validation.errors.email}
+                            </FormFeedback>
+                          )}
                       </div>
 
                       {/* Step 2 fields */}
                       {submitted && (
                         <>
-                          <div className="mb-4">
-                            <Label className="form-label">OTP</Label>
-                            <Input
-                              name="otp"
-                              placeholder="Enter OTP"
-                              {...validation.getFieldProps("otp")}
-                              invalid={
-                                validation.touched.otp &&
-                                !!validation.errors.otp
-                              }
-                            />
-                            <FormFeedback>{validation.errors.otp}</FormFeedback>
-                          </div>
-
-                          <div className="mb-4">
-                            <Label className="form-label">New Password</Label>
-                            <Input
-                              name="newPassword"
-                              type="password"
-                              placeholder="Enter new password"
-                              {...validation.getFieldProps("newPassword")}
-                              invalid={
-                                validation.touched.newPassword &&
-                                !!validation.errors.newPassword
-                              }
-                            />
-                            <FormFeedback>
-                              {validation.errors.newPassword}
+                          <BaseInput
+                            id={CONSTANTS.otp}
+                            name={CONSTANTS.otp}
+                            label={CONSTANTS.OTP}
+                            type="text"
+                            placeholder={CONSTANTS.OTPPlaceholder}
+                            formik={validation}
+                          />
+                          {validation.errors.otp && validation.touched.otp && (
+                            <FormFeedback className="d-block">
+                              {validation.errors.otp}
                             </FormFeedback>
-                          </div>
+                          )}
 
-                          <div className="mb-4">
-                            <Label className="form-label">
-                              Confirm Password
-                            </Label>
-                            <Input
-                              name="confirmPassword"
-                              type="password"
-                              placeholder="Confirm new password"
-                              {...validation.getFieldProps("confirmPassword")}
-                              invalid={
-                                validation.touched.confirmPassword &&
-                                !!validation.errors.confirmPassword
-                              }
-                            />
-                            <FormFeedback>
-                              {validation.errors.confirmPassword}
-                            </FormFeedback>
-                          </div>
+                          <BaseInput
+                            id={CONSTANTS.newPassword}
+                            name={CONSTANTS.newPassword}
+                            label={CONSTANTS.NewPassword}
+                            type="password"
+                            placeholder={CONSTANTS.NewPasswordPlaceholder}
+                            formik={validation}
+                            showPasswordToggle={true}
+                            passwordShown={passwordShow}
+                            setPasswordShown={setPasswordShow}
+                          />
+                          {validation.errors.newPassword &&
+                            validation.touched.newPassword && (
+                              <FormFeedback className="d-block">
+                                {validation.errors.newPassword}
+                              </FormFeedback>
+                            )}
+
+                          <BaseInput
+                            id={CONSTANTS.confirmPassword}
+                            name={CONSTANTS.confirmPassword}
+                            label={CONSTANTS.ConfirmPassword}
+                            type={CONSTANTS.password}
+                            placeholder={CONSTANTS.ConfirmPasswordPlaceholder}
+                            formik={validation}
+                            showPasswordToggle={true}
+                            passwordShown={passwordShow}
+                            setPasswordShown={setPasswordShow}
+                          />
+                          {validation.errors.confirmPassword &&
+                            validation.touched.confirmPassword && (
+                              <FormFeedback className="d-block">
+                                {validation.errors.confirmPassword}
+                              </FormFeedback>
+                            )}
                         </>
                       )}
 
@@ -227,7 +263,7 @@ const ForgetPasswordPage = () => {
                 <p className="mb-0">
                   Wait, I remember my password...{" "}
                   <Link
-                    to="/login"
+                    to={LoginRoutes.LOGIN}
                     className="fw-semibold text-primary text-decoration-underline"
                   >
                     Click here
