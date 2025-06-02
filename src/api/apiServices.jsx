@@ -4,7 +4,7 @@ import { LOGIN, VERIFY_EMAIL, UPDATE_PASSWORD  } from "./apiRoutes";
 
 const authService = {
   login: (data) => authApi.post(LOGIN, data),
-  sendOtpToEmail: (email) =>
+  verifyEmail: (email) =>
     authApi.post(VERIFY_EMAIL, { email }),
   forgotPassword: (data) =>
     authApi.put(UPDATE_PASSWORD, data),

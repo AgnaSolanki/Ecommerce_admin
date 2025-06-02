@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  Row,
-  Col,
-  Alert,
-  Card,
-  CardBody,
-  Container,
-  Form,
-} from "reactstrap";
+import { Row, Col, Alert, Card, CardBody, Container, Form } from "reactstrap";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
@@ -17,9 +9,13 @@ import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
-import { emailRegex, otpRegex, passwordRegex, validation } from "../../Components/constants/validation";
+import {
+  emailRegex,
+  otpRegex,
+  passwordRegex,
+  validation,
+} from "../../Components/constants/validation";
 
-// Custom validation logic using validation(field)
 const validateForgotPassword = (values, submitted) => {
   const errors = {};
   const emailValidation = validation("Email");
@@ -29,9 +25,7 @@ const validateForgotPassword = (values, submitted) => {
 
   if (!values[CONSTANTS.email]) {
     errors[CONSTANTS.email] = emailValidation.required;
-  } else if (
-    !emailRegex.test(values[CONSTANTS.email])
-  ) {
+  } else if (!emailRegex.test(values[CONSTANTS.email])) {
     errors[CONSTANTS.email] = emailValidation.invalidEmail;
   }
 
@@ -51,7 +45,8 @@ const validateForgotPassword = (values, submitted) => {
     }
 
     if (!values[CONSTANTS.confirmPassword]) {
-      errors[CONSTANTS.confirmPassword] = confirmPasswordValidation.required;
+      errors[CONSTANTS.confirmPassword] =
+        confirmPasswordValidation.requiredConfirm;
     } else if (
       values[CONSTANTS.confirmPassword] !== values[CONSTANTS.newPassword]
     ) {
@@ -79,7 +74,7 @@ const ForgetPasswordPage = () => {
     onSubmit: async (values) => {
       if (!submitted) {
         try {
-          const response = await authService.sendOtpToEmail(
+          const response = await authService.verifyEmail(
             values[CONSTANTS.email]
           );
           toast.success(response?.message);
@@ -146,15 +141,6 @@ const ForgetPasswordPage = () => {
                     ></lord-icon>
                   </div>
 
-                  <Alert
-                    className="border-0 alert-warning text-center mb-2 mx-2"
-                    role="alert"
-                  >
-                    {submitted
-                      ? "Enter the OTP and your new password."
-                      : "Enter your email and instructions will be sent to you!"}
-                  </Alert>
-
                   <div className="p-2">
                     <Form onSubmit={validation.handleSubmit}>
                       {/* Email */}
@@ -177,25 +163,22 @@ const ForgetPasswordPage = () => {
                             id={CONSTANTS.otp}
                             name={CONSTANTS.otp}
                             label={CONSTANTS.OTP}
-                            type="text"
+                            type={CONSTANTS.text}
                             placeholder={CONSTANTS.OTPPlaceholder}
                             formik={validation}
                           />
-                          
 
                           <BaseInput
                             id={CONSTANTS.newPassword}
                             name={CONSTANTS.newPassword}
                             label={CONSTANTS.NewPassword}
-                            type="password"
+                            type={CONSTANTS.password}
                             placeholder={CONSTANTS.NewPasswordPlaceholder}
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                           />
-                        
-                        
 
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
@@ -208,7 +191,6 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                           />
-                       
                         </>
                       )}
 
