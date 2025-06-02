@@ -12,7 +12,7 @@ import {
   ModalFooter,
 } from "reactstrap";
 
-import { LoginRoutes } from "../../Routes/Routes";
+import { LoginRoutes } from "../../Routes/apiRoutes";
 
 import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";
@@ -42,7 +42,6 @@ const ProfileDropdown = () => {
     sessionStorage.clear();
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
-
   };
 
   return (
