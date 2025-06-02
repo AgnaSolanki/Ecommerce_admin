@@ -101,7 +101,6 @@ const Login = () => {
 
     },
   });
-      document.title = "Login | Velzon - React Admin & Dashboard Template";
   return (
     <ParticlesAuth>
       <div className="auth-page-content mt-lg-5">
