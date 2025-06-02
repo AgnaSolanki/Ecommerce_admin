@@ -4,29 +4,53 @@ import {
   CardBody,
   Col,
   Container,
-  Input,
-  Label,
   Row,
-  Button,
   Form,
   FormFeedback,
-  Alert,
-  Spinner,
 } from "reactstrap";
 
+import { CONSTANTS } from "../../Components/constants/common";
+import { toast } from "react-toastify";
 import ParticlesAuth from "./ParticlesAuth";
-
-import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import BaseInput from "../../Components/BASE/BaseInput";
+import BaseButton from "../../Components/BASE/BaseButton";
+import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../../Components/Common/withRouter";
-// Formik validation
-import * as Yup from "yup";
 import { useFormik } from "formik";
-
 import logoLight from "../../assets/images/logo-light.png";
+import authService from "../../api/apiServices";
+import { LoginRoutes } from "../../Routes/apiRoutes";
+import { validation } from "../../Components/constants/validation";
 
-const Login = (props) => {
-  console.log("props", props);
-  document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
+const validateLogin = (values) => {
+  const errors = {};
+  const emailValidation = validation("Email");
+  const passwordValidation = validation("Password");
+
+  if (!values[CONSTANTS.email]) {
+    errors[CONSTANTS.email] = emailValidation.required;
+  } else if (
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values[CONSTANTS.email])
+  ) {
+    errors[CONSTANTS.email] = emailValidation.invalidEmail;
+  }
+
+  if (!values[CONSTANTS.password]) {
+    errors[CONSTANTS.password] = passwordValidation.required;
+  } else if (values[CONSTANTS.password].length < 8) {
+    errors[CONSTANTS.password] = passwordValidation.minLength(8);
+  } else if (!/[A-Z]/.test(values[CONSTANTS.password])) {
+    errors[CONSTANTS.password] = passwordValidation.passwordPattern;
+  }
+
+  return errors;
+};
+
+const Login = () => {
+  const navigate = useNavigate();
+
+  document.title = "Login";
 
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
@@ -34,167 +58,139 @@ const Login = (props) => {
 
   const validation = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      [CONSTANTS.email]: "",
+      [CONSTANTS.password]: "",
     },
-    validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email")
-        .required("Please Enter Your Email"),
-      password: Yup.string().required("Please Enter Your Password"),
-    }),
-    onSubmit: (values) => {
+    validate: validateLogin,
+    onSubmit: async (values, { setSubmitting }) => {
+      setSubmitting(true);
       setLoading(true);
-      console.log("Login values:", values);
+      setError("");
+      try {
+        const response = await authService.login({
+          email: values.email,
+          password: values.password,
+        });
 
-      setTimeout(() => {
+        const accessToken = response?.data?.data?.token;
+        const decodedToken = jwtDecode(accessToken);
+
+        toast.success(response?.data?.message);
+        sessionStorage.setItem("token", accessToken);
+        sessionStorage.setItem("userId", decodedToken.id);
+        sessionStorage.setItem("email", decodedToken.email);
+        sessionStorage.setItem("role", decodedToken.role);
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: decodedToken.id,
+            email: decodedToken.email,
+            role: decodedToken.role,
+          })
+        );
+        navigate(LoginRoutes.DASHBOARD_ROUTE);
+      } catch (err) {
+        let errorMessage = err?.response?.data?.message;
+        if (Array.isArray(errorMessage)) {
+          errorMessage = errorMessage.join(", ");
+        }
+        toast.error(errorMessage);
+      } finally {
         setLoading(false);
-        setError("Invalid credentials");
-      }, 1500);
+      }
     },
   });
 
-  document.title = "Basic SignIn | Velzon - React Admin & Dashboard Template";
   return (
-    <React.Fragment>
-      <ParticlesAuth>
-        <div className="auth-page-content mt-lg-5">
-          <Container>
-            <Row>
-              <Col lg={12}>
-                <div className="text-center mt-sm-5 mb-4 text-white-50">
-                  <div>
-                    <Link to="/" className="d-inline-block auth-logo">
-                      <img src={logoLight} alt="" height="20" />
-                    </Link>
-                  </div>
-                  <p className="mt-3 fs-15 fw-medium">
-                    Premium Admin & Dashboard Template
-                  </p>
+    <ParticlesAuth>
+      <div className="auth-page-content mt-lg-5">
+        <Container>
+          <Row>
+            <Col lg={12}>
+              <div className="text-center mt-sm-5 mb-4 text-white-50">
+                <div>
+                  <Link
+                    to={LoginRoutes.HOME}
+                    className="d-inline-block auth-logo"
+                  >
+                    <img src={logoLight} alt="" height="20" />
+                  </Link>
                 </div>
-              </Col>
-            </Row>
+                <p className="mt-3 fs-15 fw-medium">
+                  Premium Admin & Dashboard Template
+                </p>
+              </div>
+            </Col>
+          </Row>
 
-            <Row className="justify-content-center">
-              <Col md={8} lg={6} xl={5}>
-                <Card className="mt-4">
-                  <CardBody className="p-4">
-                    <div className="text-center mt-2">
-                      <h5 className="text-primary">Welcome Back !</h5>
-                      <p className="text-muted">
-                        Sign in to continue to Velzon.
-                      </p>
-                    </div>
-                    {error && error ? (
-                      <Alert color="danger"> {error} </Alert>
-                    ) : null}
-                    <div className="p-2 mt-4">
-                      <Form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          validation.handleSubmit();
-                          return false;
-                        }}
-                        action="#"
-                      >
-                        <div className="mb-3">
-                          <Label htmlFor="email" className="form-label">
-                            Email
-                          </Label>
-                          <Input
-                            name="email"
-                            className="form-control"
-                            placeholder="Enter email"
-                            type="email"
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            value={validation.values.email || ""}
-                            invalid={
-                              validation.touched.email &&
-                              validation.errors.email
-                                ? true
-                                : false
-                            }
+          <Row className="justify-content-center">
+            <Col md={8} lg={6} xl={5}>
+              <Card className="mt-4">
+                <CardBody className="p-4">
+                  <div className="text-center mt-2">
+                    <h5 className="text-primary">Welcome Back !</h5>
+                  </div>
+
+                  <div className="p-2 mt-4">
+                    <Form onSubmit={validation.handleSubmit}>
+                      <div className="mb-3">
+                        <BaseInput
+                          id={CONSTANTS.email}
+                          name={CONSTANTS.email}
+                          label={CONSTANTS.Email}
+                          placeholder={CONSTANTS.EmailPlaceholder}
+                          type={CONSTANTS.email}
+                          formik={validation}
+                        />
+
+                        {validation.touched.email && validation.errors.email ? (
+                          <FormFeedback type="invalid">
+                            {validation.errors.email}
+                          </FormFeedback>
+                        ) : null}
+                      </div>
+
+                      <div className="mb-3">
+                        <div className="float-en">
+                          <Link to={LoginRoutes.RESET} className="text-muted">
+                            Forgot password?
+                          </Link>
+                        </div>
+
+                        <div className="position-relative auth-pass-inputgroup mb-3">
+                          <BaseInput
+                            id={CONSTANTS.password}
+                            name={CONSTANTS.password}
+                            label={CONSTANTS.Password}
+                            placeholder={CONSTANTS.PasswordPlaceholder}
+                            formik={validation}
+                            showPasswordToggle={true}
+                            passwordShown={passwordShow}
+                            setPasswordShown={setPasswordShow}
                           />
-                          {validation.touched.email &&
-                          validation.errors.email ? (
-                            <FormFeedback type="invalid">
-                              {validation.errors.email}
-                            </FormFeedback>
-                          ) : null}
                         </div>
+                      </div>
 
-                        <div className="mb-3">
-                          <div className="float-end">
-                            <Link to="/forgot-password" className="text-muted">
-                              Forgot password?
-                            </Link>
-                          </div>
-                          <Label
-                            className="form-label"
-                            htmlFor="password-input"
-                          >
-                            Password
-                          </Label>
-                          <div className="position-relative auth-pass-inputgroup mb-3">
-                            <Input
-                              name="password"
-                              value={validation.values.password || ""}
-                              type={passwordShow ? "text" : "password"}
-                              className="form-control pe-5"
-                              placeholder="Enter Password"
-                              onChange={validation.handleChange}
-                              onBlur={validation.handleBlur}
-                              invalid={
-                                validation.touched.password &&
-                                validation.errors.password
-                                  ? true
-                                  : false
-                              }
-                            />
-                            {validation.touched.password &&
-                            validation.errors.password ? (
-                              <FormFeedback type="invalid">
-                                {validation.errors.password}
-                              </FormFeedback>
-                            ) : null}
-                            <button
-                              className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted"
-                              type="button"
-                              id="password-addon"
-                              onClick={() => setPasswordShow(!passwordShow)}
-                            >
-                              <i className="ri-eye-fill align-middle"></i>
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="mt-4">
-                          <Button
-                            color="success"
-                            disabled={error ? null : loading ? true : false}
-                            className="btn btn-success w-100"
-                            type="submit"
-                          >
-                            {loading ? (
-                              <Spinner size="sm" className="me-2">
-                                {" "}
-                                Loading...{" "}
-                              </Spinner>
-                            ) : null}
-                            Sign In
-                          </Button>
-                        </div>
-                      </Form>
-                    </div>
-                  </CardBody>
-                </Card>
-              </Col>
-            </Row>
-          </Container>
-        </div>
-      </ParticlesAuth>
-    </React.Fragment>
+                      <div className="mt-4">
+                        <BaseButton
+                          type="submit"
+                          color="success"
+                          block={true}
+                          loading={loading}
+                          disabled={!!error}
+                        >
+                          {!loading ? "Sign In" : null}
+                        </BaseButton>
+                      </div>
+                    </Form>
+                  </div>
+                </CardBody>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    </ParticlesAuth>
   );
 };
 

@@ -1,22 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dropdown, DropdownMenu, DropdownToggle, Form } from "reactstrap";
-
 //import images
 import logoSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
 import logoLight from "../assets/images/logo-light.png";
-
-import { createSelector } from "reselect";
+import ProfileDropdown from "../Components/Common/ProfileDropdown";
 
 const Header = ({ headerClass }) => {
-  const selectDashboardData = createSelector(
-    (state) => state.Layout.sidebarVisibilitytype,
-    (state) => ({
-      sidebarVisibilitytype: state.sidebarVisibilitytype,
-    })
-  );
-
   const [search, setSearch] = useState(false);
   const toogleSearch = () => {
     setSearch(!search);
@@ -79,7 +70,6 @@ const Header = ({ headerClass }) => {
                     <img src={logoDark} alt="" height="17" />
                   </span>
                 </Link>
-
                 <Link to="/" className="logo logo-light">
                   <span className="logo-sm">
                     <img src={logoSm} alt="" height="22" />
@@ -89,7 +79,6 @@ const Header = ({ headerClass }) => {
                   </span>
                 </Link>
               </div>
-
               <button
                 onClick={toogleMenuBtn}
                 type="button"
@@ -103,7 +92,6 @@ const Header = ({ headerClass }) => {
                 </span>
               </button>
             </div>
-
             <div className="d-flex align-items-center">
               <Dropdown
                 isOpen={search}
@@ -135,6 +123,7 @@ const Header = ({ headerClass }) => {
                   </Form>
                 </DropdownMenu>
               </Dropdown>
+              <ProfileDropdown />
             </div>
           </div>
         </div>

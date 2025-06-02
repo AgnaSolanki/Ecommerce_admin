@@ -1,59 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import BaseButton from "../BASE/BaseButton";
 import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
-import { createSelector } from "reselect";
-import { useSelector } from "react-redux";
 
-//import images
-import avatar1 from "../../assets/images/users/avatar-1.jpg";
+import { LoginRoutes } from "../../Routes/apiRoutes";
+
+import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
+import { CONSTANTS } from "../constants/common";
 
 const ProfileDropdown = () => {
-  const profiledropdownData = createSelector(
-    (state) => state.Profile,
-    (state) => ({
-      user: state.user,
-    })
-  );
-  // Inside your component
-  const { user } = useSelector(profiledropdownData);
+  const [isProfileDropdown, setIsProfileDropdown] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
 
-  const [userName, setUserName] = useState("Admin");
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
-    if (sessionStorage.getItem("authUser")) {
-      const obj = JSON.parse(sessionStorage.getItem("authUser"));
-      setUserName(
-        import.meta.env.REACT_APP_DEFAULTAUTH === "fake"
-          ? obj.username === undefined
-            ? user.first_name
-              ? user.first_name
-              : obj.data.first_name
-            : "Admin" || "Admin"
-          : import.meta.env.REACT_APP_DEFAULTAUTH === "firebase"
-          ? obj.email && obj.email
-          : "Admin"
-      );
+    const userData = sessionStorage.getItem(CONSTANTS.user);
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUserEmail(parsedUser.email || "");
+        setUserRole(parsedUser.role || "");
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }, [userName, user]);
+  }, []);
 
-  //Dropdown Toggle
-  const [isProfileDropdown, setIsProfileDropdown] = useState(false);
-  const toggleProfileDropdown = () => {
-    setIsProfileDropdown(!isProfileDropdown);
+  const handleLogout = () => {
+    sessionStorage.clear();
+    setShowLogoutModal(false);
+    navigate(LoginRoutes.LOGIN, { replace: true });
   };
+
   return (
-    <React.Fragment>
+    <>
       <Dropdown
         isOpen={isProfileDropdown}
-        toggle={toggleProfileDropdown}
+        toggle={() => setIsProfileDropdown(!isProfileDropdown)}
         className="ms-sm-3 header-item topbar-user"
       >
-        <DropdownToggle tag="button" type="button" className="btn">
+        <DropdownToggle tag="button" type={CONSTANTS.Button} className="btn">
           <span className="d-flex align-items-center">
             <img
               className="rounded-circle header-profile-user"
@@ -62,75 +60,49 @@ const ProfileDropdown = () => {
             />
             <span className="text-start ms-xl-2">
               <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
-                {userName}
+                {userEmail}
               </span>
               <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">
-                Founder
+                {userRole}
               </span>
             </span>
           </span>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <h6 className="dropdown-header">Welcome {userName}!</h6>
-          <DropdownItem className="p-0">
-            <Link to="/profile" className="dropdown-item">
-              <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
-              <span className="align-middle">Profile</span>
-            </Link>
-          </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to="/apps-chat" className="dropdown-item">
-              <i className="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle">Messages</span>
-            </Link>
-          </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to="#" className="dropdown-item">
-              <i className="mdi mdi-calendar-check-outline text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle">Taskboard</span>
-            </Link>
-          </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to="/pages-faqs" className="dropdown-item">
-              <i className="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle">Help</span>
-            </Link>
-          </DropdownItem>
-          <div className="dropdown-divider"></div>
-          <DropdownItem className="p-0">
-            <Link to="/pages-profile" className="dropdown-item">
-              <i className="mdi mdi-wallet text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle">
-                Balance : <b>$5971.67</b>
-              </span>
-            </Link>
-          </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to="/pages-profile-settings" className="dropdown-item">
-              <span className="badge bg-success-subtle text-success mt-1 float-end">
-                New
-              </span>
-              <i className="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle">Settings</span>
-            </Link>
-          </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to="/auth-lockscreen-basic" className="dropdown-item">
-              <i className="mdi mdi-lock text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle">Lock screen</span>
-            </Link>
-          </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to="/logout" className="dropdown-item">
-              <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
-              <span className="align-middle" data-key="t-logout">
-                Logout
-              </span>
-            </Link>
+          <h6 className="dropdown-header">Welcome {userEmail}!</h6>
+          <DropdownItem onClick={() => setShowLogoutModal(true)}>
+            <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
+            <span className="align-middle" data-key="t-logout">
+              Logout
+            </span>
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
-    </React.Fragment>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        isOpen={showLogoutModal}
+        toggle={() => setShowLogoutModal(false)}
+        centered
+        contentClassName="custom-logout-modal"
+      >
+        <ModalHeader toggle={() => setShowLogoutModal(false)}>
+          Confirm Logout
+        </ModalHeader>
+        <ModalBody>Are you sure you want to log out?</ModalBody>
+        <ModalFooter className="model-footer">
+          <BaseButton
+            className="model-no"
+            onClick={() => setShowLogoutModal(false)}
+          >
+            No
+          </BaseButton>
+          <BaseButton className="model-yes" onClick={handleLogout}>
+            Yes
+          </BaseButton>
+        </ModalFooter>
+      </Modal>
+    </>
   );
 };
 

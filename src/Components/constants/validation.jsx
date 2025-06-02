@@ -1,0 +1,14 @@
+// src/Components/constants/validation.js
+export const validation = (field) => ({
+  required: `${field} is required`,
+  invalidEmail: `${field} should be in correct format.`,
+  minLength: (min) => `${field} must be at least ${min} characters long`,
+  otpRequired: `${field} should not be empty`,
+  otpNumber: `${field} must be a number conforming to the specified constraints`,
+  passwordPattern: `${field} must contain one capital letter and at least 8 characters long`,
+  passwordsMustMatch: `Passwords must match`,
+  NewPasswordPlaceholder: `Enter ${field} `,
+  ConfirmPasswordPlaceholder: `Enter ${field} `,
+  EmailPlaceholder: `Enter Your ${field} `,
+  PasswordPlaceholder: `Enter ${field} `,
+});

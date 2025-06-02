@@ -1,23 +1,19 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-
 import DashboardEcommerce from "../pages/DashboardEcommerce";
-
-//login
+import { LoginRoutes } from "./apiRoutes";
 import Login from "../pages/Authentication/Login";
 
 const authProtectedRoutes = [
-  { path: "/dashboard", element: DashboardEcommerce },
-  { path: "/index", element: DashboardEcommerce },
-
+  { path: LoginRoutes.DASHBOARD_ROUTE, element: DashboardEcommerce },
+  { path: LoginRoutes.INDEX, element: DashboardEcommerce },
   {
-    path: "/",
+    path: LoginRoutes.HOME,
     exact: true,
-    element: <Navigate to="/dashboard" />,
+    element: <Navigate to={LoginRoutes.LOGIN} />,
   },
-  { path: "*", element: <Navigate to="/dashboard" /> },
+  { path: "*", element: <Navigate to={LoginRoutes.LOGIN} /> },
 ];
-
-const publicRoutes = [{ path: "/login", element: Login }];
+const publicRoutes = [{ path: LoginRoutes.LOGIN, element: Login }];
 
 export { authProtectedRoutes, publicRoutes };
