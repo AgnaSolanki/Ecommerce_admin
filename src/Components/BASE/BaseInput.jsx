@@ -39,8 +39,7 @@ const BaseInput = ({
             name={name}
             type={inputType}
             placeholder={placeholder}
-  disabled={disabled}
-
+            disabled={disabled}
             className="form-control"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -63,9 +62,7 @@ const BaseInput = ({
           )}
         </InputGroup>
         {isInvalid && (
-          <FormFeedback className="d-block">
-            {formik.errors[name]}
-          </FormFeedback>
+          <FormFeedback className="d-block">{formik.errors[name]}</FormFeedback>
         )}
       </div>
     </div>

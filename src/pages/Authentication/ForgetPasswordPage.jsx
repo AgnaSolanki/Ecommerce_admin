@@ -7,7 +7,6 @@ import {
   CardBody,
   Container,
   Form,
-  FormFeedback,
 } from "reactstrap";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,7 +17,7 @@ import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
-import { validation } from "../../Components/constants/validation";
+import { emailRegex, otpRegex, passwordRegex, validation } from "../../Components/constants/validation";
 
 // Custom validation logic using validation(field)
 const validateForgotPassword = (values, submitted) => {
@@ -31,7 +30,7 @@ const validateForgotPassword = (values, submitted) => {
   if (!values[CONSTANTS.email]) {
     errors[CONSTANTS.email] = emailValidation.required;
   } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values[CONSTANTS.email])
+    !emailRegex.test(values[CONSTANTS.email])
   ) {
     errors[CONSTANTS.email] = emailValidation.invalidEmail;
   }
@@ -39,7 +38,7 @@ const validateForgotPassword = (values, submitted) => {
   if (submitted) {
     if (!values[CONSTANTS.otp]) {
       errors[CONSTANTS.otp] = otpValidation.otpRequired;
-    } else if (!/^\d{6}$/.test(values[CONSTANTS.otp])) {
+    } else if (!otpRegex.test(values[CONSTANTS.otp])) {
       errors[CONSTANTS.otp] = otpValidation.otpSixDigits;
     }
 
@@ -47,7 +46,7 @@ const validateForgotPassword = (values, submitted) => {
       errors[CONSTANTS.newPassword] = newPasswordValidation.required;
     } else if (values[CONSTANTS.newPassword].length < 8) {
       errors[CONSTANTS.newPassword] = newPasswordValidation.minLength(8);
-    } else if (!/[A-Z]/.test(values[CONSTANTS.newPassword])) {
+    } else if (!passwordRegex.test(values[CONSTANTS.newPassword])) {
       errors[CONSTANTS.newPassword] = newPasswordValidation.passwordPattern;
     }
 
@@ -90,7 +89,7 @@ const ForgetPasswordPage = () => {
         }
       } else {
         try {
-          const response = await authService.changePassword({
+          const response = await authService.forgotPassword({
             email: values[CONSTANTS.email],
             otp: Number(values[CONSTANTS.otp]),
             newPassword: values[CONSTANTS.newPassword],

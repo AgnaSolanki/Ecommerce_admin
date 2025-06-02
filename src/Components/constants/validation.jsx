@@ -11,4 +11,8 @@ export const validation = (field) => ({
   ConfirmPasswordPlaceholder: `Enter ${field} `,
   EmailPlaceholder: `Enter Your ${field} `,
   PasswordPlaceholder: `Enter ${field} `,
+  
 });
+export const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+export const otpRegex = /^\d{6}$/;
+export const passwordRegex = /^(?=.*[A-Z]).{8,}$/;
