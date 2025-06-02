@@ -16,7 +16,7 @@ import logoLight from "../../assets/images/logo-light.png";
 import ParticlesAuth from "../Authentication/ParticlesAuth";
 import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
-import { LoginRoutes } from "../../Routes/Routes";
+import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
 import { validation } from "../../Components/constants/validation";
 
