@@ -1,7 +1,7 @@
 // components/AuthProtected.jsx
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { LoginRoutes } from "./Routes";
+import { LoginRoutes } from "./apiRoutes";
 
 const AuthProtected = () => {
   const token = sessionStorage.getItem("token");
