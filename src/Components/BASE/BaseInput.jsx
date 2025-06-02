@@ -14,6 +14,7 @@ const BaseInput = ({
   type = "text",
   placeholder,
   formik,
+  disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
   setPasswordShown = () => {},
@@ -38,6 +39,8 @@ const BaseInput = ({
             name={name}
             type={inputType}
             placeholder={placeholder}
+  disabled={disabled}
+
             className="form-control"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}

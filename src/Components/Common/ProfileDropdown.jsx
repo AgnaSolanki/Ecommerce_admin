@@ -12,7 +12,7 @@ import {
   ModalFooter,
 } from "reactstrap";
 
-import { LoginRoutes } from "../../Routes/Constant";
+import { LoginRoutes } from "../../Routes/Routes";
 
 import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";

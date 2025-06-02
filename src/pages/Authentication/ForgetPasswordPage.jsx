@@ -67,8 +67,6 @@ const validateForgotPassword = (values, submitted) => {
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [forgetError, setForgetError] = useState("");
-  const [forgetSuccessMsg, setForgetSuccessMsg] = useState("");
   const navigate = useNavigate();
 
   const validation = useFormik({
@@ -80,9 +78,6 @@ const ForgetPasswordPage = () => {
     },
     validate: (values) => validateForgotPassword(values, submitted),
     onSubmit: async (values) => {
-      setForgetError("");
-      setForgetSuccessMsg("");
-
       if (!submitted) {
         try {
           const response = await authService.sendOtpToEmail(
