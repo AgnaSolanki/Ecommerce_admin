@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { isEmpty } from "lodash";
-
+import React, { useState } from "react";
 import {
   Container,
   Row,
@@ -14,159 +12,99 @@ import {
   FormFeedback,
   Form,
 } from "reactstrap";
-
-// Formik Validation
 import * as Yup from "yup";
 import { useFormik } from "formik";
-
-//redux
-import { useSelector, useDispatch } from "react-redux";
-
-import avatar from "../../assets/images/users/avatar-1.jpg";
-// actions
-import { editProfile, resetProfileFlag } from "../../slices/thunks";
-import { createSelector } from "reselect";
+import avatar from "../../assets/images/users/user-dummy-img.jpg";
 
 const UserProfile = () => {
-  const dispatch = useDispatch();
-
-  const [email, setemail] = useState("admin@gmail.com");
-  const [idx, setidx] = useState("1");
-
   const [userName, setUserName] = useState("Admin");
+  const [email] = useState("admin@gmail.com");
+  const [idx] = useState("1");
+  const [showSuccess, setShowSuccess] = useState(false);
 
-
-
-  const selectLayoutState = (state) => state.Profile;
-  const userprofileData = createSelector(
-    selectLayoutState,
-    (state) => ({
-      user: state.user,
-      success: state.success,
-      error: state.error
-    })
-  );
-  // Inside your component
-  const {
-    user, success, error 
-  } = useSelector(userprofileData);
-
-
-
-  useEffect(() => {
-    if (sessionStorage.getItem("authUser")) {
-      const obj = JSON.parse(sessionStorage.getItem("authUser"));
-
-      if (!isEmpty(user)) {
-        obj.data.first_name = user.first_name;
-        sessionStorage.removeItem("authUser");
-        sessionStorage.setItem("authUser", JSON.stringify(obj));
-      }
-
-      setUserName(obj.data.first_name);
-      setemail(obj.data.email);
-      setidx(obj.data._id || "1");
-
-      setTimeout(() => {
-        dispatch(resetProfileFlag());
-      }, 3000);
-    }
-  }, [dispatch, user]);
-
-
-
-  const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
+  const formik = useFormik({
     enableReinitialize: true,
-
     initialValues: {
-      first_name: userName || 'Admin',
-      idx: idx || '',
+      first_name: userName,
+      idx: idx,
     },
     validationSchema: Yup.object({
-      first_name: Yup.string().required("Please Enter Your UserName"),
+      first_name: Yup.string().required("Please enter your user name"),
     }),
     onSubmit: (values) => {
-      dispatch(editProfile(values));
-    }
+      setUserName(values.first_name); // update local state
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000); // hide alert after 3s
+    },
   });
 
   document.title = "Profile";
-  return (
-    <React.Fragment>
-      <div className="page-content mt-lg-5">
-        <Container fluid>
-          <Row>
-            <Col lg="12">
-              {error && error ? <Alert color="danger">{error}</Alert> : null}
-              {success ? <Alert color="success">Username Updated To {userName}</Alert> : null}
 
-              <Card>
-                <CardBody>
-                  <div className="d-flex">
-                    <div className="mx-3">
-                      <img
-                        src={avatar}
-                        alt=""
-                        className="avatar-md rounded-circle img-thumbnail"
-                      />
-                    </div>
-                    <div className="flex-grow-1 align-self-center">
-                      <div className="text-muted">
-                        <h5>{userName || "Admin"}</h5>
-                        <p className="mb-1">Email Id : {email}</p>
-                        <p className="mb-0">Id No : #{idx}</p>
-                      </div>
+  return (
+    <div className="page-content mt-lg-5">
+      <Container fluid>
+        <Row>
+          <Col lg="12">
+            <Card>
+              <CardBody>
+                <div className="d-flex">
+                  <div className="mx-3">
+                    <img
+                      src={avatar}
+                      alt="user"
+                      className="avatar-md rounded-circle img-thumbnail"
+                    />
+                  </div>
+                  <div className="flex-grow-1 align-self-center">
+                    <div className="text-muted">
+                      <h5>{userName}</h5>
+                      <p className="mb-1">Email Id: {email}</p>
+                      <p className="mb-0">Id No: #{idx}</p>
                     </div>
                   </div>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-
-          <h4 className="card-title mb-4">Change User Name</h4>
-
-          <Card>
-            <CardBody>
-              <Form
-                className="form-horizontal"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  validation.handleSubmit();
-                  return false;
-                }}
-              >
-                <div className="form-group">
-                  <Label className="form-label">User Name</Label>
-                  <Input
-                    name="first_name"
-                    // value={name}
-                    className="form-control"
-                    placeholder="Enter User Name"
-                    type="text"
-                    onChange={validation.handleChange}
-                    onBlur={validation.handleBlur}
-                    value={validation.values.first_name || ""}
-                    invalid={
-                      validation.touched.first_name && validation.errors.first_name ? true : false
-                    }
-                  />
-                  {validation.touched.first_name && validation.errors.first_name ? (
-                    <FormFeedback type="invalid">{validation.errors.first_name}</FormFeedback>
-                  ) : null}
-                  <Input name="idx" value={idx} type="hidden" />
                 </div>
-                <div className="text-center mt-4">
-                  <Button type="submit" color="danger">
-                    Update User Name
-                  </Button>
-                </div>
-              </Form>
-            </CardBody>
-          </Card>
-        </Container>
-      </div>
-    </React.Fragment>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+
+        <h4 className="card-title mb-4">Change User Name</h4>
+
+        <Card>
+          <CardBody>
+            {showSuccess && (
+              <Alert color="success">User name updated successfully!</Alert>
+            )}
+            <Form onSubmit={formik.handleSubmit}>
+              <div className="form-group">
+                <Label className="form-label">User Name</Label>
+                <Input
+                  name="first_name"
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter User Name"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.first_name}
+                  invalid={
+                    formik.touched.first_name && !!formik.errors.first_name
+                  }
+                />
+                {formik.touched.first_name && formik.errors.first_name && (
+                  <FormFeedback>{formik.errors.first_name}</FormFeedback>
+                )}
+              </div>
+              <Input name="idx" value={idx} type="hidden" />
+              <div className="text-center mt-4">
+                <Button type="submit" color="danger">
+                  Update User Name
+                </Button>
+              </div>
+            </Form>
+          </CardBody>
+        </Card>
+      </Container>
+    </div>
   );
 };
 
