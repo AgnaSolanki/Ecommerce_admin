@@ -8,7 +8,7 @@ import {
   Form,
   FormFeedback,
 } from "reactstrap";
-
+import * as Yup from "yup";
 import { CONSTANTS } from "../../Components/constants/common";
 import { toast } from "react-toastify";
 import ParticlesAuth from "./ParticlesAuth";
@@ -22,52 +22,43 @@ import logoLight from "../../assets/images/logo-light.png";
 import authService from "../../api/apiServices";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import {
-  validation as fieldValidation,
+  validationField,
   emailRegex,
   passwordRegex,
   inputField,
 } from "../../Components/constants/validation";
-
-const validateLogin = (values) => {
-  const errors = {};
-  const emailValidation = fieldValidation("Email");
-  const passwordValidation = fieldValidation("Password");
-
-  const email = values.email;
-  const password = values.password;
-
-  if (!email) {
-    errors.email = emailValidation.required;
-  } else if (!emailRegex.test(email)) {
-    errors.email = emailValidation.invalidEmail;
-  }
-
-  if (!password) {
-    errors.password = passwordValidation.required;
-  } else if (!passwordRegex.test(password)) {
-    errors.password = passwordValidation.passwordPattern;
-  }
-
-  return errors;
-};
 
 const Login = () => {
   const navigate = useNavigate();
 
   document.title = "Login";
 
+  const [submitted, setSubmitted] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const emailValidation = validationField(CONSTANTS.Email);
+  const passwordValidation = validationField(CONSTANTS.Password);
+
+  const validateLogin = Yup.object({
+    [CONSTANTS.email]: Yup.string()
+      .matches(emailRegex, emailValidation.format(CONSTANTS.Email))
+      .required(emailValidation.required),
+
+    [CONSTANTS.password]: Yup.string()
+      .matches(passwordRegex, passwordValidation.passwordPattern)
+      .required(passwordValidation.required),
+  });
 
   const validation = useFormik({
     initialValues: {
       [CONSTANTS.email]: "",
       [CONSTANTS.password]: "",
     },
-    validate: validateLogin,
-    onSubmit: async (values, { setSubmitting }) => {
-      setSubmitting(true);
+    validationSchema: validateLogin,
+    onSubmit: async (values) => {
+      setSubmitted(true);
       setLoading(true);
       setError("");
       try {

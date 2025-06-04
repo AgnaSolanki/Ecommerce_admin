@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Row, Col, Alert, Card, CardBody, Container, Form } from "reactstrap";
+import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
+import * as Yup from "yup";
+
 import logoLight from "../../assets/images/logo-light.png";
 import ParticlesAuth from "../Authentication/ParticlesAuth";
 import authService from "../../api/apiServices";
@@ -12,57 +14,56 @@ import BaseInput from "../../Components/BASE/BaseInput";
 import {
   emailRegex,
   inputField,
-  otpRegex,
   passwordRegex,
-  validation,
+  validationField,
 } from "../../Components/constants/validation";
-
-const validateForgotPassword = (values, submitted) => {
-  const errors = {};
-  const emailValidation = validation("Email");
-  const otpValidation = validation("OTP");
-  const newPasswordValidation = validation("Password");
-  const confirmPasswordValidation = validation("Confirm Password");
-
-  if (!values[CONSTANTS.email]) {
-    errors[CONSTANTS.email] = emailValidation.required;
-  } else if (!emailRegex.test(values[CONSTANTS.email])) {
-    errors[CONSTANTS.email] = emailValidation.invalidEmail;
-  }
-
-  if (submitted) {
-    if (!values[CONSTANTS.otp]) {
-      errors[CONSTANTS.otp] = otpValidation.otpRequired;
-    } else if (!otpRegex.test(values[CONSTANTS.otp])) {
-      errors[CONSTANTS.otp] = otpValidation.otpSixDigits;
-    }
-
-    if (!values[CONSTANTS.newPassword]) {
-      errors[CONSTANTS.newPassword] = newPasswordValidation.required;
-    } else if (values[CONSTANTS.newPassword].length < 8) {
-      errors[CONSTANTS.newPassword] = newPasswordValidation.minLength(8);
-    } else if (!passwordRegex.test(values[CONSTANTS.newPassword])) {
-      errors[CONSTANTS.newPassword] = newPasswordValidation.passwordPattern;
-    }
-
-    if (!values[CONSTANTS.confirmPassword]) {
-      errors[CONSTANTS.confirmPassword] =
-        confirmPasswordValidation.requiredConfirm;
-    } else if (
-      values[CONSTANTS.confirmPassword] !== values[CONSTANTS.newPassword]
-    ) {
-      errors[CONSTANTS.confirmPassword] =
-        confirmPasswordValidation.passwordsMustMatch;
-    }
-  }
-
-  return errors;
-};
 
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const emailValidation = validationField(CONSTANTS.Email);
+  const otpValidation = validationField(CONSTANTS.OTP);
+  const passwordValidation = validationField(CONSTANTS.Password);
+  const confirmPasswordValidation = validationField(CONSTANTS.ConfirmPassword);
+
+  const getValidationSchema = () => {
+    if (!submitted) {
+      return Yup.object({
+        [CONSTANTS.email]: Yup.string()
+          .matches(emailRegex, emailValidation.format(CONSTANTS.Email))
+          .required(emailValidation.required),
+      });
+    }
+
+    return Yup.object({
+      [CONSTANTS.email]: Yup.string()
+        .matches(emailRegex, emailValidation.format(CONSTANTS.Email))
+        .required(emailValidation.required),
+
+      [CONSTANTS.otp]: Yup.string()
+        .min(6, otpValidation.minLength(CONSTANTS.OTP, 6))
+        .max(6, otpValidation.minLength(CONSTANTS.OTP, 6))
+        .required(otpValidation.required),
+
+      [CONSTANTS.newPassword]: Yup.string()
+        .matches(passwordRegex, passwordValidation.passwordPattern)
+        .required(passwordValidation.required),
+
+      [CONSTANTS.confirmPassword]: Yup.string()
+        .oneOf(
+          [Yup.ref(CONSTANTS.newPassword)],
+          confirmPasswordValidation.passwordsMatch(
+            CONSTANTS.ConfirmPassword,
+            CONSTANTS.ConfirmPassword
+          )
+        )
+        .required(confirmPasswordValidation.required),
+    });
+  };
 
   const validation = useFormik({
     initialValues: {
@@ -71,8 +72,10 @@ const ForgetPasswordPage = () => {
       [CONSTANTS.newPassword]: "",
       [CONSTANTS.confirmPassword]: "",
     },
-    validate: (values) => validateForgotPassword(values, submitted),
+
+    validationSchema: () => getValidationSchema(),
     onSubmit: async (values) => {
+      setLoading(true);
       if (!submitted) {
         try {
           const response = await authService.verifyEmail(
@@ -80,8 +83,13 @@ const ForgetPasswordPage = () => {
           );
           toast.success(response?.message);
           setSubmitted(true);
+          validation.setTouched({});
+          console.log("submit");
         } catch (error) {
           toast.error(error?.response?.data?.message || error?.message);
+          console.log("error");
+        } finally {
+          setLoading(false);
         }
       } else {
         try {
@@ -91,13 +99,15 @@ const ForgetPasswordPage = () => {
             newPassword: values[CONSTANTS.newPassword],
             confirmPassword: values[CONSTANTS.confirmPassword],
           });
-
+          console.log("submit");
           toast.success(response?.message);
           setTimeout(() => {
             navigate(LoginRoutes.LOGIN);
           }, 1500);
         } catch (error) {
           toast.error(error?.response?.data?.message);
+        } finally {
+          setLoading(false);
         }
       }
     },
@@ -166,12 +176,14 @@ const ForgetPasswordPage = () => {
                             type={CONSTANTS.text}
                             placeholder={inputField(CONSTANTS.OTP)}
                             formik={validation}
+                            onlyNumbers={true}
+                            maxLength={6}
                           />
 
                           <BaseInput
                             id={CONSTANTS.newPassword}
                             name={CONSTANTS.newPassword}
-                            label={CONSTANTS.NewPassword}
+                            label={CONSTANTS.Password}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.Password)}
                             formik={validation}
@@ -195,8 +207,23 @@ const ForgetPasswordPage = () => {
                       )}
 
                       <div className="text-center mt-4">
-                        <button className="btn btn-success w-100" type="submit">
-                          {submitted ? "Reset Password" : "Send OTP"}
+                        <button
+                          disabled={!!error || loading}
+                          className="btn btn-success w-100"
+                          type="submit"
+                        >
+                          {loading && (
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                          )}
+                          {!loading
+                            ? submitted
+                              ? "Reset Password"
+                              : "Send OTP"
+                            : null}
                         </button>
                       </div>
                     </Form>
