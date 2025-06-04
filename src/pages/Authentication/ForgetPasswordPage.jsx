@@ -1,35 +1,69 @@
 import React, { useState } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Button,
-  Form,
-} from "reactstrap";
-import { useFormik } from "formik";
+import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
 import { toast } from "react-toastify";
-import avatar from "../../assets/images/users/user-dummy-img.jpg";
-import BaseInput from "../../Components/BASE/BaseInput";
+import { Link, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+import logoLight from "../../assets/images/logo-light.png";
+import ParticlesAuth from "../Authentication/ParticlesAuth";
+import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
-import { inputField, validation } from "../../Components/constants/validation";
+import { LoginRoutes } from "../../Routes/apiRoutes";
+import BaseInput from "../../Components/BASE/BaseInput";
+import {
+  emailRegex,
+  inputField,
+  passwordRegex,
+  validationField,
+} from "../../Components/constants/validation";
 
-const validateProfile = (values) => {
-  const errors = {};
-  const nameValidation = validation("User Name");
+const ForgetPasswordPage = () => {
+  const [passwordShow, setPasswordShow] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  if (!values[CONSTANTS.firstName]) {
-    errors[CONSTANTS.firstName] = nameValidation.required;
-  }
+  const emailValidation = validationField(CONSTANTS.Email);
+  const otpValidation = validationField(CONSTANTS.OTP);
+  const passwordValidation = validationField(CONSTANTS.Password);
+  const confirmPasswordValidation = validationField(CONSTANTS.ConfirmPassword);
 
-  return errors;
-};
+  const getValidationSchema = () => {
+    if (!submitted) {
+      return Yup.object({
+        [CONSTANTS.email]: Yup.string()
+          .matches(emailRegex, emailValidation.format(CONSTANTS.Email))
+          .required(emailValidation.required),
+      });
+    }
 
-const UserProfile = () => {
-  const [userName, setUserName] = useState("Admin");
-  const [email] = useState("admin@gmail.com");
-  const [idx] = useState("1");
+    return Yup.object({
+      [CONSTANTS.email]: Yup.string()
+        .matches(emailRegex, emailValidation.format(CONSTANTS.Email))
+        .required(emailValidation.required),
+
+      [CONSTANTS.otp]: Yup.string()
+        .min(6, otpValidation.minLength(CONSTANTS.OTP, 6))
+        .max(6, otpValidation.minLength(CONSTANTS.OTP, 6))
+        .required(otpValidation.required),
+
+      [CONSTANTS.newPassword]: Yup.string()
+        .matches(passwordRegex, passwordValidation.passwordPattern)
+        .required(passwordValidation.required),
+
+      [CONSTANTS.confirmPassword]: Yup.string()
+        .oneOf(
+          [Yup.ref(CONSTANTS.newPassword)],
+          confirmPasswordValidation.passwordsMatch(
+            CONSTANTS.ConfirmPassword,
+            CONSTANTS.ConfirmPassword
+          )
+        )
+        .required(confirmPasswordValidation.required),
+    });
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -37,10 +71,44 @@ const UserProfile = () => {
       [CONSTANTS.firstName]: userName,
       idx: idx,
     },
-    validate: validateProfile,
-    onSubmit: (values) => {
-      setUserName(values[CONSTANTS.firstName]); // Update local state
-      toast.success("User name updated successfully!");
+
+    validationSchema: () => getValidationSchema(),
+    onSubmit: async (values) => {
+      setLoading(true);
+      if (!submitted) {
+        try {
+          const response = await authService.verifyEmail(
+            values[CONSTANTS.email]
+          );
+          toast.success(response?.message);
+          setSubmitted(true);
+          validation.setTouched({});
+          console.log("submit");
+        } catch (error) {
+          toast.error(error?.response?.data?.message || error?.message);
+          console.log("error");
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        try {
+          const response = await authService.forgotPassword({
+            email: values[CONSTANTS.email],
+            otp: Number(values[CONSTANTS.otp]),
+            newPassword: values[CONSTANTS.newPassword],
+            confirmPassword: values[CONSTANTS.confirmPassword],
+          });
+          console.log("submit");
+          toast.success(response?.message);
+          setTimeout(() => {
+            navigate(LoginRoutes.LOGIN);
+          }, 1500);
+        } catch (error) {
+          toast.error(error?.response?.data?.message);
+        } finally {
+          setLoading(false);
+        }
+      }
     },
   });
 
@@ -74,32 +142,116 @@ const UserProfile = () => {
           </Col>
         </Row>
 
-        <h4 className="card-title mb-4">Change User Name</h4>
+          <Row className="justify-content-center">
+            <Col md={8} lg={6} xl={5}>
+              <Card className="mt-4">
+                <CardBody className="p-4">
+                  <div className="text-center mt-2">
+                    <h5 className="text-primary">Forgot Password?</h5>
+                    <lord-icon
+                      src="https://cdn.lordicon.com/rhvddzym.json"
+                      trigger="loop"
+                      colors="primary:#0ab39c"
+                      className="avatar-xl lord-icon"
+                    ></lord-icon>
+                  </div>
 
-        <Card>
-          <CardBody>
-            <Form onSubmit={formik.handleSubmit}>
-              <BaseInput
-                id={CONSTANTS.first_name}
-                name={CONSTANTS.first_name}
-                label="User Name"
-                type={CONSTANTS.text}
-                placeholder={inputField("User Name")}
-                formik={formik}
-              />
+                  <div className="p-2">
+                    <Form onSubmit={validation.handleSubmit}>
+                      {/* Email */}
+                      <div className="mb-4">
+                        <BaseInput
+                          id={CONSTANTS.email}
+                          name={CONSTANTS.email}
+                          label={CONSTANTS.Email}
+                          type={CONSTANTS.email}
+                          placeholder={inputField(CONSTANTS.Email)}
+                          formik={validation}
+                          disabled={submitted}
+                        />
+                      </div>
 
-              <input type="hidden" name="idx" value={idx} />
+                      {/* Step 2 fields */}
+                      {submitted && (
+                        <>
+                          <BaseInput
+                            id={CONSTANTS.otp}
+                            name={CONSTANTS.otp}
+                            label={CONSTANTS.OTP}
+                            type={CONSTANTS.text}
+                            placeholder={inputField(CONSTANTS.OTP)}
+                            formik={validation}
+                            onlyNumbers={true}
+                            maxLength={6}
+                          />
 
-              <div className="text-center mt-4">
-                <Button type="submit" color="danger">
-                  Update User Name
-                </Button>
+                          <BaseInput
+                            id={CONSTANTS.newPassword}
+                            name={CONSTANTS.newPassword}
+                            label={CONSTANTS.Password}
+                            type={CONSTANTS.password}
+                            placeholder={inputField(CONSTANTS.Password)}
+                            formik={validation}
+                            showPasswordToggle={true}
+                            passwordShown={passwordShow}
+                            setPasswordShown={setPasswordShow}
+                          />
+
+                          <BaseInput
+                            id={CONSTANTS.confirmPassword}
+                            name={CONSTANTS.confirmPassword}
+                            label={CONSTANTS.ConfirmPassword}
+                            type={CONSTANTS.password}
+                            placeholder={inputField(CONSTANTS.ConfirmPassword)}
+                            formik={validation}
+                            showPasswordToggle={true}
+                            passwordShown={passwordShow}
+                            setPasswordShown={setPasswordShow}
+                          />
+                        </>
+                      )}
+
+                      <div className="text-center mt-4">
+                        <button
+                          disabled={!!error || loading}
+                          className="btn btn-success w-100"
+                          type="submit"
+                        >
+                          {loading && (
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                          )}
+                          {!loading
+                            ? submitted
+                              ? "Reset Password"
+                              : "Send OTP"
+                            : null}
+                        </button>
+                      </div>
+                    </Form>
+                  </div>
+                </CardBody>
+              </Card>
+
+              <div className="mt-4 text-center">
+                <p className="mb-0">
+                  Wait, I remember my password...{" "}
+                  <Link
+                    to={LoginRoutes.LOGIN}
+                    className="fw-semibold text-primary text-decoration-underline"
+                  >
+                    Click here
+                  </Link>
+                </p>
               </div>
-            </Form>
-          </CardBody>
-        </Card>
-      </Container>
-    </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    </ParticlesAuth>
   );
 };
 

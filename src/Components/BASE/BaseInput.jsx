@@ -17,6 +17,8 @@ const BaseInput = ({
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
+    onlyNumbers = false,
+  maxLength = null,
   setPasswordShown = () => {},
   options = [],
 }) => {
@@ -30,6 +32,20 @@ const BaseInput = ({
       ? "text"
       : "password"
     : type;
+
+  const handleChange = (e) => {
+    let val = e.target.value;
+
+    if (onlyNumbers) {
+      val = val.replace(/\D/g, "");
+    }
+
+    if (maxLength !== null && val.length > maxLength) {
+      val = val.slice(0, maxLength);
+    }
+
+    formik.setFieldValue(name, val);
+  };
 
   return (
     <div className="mb-3">

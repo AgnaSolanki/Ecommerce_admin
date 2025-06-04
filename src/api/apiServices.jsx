@@ -5,6 +5,7 @@ import { LOGIN, VERIFY_EMAIL, UPDATE_PASSWORD, UPDATE_PROFILE  } from "./apiRout
 const authService = {
   login: (data) => authApi.post(LOGIN, data),
   verifyEmail: (email) =>
+  verifyEmail: (email) =>
     authApi.post(VERIFY_EMAIL, { email }),
   forgotPassword: (data) =>
     authApi.put(UPDATE_PASSWORD, data),

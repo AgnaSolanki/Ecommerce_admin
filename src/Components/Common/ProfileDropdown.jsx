@@ -42,7 +42,6 @@ const ProfileDropdown = () => {
     sessionStorage.clear();
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
-
   };
 
   return (
