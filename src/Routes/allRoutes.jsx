@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import DashboardEcommerce from "../pages/DashboardEcommerce";
-import { LoginRoutes } from "./Routes";
+import { LoginRoutes } from "./apiRoutes";
 import Login from "../pages/Authentication/Login";
 import ForgetPasswordPage from "../pages/Authentication/ForgetPasswordPage";
 import UserProfile from "../pages/Authentication/user-profile";

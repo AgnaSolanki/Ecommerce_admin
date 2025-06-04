@@ -1,14 +1,14 @@
-
+// src/api/apiService.js
 import axios from "axios";
 
-const authApi = axios.create({
+const apiService = axios.create({
   baseURL: import.meta.env.VITE_BASE_API,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-authApi.interceptors.request.use(
+apiService.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("token");
     if (token) {
@@ -19,4 +19,4 @@ authApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export default authApi;
+export default apiService;

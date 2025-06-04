@@ -1,6 +1,7 @@
 export const LOGIN = "login";
-export const LOGOUT = "logout";
-export const INDEX = "index";
-export const FORGET_PASS = "user/verifyEmail";
-export const CHANGE_PASSWORD = "updatePassword";
+export const UPDATE_PASSWORD = "updatePassword";
 export const VERIFY_EMAIL = "user/verifyEmail";
+export const COUNTRY = "listOfCountry";
+export const STATE = "listOfState/{country_id}";
+export const CITY = "listOfCity/{state_id}";
+export const UPDATE_PROFILE = "updateProfile";

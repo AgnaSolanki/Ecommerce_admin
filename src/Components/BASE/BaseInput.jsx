@@ -13,13 +13,18 @@ const BaseInput = ({
   label,
   type = "text",
   placeholder,
-  formik,
+  formik = {},
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
   setPasswordShown = () => {},
+  options = [],
 }) => {
-  const isInvalid = formik.touched[name] && formik.errors[name];
+  const touched = formik?.touched?.[name];
+  const error = formik?.errors?.[name];
+  const value = formik?.values?.[name] || "";
+  const isInvalid = touched && error;
+
   const inputType = showPasswordToggle
     ? passwordShown
       ? "text"
@@ -28,44 +33,63 @@ const BaseInput = ({
 
   return (
     <div className="mb-3">
-      <Label htmlFor={id} className="form-label">
-        {label}
-      </Label>
+      {label && (
+        <Label htmlFor={id} className="form-label">
+          {label}
+        </Label>
+      )}
 
       <div className="position-relative auth-pass-inputgroup mb-3">
-        <InputGroup className={isInvalid ? "is-invalid" : ""}>
+        {type === "select" ? (
           <Input
             id={id}
             name={name}
-            type={inputType}
-            placeholder={placeholder}
-  disabled={disabled}
-
-            className="form-control"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values[name] || ""}
+            type="select"
+            disabled={disabled}
+            className="form-select"
+            value={value}
+            onChange={formik?.handleChange}
+            onBlur={formik?.handleBlur}
             invalid={!!isInvalid}
-          />
-          {showPasswordToggle && (
-            <InputGroupText
-              onClick={() => setPasswordShown(!passwordShown)}
-              style={{ cursor: "pointer" }}
-            >
-              <i
-                className={
-                  passwordShown
-                    ? "ri-eye-off-fill align-middle"
-                    : "ri-eye-fill align-middle"
-                }
-              />
-            </InputGroupText>
-          )}
-        </InputGroup>
+          >
+            {options.map((opt, index) => (
+              <option key={index} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </Input>
+        ) : (
+          <InputGroup className={isInvalid ? "is-invalid" : ""}>
+            <Input
+              id={id}
+              name={name}
+              type={inputType}
+              placeholder={placeholder}
+              disabled={disabled}
+              className="form-control"
+              onChange={formik?.handleChange}
+              onBlur={formik?.handleBlur}
+              value={value}
+              invalid={!!isInvalid}
+            />
+            {showPasswordToggle && (
+              <InputGroupText
+                onClick={() => setPasswordShown(!passwordShown)}
+                style={{ cursor: "pointer" }}
+              >
+                <i
+                  className={
+                    passwordShown
+                      ? "ri-eye-off-fill align-middle"
+                      : "ri-eye-fill align-middle"
+                  }
+                />
+              </InputGroupText>
+            )}
+          </InputGroup>
+        )}
         {isInvalid && (
-          <FormFeedback className="d-block">
-            {formik.errors[name]}
-          </FormFeedback>
+          <FormFeedback className="d-block">{error}</FormFeedback>
         )}
       </div>
     </div>

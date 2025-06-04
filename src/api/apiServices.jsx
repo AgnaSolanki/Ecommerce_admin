@@ -1,14 +1,14 @@
 import authApi from "./authApi";
 
-import { LOGIN, FORGET_PASS, VERIFY_EMAIL, CHANGE_PASSWORD  } from "./apiRoutes";
+import { LOGIN, VERIFY_EMAIL, UPDATE_PASSWORD, UPDATE_PROFILE  } from "./apiRoutes";
 
 const authService = {
   login: (data) => authApi.post(LOGIN, data),
-  forgetPassword: (data) => authApi.post(FORGET_PASS, data),
-  sendOtpToEmail: (email) =>
+  verifyEmail: (email) =>
     authApi.post(VERIFY_EMAIL, { email }),
-  changePassword: (data) =>
-    authApi.put(CHANGE_PASSWORD, data),
+  forgotPassword: (data) =>
+    authApi.put(UPDATE_PASSWORD, data),
+   updateProfile: (data) => authApi.put(UPDATE_PROFILE, data),
 };
 
 export default authService;

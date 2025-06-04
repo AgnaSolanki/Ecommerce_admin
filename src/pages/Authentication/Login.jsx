@@ -20,28 +20,32 @@ import withRouter from "../../Components/Common/withRouter";
 import { useFormik } from "formik";
 import logoLight from "../../assets/images/logo-light.png";
 import authService from "../../api/apiServices";
-import { LoginRoutes } from "../../Routes/Routes";
-import { validation } from "../../Components/constants/validation";
+import { LoginRoutes } from "../../Routes/apiRoutes";
+import {
+  validation as fieldValidation,
+  emailRegex,
+  passwordRegex,
+  inputField,
+} from "../../Components/constants/validation";
 
 const validateLogin = (values) => {
   const errors = {};
-  const emailValidation = validation(CONSTANTS.Email);
-  const passwordValidation = validation(CONSTANTS.Password);
+  const emailValidation = fieldValidation("Email");
+  const passwordValidation = fieldValidation("Password");
 
-  if (!values[CONSTANTS.email]) {
-    errors[CONSTANTS.email] = emailValidation.required;
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values[CONSTANTS.email])
-  ) {
-    errors[CONSTANTS.email] = emailValidation.invalidEmail;
+  const email = values.email;
+  const password = values.password;
+
+  if (!email) {
+    errors.email = emailValidation.required;
+  } else if (!emailRegex.test(email)) {
+    errors.email = emailValidation.invalidEmail;
   }
 
-  if (!values[CONSTANTS.password]) {
-    errors[CONSTANTS.password] = passwordValidation.required;
-  } else if (values[CONSTANTS.password].length < 8) {
-    errors[CONSTANTS.password] = passwordValidation.minLength(8);
-  } else if (!/[A-Z]/.test(values[CONSTANTS.password])) {
-    errors[CONSTANTS.password] = passwordValidation.passwordPattern;
+  if (!password) {
+    errors.password = passwordValidation.required;
+  } else if (!passwordRegex.test(password)) {
+    errors.password = passwordValidation.passwordPattern;
   }
 
   return errors;
@@ -55,7 +59,7 @@ const Login = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const validation = useFormik({
     initialValues: {
       [CONSTANTS.email]: "",
@@ -71,10 +75,10 @@ const Login = () => {
           email: values.email,
           password: values.password,
         });
-        
+
         const accessToken = response?.data?.data?.token;
         const decodedToken = jwtDecode(accessToken);
-        
+
         toast.success(response?.data?.message);
         sessionStorage.setItem("token", accessToken);
         sessionStorage.setItem("userId", decodedToken.id);
@@ -98,9 +102,9 @@ const Login = () => {
       } finally {
         setLoading(false);
       }
-
     },
   });
+
   return (
     <ParticlesAuth>
       <div className="auth-page-content mt-lg-5">
@@ -130,6 +134,7 @@ const Login = () => {
                   <div className="text-center mt-2">
                     <h5 className="text-primary">Welcome Back !</h5>
                   </div>
+
                   <div className="p-2 mt-4">
                     <Form onSubmit={validation.handleSubmit}>
                       <div className="mb-3">
@@ -137,7 +142,7 @@ const Login = () => {
                           id={CONSTANTS.email}
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
-                          placeholder={CONSTANTS.EmailPlaceholder}
+                          placeholder={inputField(CONSTANTS.Email)}
                           type={CONSTANTS.email}
                           formik={validation}
                         />
@@ -161,7 +166,7 @@ const Login = () => {
                             id={CONSTANTS.password}
                             name={CONSTANTS.password}
                             label={CONSTANTS.Password}
-                            placeholder={CONSTANTS.PasswordPlaceholder}
+                            placeholder={inputField(CONSTANTS.Password)}
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
