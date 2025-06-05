@@ -24,6 +24,9 @@ const UserProfile = () => {
   const [userRole, setUserRole] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(avatar);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [error, setError] = useState("");
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     const userData = sessionStorage.getItem(CONSTANTS.user);
@@ -76,6 +79,7 @@ const UserProfile = () => {
     }),
     onSubmit: async (values) => {
       try {
+        setSaveLoading(true);
         let imagePath = avatarPreview;
         if (selectedImage) {
           const uploadRes = await userApi.fileUpload(selectedImage);
@@ -93,7 +97,7 @@ const UserProfile = () => {
             state_id: +values.state,
             city_id: +values.city,
             postal_code: parseInt(values.postal_code, 10),
-            label: `${CONSTANTS.home}`,
+            label: CONSTANTS.home,
             address_line1: values.address_line1,
             address_line2: values.address_line2,
           },
@@ -102,8 +106,12 @@ const UserProfile = () => {
         await userApi.updateProfile(payload);
         setUserProfile({ ...formik.values });
         setIsEditing(false);
+
+        setError("");
       } catch (error) {
         console.error(error.message);
+      } finally {
+        setSaveLoading(false);
       }
     },
   });
@@ -184,7 +192,6 @@ const UserProfile = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
-  
 
   document.title = "Profile";
 
@@ -423,15 +430,26 @@ const UserProfile = () => {
                 size="sm"
                 type={CONSTANTS.submit}
                 onClick={formik.handleSubmit}
+                loading={saveLoading}
+                disabled={!!error}
               >
-                Save
+                {!saveLoading ? "Save" : null}
               </BaseButton>
               <BaseButton
+                type="button"
                 color="secondary"
                 size="sm"
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setCancelLoading(true);
+                  fetchProfile().finally(() => {
+                    setIsEditing(false);
+                    setCancelLoading(false);
+                  });
+                }}
+                loading={cancelLoading}
+                disabled={!!error}
               >
-                Cancel
+                {!cancelLoading ? "Cancel" : null}
               </BaseButton>
             </>
           ) : null}
