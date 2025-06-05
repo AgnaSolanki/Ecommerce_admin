@@ -65,11 +65,12 @@ const ForgetPasswordPage = () => {
     });
   };
 
-  const formik = useFormik({
-    enableReinitialize: true,
+  const validation = useFormik({
     initialValues: {
-      [CONSTANTS.firstName]: userName,
-      idx: idx,
+      [CONSTANTS.email]: "",
+      [CONSTANTS.otp]: "",
+      [CONSTANTS.newPassword]: "",
+      [CONSTANTS.confirmPassword]: "",
     },
 
     validationSchema: () => getValidationSchema(),
@@ -112,35 +113,29 @@ const ForgetPasswordPage = () => {
     },
   });
 
-  document.title = "Profile";
+  document.title = "forgot-password";
 
   return (
-    <div className="page-content mt-lg-5">
-      <Container fluid>
-        <Row>
-          <Col lg="12">
-            <Card>
-              <CardBody>
-                <div className="d-flex">
-                  <div className="mx-3">
-                    <img
-                      src={avatar}
-                      alt="user"
-                      className="avatar-md rounded-circle img-thumbnail"
-                    />
-                  </div>
-                  <div className="flex-grow-1 align-self-center">
-                    <div className="text-muted">
-                      <h5>{userName}</h5>
-                      <p className="mb-1">Email Id: {email}</p>
-                      <p className="mb-0">Id No: #{idx}</p>
-                    </div>
-                  </div>
+    <ParticlesAuth>
+      <div className="auth-page-content mt-lg-5">
+        <Container>
+          <Row>
+            <Col lg={12}>
+              <div className="text-center mt-sm-5 mb-4 text-white-50">
+                <div>
+                  <Link
+                    to={LoginRoutes.Home}
+                    className="d-inline-block auth-logo"
+                  >
+                    <img src={logoLight} alt="" height="20" />
+                  </Link>
                 </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+                <p className="mt-3 fs-15 fw-medium">
+                  Premium Admin & Dashboard Template
+                </p>
+              </div>
+            </Col>
+          </Row>
 
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={5}>
@@ -255,4 +250,4 @@ const ForgetPasswordPage = () => {
   );
 };
 
-export default UserProfile;
+export default ForgetPasswordPage;

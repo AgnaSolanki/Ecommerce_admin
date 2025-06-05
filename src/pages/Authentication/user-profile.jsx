@@ -6,83 +6,120 @@ import avatar from "../../assets/images/users/user-dummy-img.jpg";
 import BaseInput from "../../Components/BASE/BaseInput";
 import BaseButton from "../../Components/BASE/BaseButton";
 import userApi from "../../api/userApi";
+import { CONSTANTS } from "../../Components/constants/common";
+import {
+  inputField,
+  postalCodeRegex,
+  selectLabel,
+  validationField,
+} from "../../Components/constants/validation";
 
 const UserProfile = () => {
-  const [userName, setUserName] = useState("Admin");
-  const [email] = useState("admin@gmail.com");
   const [idx] = useState("1");
-  const [showSuccess, setShowSuccess] = useState(false);
-
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState(avatar);
+  const [selectedImage, setSelectedImage] = useState(null);
 
+  useEffect(() => {
+    const userData = sessionStorage.getItem(CONSTANTS.user);
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUserEmail(parsedUser.email || "");
+        setUserRole(parsedUser.role);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }, [userRole]);
+
+  const [userProfile, setUserProfile] = useState({
+    first_name: "",
+    phone: "",
+    gender: "",
+    role: userRole,
+    country: "",
+    state: "",
+    city: "",
+    address_line1: "",
+    address_line2: "",
+    postal_code: "",
+    idx: idx,
+  });
+
+  const firstNameValidation = validationField(CONSTANTS.first_name);
+  const countryValidation = validationField(CONSTANTS.country);
+  const cityValidation = validationField(CONSTANTS.city);
+  const stateValidation = validationField(CONSTANTS.state);
+  const postalCodeValidation = validationField(CONSTANTS.postalCode);
 
   const formik = useFormik({
     enableReinitialize: true,
-    initialValues: {
-      first_name: userName,
-      phone: "",
-      gender: "",
-      role: "",
-      country: "",
-      state: "",
-      city: "",
-      address_line1: "",
-      address_line2: "",
-      postal_code: "",
-      idx: idx,
-    },
+    initialValues: userProfile,
     validationSchema: Yup.object({
-      first_name: Yup.string().required("Please enter your user name"),
-      country: Yup.string().required("Please select your country"),
-      state: Yup.string().required("Please select your state"),
-      city: Yup.string().required("Please select your city"),
+      first_name: Yup.string().required(firstNameValidation.required),
+      country: Yup.string().required(countryValidation.required),
+      state: Yup.string().required(stateValidation.required),
+      city: Yup.string().required(cityValidation.required),
+      postal_code: Yup.string()
+        .matches(
+          postalCodeRegex,
+          postalCodeValidation.minLength(CONSTANTS.postalCode, 6)
+        )
+        .required(postalCodeValidation.required)
+        .max(6, postalCodeValidation.maxLength(CONSTANTS.postalCode, 6)),
     }),
     onSubmit: async (values) => {
-      const payload = {
-        name: values.first_name,
-        email: email,
-        phone_number: values.phone,
-        gender: values.gender,
-        profile_image: "./",
-        address: {
-          country_id: values.country,
-          state_id: values.state,
-          city_id: values.city,
-          postal_code: parseInt(values.postal_code, 10),
-          label: "home",
-          address_line1: values.address_line1,
-          address_line2: values.address_line2,
-        },
-      };
-
       try {
-        const response = await userApi.updateProfile(payload);
-        console.log("API response:", response);
-        setUserName(values.first_name);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
+        let imagePath = avatarPreview;
+        if (selectedImage) {
+          const uploadRes = await userApi.fileUpload(selectedImage);
+          imagePath = uploadRes.data?.file_path || avatarPreview;
+        }
+
+        const payload = {
+          name: values.first_name,
+          email: userEmail,
+          phone_number: values.phone,
+          gender: values.gender,
+          profile_image: imagePath,
+          address: {
+            country_id: +values.country,
+            state_id: +values.state,
+            city_id: +values.city,
+            postal_code: parseInt(values.postal_code, 10),
+            label: `${CONSTANTS.home}`,
+            address_line1: values.address_line1,
+            address_line2: values.address_line2,
+          },
+        };
+
+        await userApi.updateProfile(payload);
+        setUserProfile({ ...formik.values });
+        setIsEditing(false);
       } catch (error) {
-        console.error("Update failed:", error);
+        console.error(error.message);
       }
     },
   });
 
-    // Fetch list of countries on mount
-useEffect(() => {
-  const fetchCountries = async () => {
-    try {
-      const res = await userApi.getCountries();
-      setCountries(Array.isArray(res.data?.data) ? res.data.data : []);
-    } catch (err) {
-      console.error("Failed to fetch countries", err);
-    }
-  };
-  fetchCountries();
-}, []);
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await userApi.getCountries();
+        setCountries(Array.isArray(res.data?.data) ? res.data.data : []);
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+    fetchCountries();
+  }, []);
 
-  // Fetch states whenever country changes
   useEffect(() => {
     const fetchStates = async () => {
       if (!formik.values.country) {
@@ -92,16 +129,13 @@ useEffect(() => {
       }
       try {
         const res = await userApi.getStates(formik.values.country);
-        // Assuming res.data is an array of { id, name }
         setStates(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error("Failed to fetch states", err);
+        console.error(err.message);
       }
     };
     fetchStates();
   }, [formik.values.country]);
-
-  // Fetch cities whenever state changes
   useEffect(() => {
     const fetchCities = async () => {
       if (!formik.values.state) {
@@ -110,49 +144,117 @@ useEffect(() => {
       }
       try {
         const res = await userApi.getCities(formik.values.state);
-        // Assuming res.data is an array of { id, name }
         setCities(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error("Failed to fetch cities", err);
+        console.error(err.message);
       }
     };
     fetchCities();
   }, [formik.values.state]);
+  useEffect(() => {
+    setUserProfile((prev) => ({
+      ...prev,
+      role: userRole || "",
+    }));
+  }, [userRole]);
+  const fetchProfile = async () => {
+    try {
+      const res = await userApi.viewProfile();
+      const profile = res.data?.data;
+
+      setUserProfile({
+        first_name: profile.name || "",
+        phone: profile.phone_number || "",
+        gender: profile.gender || "",
+        role: profile.role || "",
+        country: profile.address?.country_id?.toString() || "",
+        state: profile.address?.state_id?.toString() || "",
+        city: profile.address?.city_id?.toString() || "",
+        address_line1: profile.address?.address_line1 || "",
+        address_line2: profile.address?.address_line2 || "",
+        postal_code: profile.address?.postal_code?.toString() || "",
+        idx: idx,
+      });
+
+      setAvatarPreview(profile.profile_image || avatar);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+  
 
   document.title = "Profile";
 
   return (
     <div className="page-content mt-lg-5 w-100">
       <Container fluid>
-        <div className="d-flex justify-content-end m-3">
-          <BaseButton color="primary" size="sm">
-            Edit Profile
-          </BaseButton>
+        <div className="d-flex justify-content-end gap-2 m-3">
+          {isEditing ? null : (
+            <BaseButton
+              color="primary"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Profile
+            </BaseButton>
+          )}
         </div>
-
-        {showSuccess && (
-          <div className="alert alert-success text-center" role="alert">
-            Profile updated successfully!
-          </div>
-        )}
 
         <Row>
           <Col lg="12">
             <Card className="position-relative">
               <CardBody>
                 <div className="d-flex">
-                  <div className="mx-3">
+                  <div className="profile-user position-relative d-inline-block mx-auto mb-4">
                     <img
-                      src={avatar}
-                      alt="user"
-                      className="avatar-md rounded-circle img-thumbnail"
+                      src={avatarPreview || avatar}
+                      className="rounded-circle avatar-md img-thumbnail user-profile-image"
+                      alt="user-avatar"
                     />
+
+                    {isEditing && (
+                      <>
+                        <label htmlFor="avatar-upload" className="img-avatar">
+                          <i className="ri-edit-2-fill text-size"></i>
+                          <BaseInput
+                            id="avatar-upload"
+                            name="avatar"
+                            type="file"
+                            isAvatarUpload={true}
+                            formik={formik}
+                            onFileChange={(file) => {
+                              if (file) {
+                                setSelectedImage(file);
+                                setAvatarPreview(URL.createObjectURL(file));
+                              }
+                            }}
+                          />
+                        </label>
+
+                        {selectedImage && (
+                          <div
+                            className="image-close"
+                            onClick={() => {
+                              setSelectedImage(null);
+                              setAvatarPreview(avatar);
+                            }}
+                            title="Remove Image"
+                          >
+                            <i className="ri-close-line close-icon" />
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
+
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
-                      <h5>{userName}</h5>
-                      <p className="mb-1">Email Id: {email}</p>
-                      <p className="mb-0">Id No: #{idx}</p>
+                      <h5>{name}</h5>
+                      <p className="mb-1">Email Id: {userEmail}</p>
+                      <p className="mb-0">Id No: {idx}</p>
                     </div>
                   </div>
                 </div>
@@ -167,164 +269,173 @@ useEffect(() => {
               <Row>
                 <Col md={6}>
                   <BaseInput
-                    id="first_name"
-                    name="first_name"
-                    label="User Name"
-                    type="text"
-                    placeholder="Enter User Name"
+                    id={CONSTANTS.first_name}
+                    name={CONSTANTS.first_name}
+                    label={CONSTANTS.userName}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.firstName)}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={6}>
                   <BaseInput
-                    id="phone"
-                    name="phone"
-                    label="Phone Number"
-                    type="text"
-                    placeholder="Enter Phone Number"
+                    id={CONSTANTS.phone}
+                    name={CONSTANTS.phone}
+                    label={CONSTANTS.phone_number}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.phone_number)}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={6}>
-                  <label className="form-label d-block">Gender</label>
-                  <div className="d-flex gap-3">
-                    {["male", "female", "other"].map((g) => (
-                      <div key={g} className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id={`gender-${g}`}
-                          value={g}
-                          checked={formik.values.gender === g}
-                          onChange={formik.handleChange}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor={`gender-${g}`}
-                        >
-                          {g.charAt(0).toUpperCase() + g.slice(1)}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  {formik.touched.gender && formik.errors.gender && (
-                    <div className="text-danger">{formik.errors.gender}</div>
-                  )}
-                </Col>
-
-                <Col md={6}>
                   <BaseInput
-                    id="role"
-                    name="role"
-                    label="Role"
-                    type="select"
+                    id={CONSTANTS.gender}
+                    name={CONSTANTS.gender}
+                    label={CONSTANTS.Gender}
+                    type={CONSTANTS.radio}
                     options={[
-                      { label: "Select Role", value: "" },
-                      { label: "Customer", value: "customer" },
-                      { label: "Admin", value: "admin" },
+                      { value: CONSTANTS.male, label: CONSTANTS.Male },
+                      { value: CONSTANTS.female, label: CONSTANTS.Female },
+                      { value: CONSTANTS.other, label: CONSTANTS.Other },
                     ]}
                     formik={formik}
+                    disabled={!isEditing}
+                  />
+                </Col>
+
+                <Col md={6}>
+                  <BaseInput
+                    id={CONSTANTS.role}
+                    name={CONSTANTS.role}
+                    label={CONSTANTS.Role}
+                    type={CONSTANTS.text}
+                    formik={formik}
+                    disabled={true}
                   />
                 </Col>
 
                 <Col md={4}>
                   <BaseInput
-                    id="country"
-                    name="country"
-                    label="Country"
-                    type="select"
+                    id={CONSTANTS.country}
+                    name={CONSTANTS.country}
+                    label={CONSTANTS.Country}
+                    type={CONSTANTS.select}
                     options={[
-                      { label: "Select Country", value: "" },
+                      { label: selectLabel(CONSTANTS.Country), value: "" },
                       ...countries.map((c) => ({
                         label: c.country_name,
                         value: c.id,
                       })),
                     ]}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={4}>
                   <BaseInput
-                    id="state"
-                    name="state"
-                    label="State"
-                    type="select"
+                    id={CONSTANTS.state}
+                    name={CONSTANTS.state}
+                    label={CONSTANTS.state}
+                    type={CONSTANTS.select}
                     options={[
-                      { label: "Select State", value: "" },
+                      { label: selectLabel(CONSTANTS.State), value: "" },
                       ...states.map((s) => ({
                         label: s.state_name,
                         value: s.id,
                       })),
                     ]}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={4}>
                   <BaseInput
-                    id="city"
-                    name="city"
-                    label="City"
-                    type="select"
+                    id={CONSTANTS.city}
+                    name={CONSTANTS.city}
+                    label={CONSTANTS.City}
+                    type={CONSTANTS.select}
                     options={[
-                      { label: "Select City", value: "" },
+                      { label: selectLabel(CONSTANTS.City), value: "" },
                       ...cities.map((ci) => ({
                         label: ci.city_name,
                         value: ci.id,
                       })),
                     ]}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={12}>
                   <BaseInput
-                    id="address_line1"
-                    name="address_line1"
-                    label="Address Line 1"
-                    type="text"
-                    placeholder="Enter Address Line 1"
+                    id={CONSTANTS.address_line1}
+                    name={CONSTANTS.address_line1}
+                    label={CONSTANTS.addressLabel1}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.address_line1)}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={12}>
                   <BaseInput
-                    id="address_line2"
-                    name="address_line2"
-                    label="Address Line 2"
-                    type="text"
-                    placeholder="Enter Address Line 2"
+                    id={CONSTANTS.address_line2}
+                    name={CONSTANTS.address_line2}
+                    label={CONSTANTS.addressLabel2}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.address_line2)}
                     formik={formik}
+                    disabled={!isEditing}
                   />
                 </Col>
 
                 <Col md={6}>
                   <BaseInput
-                    id="postal_code"
-                    name="postal_code"
-                    label="Postal Code"
-                    type="number"
-                    placeholder="Enter Postal Code"
+                    id={CONSTANTS.postal_code}
+                    name={CONSTANTS.postal_code}
+                    label={CONSTANTS.Postal_code}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.Postal_code)}
                     formik={formik}
+                    disabled={!isEditing}
+                    onlyNumbers={true}
+                    maxLength={6}
                   />
                 </Col>
               </Row>
 
               <Input name="idx" value={idx} type="hidden" />
-
-              <div className="text-center mt-4">
-                <BaseButton type="submit" color="danger">
-                  Update Profile
-                </BaseButton>
-              </div>
             </Form>
           </CardBody>
         </Card>
+        <div className="d-flex justify-content-end gap-2 m-3">
+          {isEditing ? (
+            <>
+              <BaseButton
+                color="success"
+                size="sm"
+                type={CONSTANTS.submit}
+                onClick={formik.handleSubmit}
+              >
+                Save
+              </BaseButton>
+              <BaseButton
+                color="secondary"
+                size="sm"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </BaseButton>
+            </>
+          ) : null}
+        </div>
       </Container>
     </div>
   );

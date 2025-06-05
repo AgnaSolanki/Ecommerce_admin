@@ -100,9 +100,43 @@ button:focus-visible {
 .float-en {
   display: flex;
   justify-content: flex-end;
-  
 }
-.lord-icon{
+.lord-icon {
   width: 120px;
   height: 120px;
+}
+.img-avatar {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: "pointer";
+  background: "#fff";
+
+}
+.text-size {
+  font-size: 18px;
+  bottom: 0;
+}
+.image-close {
+  margin-top: 15px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90%;
+  height: 80%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.close-icon {
+  color: #fff;
+  font-size: 20px;
+}
+.user-profile-image {
+  margin-top: 15px;
+  margin-right: 5px;
 }

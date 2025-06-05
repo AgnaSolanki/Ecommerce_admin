@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import BaseButton from "../BASE/BaseButton";
 import {
   Dropdown,
   DropdownItem,
@@ -12,37 +11,40 @@ import {
   ModalFooter,
 } from "reactstrap";
 
+import BaseButton from "../BASE/BaseButton";
+import userApi from "../../api/userApi";
 import { LoginRoutes } from "../../Routes/apiRoutes";
-
-import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
+import avatarFallback from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";
 
 const ProfileDropdown = () => {
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
-  const [userEmail, setUserEmail] = useState("");
-  const [userRole, setUserRole] = useState("");
-
   useEffect(() => {
-    const userData = sessionStorage.getItem(CONSTANTS.user);
-    if (userData) {
+    const fetchProfile = async () => {
       try {
-        const parsedUser = JSON.parse(userData);
-        setUserEmail(parsedUser.email || "");
-        setUserRole(parsedUser.role || "");
+        const res = await userApi.viewProfile();
+        setUserProfile(res.data?.data || {});
       } catch (err) {
-        console.error(err);
+        console.error("Failed to fetch user profile", err);
       }
-    }
-  }, []);
+    };
+
+    fetchProfile();
+  }, [userProfile]);
 
   const handleLogout = () => {
-    sessionStorage.clear();
+    sessionStorage.clear(); 
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
   };
+
+  const avatarSrc = userProfile?.profile_image || avatarFallback;
+  const email = userProfile?.email || "";
+  const role = userProfile?.role || "";
 
   return (
     <>
@@ -55,22 +57,22 @@ const ProfileDropdown = () => {
           <span className="d-flex align-items-center">
             <img
               className="rounded-circle header-profile-user"
-              src={avatar1}
+              src={avatarSrc}
               alt="Header Avatar"
             />
             <span className="text-start ms-xl-2">
               <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
-                {userEmail}
+                {email}
               </span>
               <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">
-                {userRole}
+                {role}
               </span>
             </span>
           </span>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <h6 className="dropdown-header">Welcome {userEmail}!</h6>
-             <DropdownItem className="p-0">
+          <h6 className="dropdown-header">Welcome {email}!</h6>
+          <DropdownItem className="p-0">
             <Link to={LoginRoutes.PROFILE} className="dropdown-item">
               <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
               <span className="align-middle">Profile</span>

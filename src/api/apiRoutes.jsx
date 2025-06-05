@@ -5,3 +5,5 @@ export const COUNTRY = "listOfCountry";
 export const STATE = "listOfState/{country_id}";
 export const CITY = "listOfCity/{state_id}";
 export const UPDATE_PROFILE = "updateProfile";
+export const VIEW_PROFILE = "viewProfile";
+export const UPLOAD_FILE = "fileUpload"
