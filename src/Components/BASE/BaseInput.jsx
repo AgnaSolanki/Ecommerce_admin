@@ -17,7 +17,6 @@ const BaseInput = ({
   showPasswordToggle = false,
   passwordShown = false,
   setPasswordShown = () => {},
-  isOtp = false,
   isAvatarUpload = false,
   onFileChange,
   options = [],

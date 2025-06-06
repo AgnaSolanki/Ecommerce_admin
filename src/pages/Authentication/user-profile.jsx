@@ -85,6 +85,7 @@ const UserProfile = () => {
           const uploadRes = await userApi.fileUpload(selectedImage);
           imagePath = uploadRes.data?.file_path || avatarPreview;
         }
+
         const payload = {
           name: values.first_name,
           email: userEmail,
@@ -105,7 +106,6 @@ const UserProfile = () => {
         await userApi.updateProfile(payload);
         setUserProfile({ ...formik.values });
         setIsEditing(false);
-
         setError("");
       } catch (error) {
         console.error(error.message);
@@ -191,6 +191,12 @@ const UserProfile = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+  const handlecodeChange = (e) => {
+    const { value } = e.target;
+    if (postalCodeRegex.test(value)) {
+      formik.handleChange(e);
+    }
+  };
 
   document.title = "Profile";
 
@@ -282,6 +288,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.firstName)}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -294,6 +301,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.phone_number)}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -310,6 +318,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -321,6 +330,7 @@ const UserProfile = () => {
                     type={CONSTANTS.text}
                     formik={formik}
                     disabled={true}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -339,6 +349,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -357,6 +368,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -375,6 +387,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -387,6 +400,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.address_line1)}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -399,6 +413,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.address_line2)}
                     formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
                   />
                 </Col>
 
@@ -411,8 +426,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.Postal_code)}
                     formik={formik}
                     disabled={!isEditing}
-                    onlyNumbers={true}
-                    maxLength={6}
+                    onChange={handlecodeChange}
                   />
                 </Col>
               </Row>
@@ -431,6 +445,7 @@ const UserProfile = () => {
                 onClick={formik.handleSubmit}
                 loading={saveLoading}
                 disabled={!!error}
+                onChange={formik.handleChange}
               >
                 {!saveLoading ? "Save" : null}
               </BaseButton>

@@ -11,7 +11,6 @@ const AddProduct = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch categories from API
     const fetchCategories = async () => {
       try {
         const res = await authService.getCategories();
@@ -67,8 +66,10 @@ const AddProduct = () => {
           }
         }
 
-        await authService.addProduct(payload);
+      const res =  await authService.addProduct(payload);
         alert("Product added successfully");
+        console.log("res", res);
+      
       } catch (err) {
         console.error("Add Product Error:", err);
       } finally {
@@ -79,13 +80,18 @@ const AddProduct = () => {
 
   return (
     <Container fluid className="page-content mt-lg-5 w-100">
-      <Card mt-5>
+      <Card mt={5}>
         <CardBody>
           <FormikProvider value={formik}>
             <Form onSubmit={formik.handleSubmit}>
               <Row>
                 <Col md={6}>
-                  <BaseInput name="name" label="Product Name" formik={formik} />
+                  <BaseInput
+                    name="name"
+                    label="Product Name"
+                    formik={formik}
+                    onChange={formik.handleChange}
+                  />
                 </Col>
                 <Col md={6}>
                   <BaseInput
@@ -118,6 +124,7 @@ const AddProduct = () => {
                                 name="product_title_name"
                                 label="Variant Title"
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
                             </Col>
                             <Col md={6}>
@@ -126,11 +133,13 @@ const AddProduct = () => {
                                 name="description"
                                 label="Description"
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
                             </Col>
                             <Col md={4}>
                               <BaseInput
                                 type="text"
+                                onChange={formik.handleChange}
                                 label="Color"
                                 name="color"
                                 formik={formik}
@@ -142,6 +151,7 @@ const AddProduct = () => {
                                 label="Size"
                                 name="size"
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
                             </Col>
                             <Col md={2}>
@@ -150,6 +160,7 @@ const AddProduct = () => {
                                 type="number"
                                 name="price"
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
                             </Col>
                             <Col md={2}>
@@ -158,6 +169,7 @@ const AddProduct = () => {
                                 name="quantity"
                                 type="number"
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
                             </Col>
                             <Col md={6}>
@@ -165,22 +177,20 @@ const AddProduct = () => {
                                 label="Variant Image"
                                 name="variant_mage"
                                 type="file"
+                                onChange={formik.handleChange}
                                 formik={formik}
                                 onFileChange={(file) => {
                                   formik.setFieldValue(
-                                    `product_variants[${index}].variant_image`,
+                                    formik.product_variants.variant_image,
                                     file
                                   );
                                 }}
-                                isAvatarUpload={true}
                               />
                             </Col>
-                     
                           </Row>
                         </CardBody>
                       </Card>
                     ))}
- 
                   </>
                 )}
               />

@@ -15,7 +15,6 @@ import {
   emailRegex,
   inputField,
   otpRegex,
-  otpTypeRegex,
   passwordRegex,
   validationField,
 } from "../../Components/constants/validation";
@@ -24,7 +23,7 @@ const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const navigate = useNavigate();
 
   const emailValidation = validationField(CONSTANTS.Email);
@@ -113,7 +112,7 @@ const ForgetPasswordPage = () => {
 
   const handleOtpChange = (e) => {
     const { value } = e.target;
-    if (otpTypeRegex.test(value)) {
+    if (otpRegex.test(value)) {
       validation.handleChange(e);
     }
   };
@@ -169,6 +168,7 @@ const ForgetPasswordPage = () => {
                           formik={validation}
                           onChange={validation.handleChange}
                           disabled={submitted}
+                     
                         />
                       </div>
 
@@ -182,7 +182,7 @@ const ForgetPasswordPage = () => {
                             type={CONSTANTS.text}
                             placeholder={inputField(CONSTANTS.OTP)}
                             formik={validation}
-                            maxLength={6}
+                            isOtp={true}
                             onChange={handleOtpChange}
                           />
 
@@ -197,6 +197,7 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             onChange={validation.handleChange}
                             setPasswordShown={setPasswordShow}
+                          
                           />
 
                           <BaseInput
@@ -210,6 +211,7 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             onChange={validation.handleChange}
                             setPasswordShown={setPasswordShow}
+                         
                           />
                         </>
                       )}
