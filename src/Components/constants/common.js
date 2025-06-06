@@ -44,5 +44,7 @@ export const CONSTANTS = {
     addressLabel1: "Address Line 1",
     addressLabel2: "Address Line 2",
     userName: "User Name",
-    submit: "submit"
+    submit: "submit",
+    currentPassword: "currentPassword",
+    CurrentPassword: "Current Password"
 }

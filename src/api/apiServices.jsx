@@ -1,6 +1,6 @@
 import authApi from "./authApi";
 
-import { LOGIN, VERIFY_EMAIL, UPDATE_PASSWORD, UPDATE_PROFILE, VIEW_PROFILE, UPLOAD_FILE  } from "./apiRoutes";
+import { LOGIN, VERIFY_EMAIL, UPDATE_PASSWORD, UPDATE_PROFILE, VIEW_PROFILE, UPLOAD_FILE, CHANGE_PASSWORD  } from "./apiRoutes";
 
 const authService = {
   login: (data) => authApi.post(LOGIN, data),
@@ -14,7 +14,8 @@ const authService = {
        headers: {
     "Content-Type": "multipart/form-data",
   },
-     })
+     }),
+     changePassword: (data) => authApi.put(CHANGE_PASSWORD, data)
 };
 
 export default authService;

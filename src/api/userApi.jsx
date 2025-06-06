@@ -8,7 +8,7 @@ import {
   COUNTRY,
   STATE,
   VIEW_PROFILE,
-  UPLOAD_FILE,
+  CHANGE_PASSWORD,
 } from "./apiRoutes";
 
 const userApi = {
@@ -29,6 +29,8 @@ const userApi = {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+
+      changePassword: (data) => apiService.put(CHANGE_PASSWORD, data),
     });
   },
 };
