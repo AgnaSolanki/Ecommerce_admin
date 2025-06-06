@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
-import logoLight from "../../assets/images/logo-light.png";
-import ParticlesAuth from "../Authentication/ParticlesAuth";
 import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
 import { LoginRoutes } from "../../Routes/apiRoutes";
@@ -92,112 +89,97 @@ const ForgetPasswordPage = () => {
   document.title = "Change Password";
 
   return (
-    <ParticlesAuth>
-      <div className="auth-page-content mt-lg-5">
-        <Container>
-          <Row>
-            <Col lg={12}>
-              <div className="text-center mt-sm-5 mb-4 text-white-50">
-                <Link
-                  to={LoginRoutes.Home}
-                  className="d-inline-block auth-logo"
-                >
-                  <img src={logoLight} alt="" height="20" />
-                </Link>
-              </div>
-            </Col>
-          </Row>
+    <div className="page-content mt-lg-5 w-100">
+      <Container fluid>
+        <Row className="justify-content-center">
+          <Col md={8} lg={6} xl={5}>
+            <Card className="mt-4">
+              <CardBody className="p-4">
+                <div className="text-center mt-2">
+                  <h5 className="text-primary">Change Your Password</h5>
+                  <lord-icon
+                    src="https://cdn.lordicon.com/rhvddzym.json"
+                    trigger="loop"
+                    colors="primary:#0ab39c"
+                    className="avatar-xl lord-icon"
+                  ></lord-icon>
+                </div>
 
-          <Row className="justify-content-center">
-            <Col md={8} lg={6} xl={5}>
-              <Card className="mt-4">
-                <CardBody className="p-4">
-                  <div className="text-center mt-2">
-                    <h5 className="text-primary">Change Your Password</h5>
-                    <lord-icon
-                      src="https://cdn.lordicon.com/rhvddzym.json"
-                      trigger="loop"
-                      colors="primary:#0ab39c"
-                      className="avatar-xl lord-icon"
-                    ></lord-icon>
-                  </div>
-
-                  <div className="p-2">
-                    <Form onSubmit={validation.handleSubmit}>
-                      <div className="mb-4">
-                        <BaseInput
-                          id={CONSTANTS.email}
-                          name={CONSTANTS.email}
-                          label={CONSTANTS.Email}
-                          type={CONSTANTS.email}
-                          formik={validation}
-                          placeholder={inputField(CONSTANTS.Email)}
-                          value={email}
-                          disabled={true}
-                        />
-                      </div>
-
+                <div className="p-2">
+                  <Form onSubmit={validation.handleSubmit}>
+                    <div className="mb-4">
                       <BaseInput
-                        id={CONSTANTS.currentPassword}
-                        name={CONSTANTS.currentPassword}
-                        label={CONSTANTS.CurrentPassword}
-                        type={CONSTANTS.password}
-                        placeholder={inputField(CONSTANTS.CurrentPassword)}
+                        id={CONSTANTS.email}
+                        name={CONSTANTS.email}
+                        label={CONSTANTS.Email}
+                        type={CONSTANTS.email}
                         formik={validation}
-                        showPasswordToggle={true}
-                        passwordShown={passwordShow}
-                        setPasswordShown={setPasswordShow}
+                        placeholder={inputField(CONSTANTS.Email)}
+                        value={email}
+                        disabled={true}
                       />
+                    </div>
 
-                      <BaseInput
-                        id={CONSTANTS.newPassword}
-                        name={CONSTANTS.newPassword}
-                        label={CONSTANTS.NewPassword}
-                        type={CONSTANTS.password}
-                        placeholder={inputField(CONSTANTS.NewPassword)}
-                        formik={validation}
-                        showPasswordToggle={true}
-                        passwordShown={passwordShow}
-                        setPasswordShown={setPasswordShow}
-                      />
+                    <BaseInput
+                      id={CONSTANTS.currentPassword}
+                      name={CONSTANTS.currentPassword}
+                      label={CONSTANTS.CurrentPassword}
+                      type={CONSTANTS.password}
+                      placeholder={inputField(CONSTANTS.CurrentPassword)}
+                      formik={validation}
+                      showPasswordToggle={true}
+                      passwordShown={passwordShow}
+                      setPasswordShown={setPasswordShow}
+                    />
 
-                      <BaseInput
-                        id={CONSTANTS.confirmPassword}
-                        name={CONSTANTS.confirmPassword}
-                        label={CONSTANTS.ConfirmPassword}
-                        type={CONSTANTS.password}
-                        placeholder={inputField(CONSTANTS.ConfirmPassword)}
-                        formik={validation}
-                        showPasswordToggle={true}
-                        passwordShown={passwordShow}
-                        setPasswordShown={setPasswordShow}
-                      />
+                    <BaseInput
+                      id={CONSTANTS.newPassword}
+                      name={CONSTANTS.newPassword}
+                      label={CONSTANTS.NewPassword}
+                      type={CONSTANTS.password}
+                      placeholder={inputField(CONSTANTS.NewPassword)}
+                      formik={validation}
+                      showPasswordToggle={true}
+                      passwordShown={passwordShow}
+                      setPasswordShown={setPasswordShow}
+                    />
 
-                      <div className="text-center mt-4">
-                        <button
-                          disabled={loading}
-                          className="btn btn-success w-100"
-                          type="submit"
-                        >
-                          {loading && (
-                            <span
-                              className="spinner-border spinner-border-sm me-2"
-                              role="status"
-                              aria-hidden="true"
-                            ></span>
-                          )}
-                          {!loading ? "Change Password" : null}
-                        </button>
-                      </div>
-                    </Form>
-                  </div>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    </ParticlesAuth>
+                    <BaseInput
+                      id={CONSTANTS.confirmPassword}
+                      name={CONSTANTS.confirmPassword}
+                      label={CONSTANTS.ConfirmPassword}
+                      type={CONSTANTS.password}
+                      placeholder={inputField(CONSTANTS.ConfirmPassword)}
+                      formik={validation}
+                      showPasswordToggle={true}
+                      passwordShown={passwordShow}
+                      setPasswordShown={setPasswordShow}
+                    />
+
+                    <div className="text-center mt-4">
+                      <button
+                        disabled={loading}
+                        className="btn btn-success w-100"
+                        type="submit"
+                      >
+                        {loading && (
+                          <span
+                            className="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        )}
+                        {!loading ? "Change Password" : null}
+                      </button>
+                    </div>
+                  </Form>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 
