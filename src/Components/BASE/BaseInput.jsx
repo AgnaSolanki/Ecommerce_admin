@@ -18,8 +18,7 @@ const BaseInput = ({
   showPasswordToggle = false,
   passwordShown = false,
   setPasswordShown = () => {},
-  onlyNumbers = false,
-  maxLength = null,
+   isOtp = false,
 }) => {
   const isInvalid = formik.touched[name] && formik.errors[name];
   const inputType = showPasswordToggle
@@ -31,14 +30,9 @@ const BaseInput = ({
   const handleChange = (e) => {
     let val = e.target.value;
 
-    if (onlyNumbers) {
-      val = val.replace(/\D/g, "");
+     if (isOtp) {
+      val = val.replace(/\D/g, "").slice(0, 6);
     }
-
-    if (maxLength !== null && val.length > maxLength) {
-      val = val.slice(0, maxLength);
-    }
-
     formik.setFieldValue(name, val);
   };
 
