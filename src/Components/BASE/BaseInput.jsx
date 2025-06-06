@@ -16,12 +16,8 @@ const BaseInput = ({
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
-  onlyNumbers = false,
-  maxLength = null,
   setPasswordShown = () => {},
-  options = [],
-  onFileChange = null, 
-  isAvatarUpload = false, 
+   isOtp = false,
 }) => {
   const touched = formik?.touched?.[name];
   const error = formik?.errors?.[name];
@@ -37,25 +33,9 @@ const BaseInput = ({
   const handleChange = (e) => {
     let val = e.target.value;
 
-    if (type === "file") {
-      const file = e.target.files[0];
-      if (file) {
-        formik.setFieldValue(name, file);
-        if (onFileChange) {
-          onFileChange(file);
-        }
-      }
-      return;
+     if (isOtp) {
+      val = val.replace(/\D/g, "").slice(0, 6);
     }
-
-    if (onlyNumbers) {
-      val = val.replace(/\D/g, "");
-    }
-
-    if (maxLength !== null && val.length > maxLength) {
-      val = val.slice(0, maxLength);
-    }
-
     formik.setFieldValue(name, val);
   };
 

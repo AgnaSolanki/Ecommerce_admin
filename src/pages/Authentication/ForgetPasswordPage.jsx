@@ -14,6 +14,7 @@ import BaseInput from "../../Components/BASE/BaseInput";
 import {
   emailRegex,
   inputField,
+  otpRegex,
   passwordRegex,
   validationField,
 } from "../../Components/constants/validation";
@@ -45,8 +46,7 @@ const ForgetPasswordPage = () => {
         .required(emailValidation.required),
 
       [CONSTANTS.otp]: Yup.string()
-        .min(6, otpValidation.minLength(CONSTANTS.OTP, 6))
-        .max(6, otpValidation.minLength(CONSTANTS.OTP, 6))
+        .matches(otpRegex, otpValidation.minLength(CONSTANTS.OTP, 6))
         .required(otpValidation.required),
 
       [CONSTANTS.newPassword]: Yup.string()
@@ -81,13 +81,11 @@ const ForgetPasswordPage = () => {
           const response = await authService.verifyEmail(
             values[CONSTANTS.email]
           );
-          toast.success(response?.message);
+          toast.success(response?.data.message);
           setSubmitted(true);
           validation.setTouched({});
-          console.log("submit");
         } catch (error) {
           toast.error(error?.response?.data?.message || error?.message);
-          console.log("error");
         } finally {
           setLoading(false);
         }
@@ -99,8 +97,7 @@ const ForgetPasswordPage = () => {
             newPassword: values[CONSTANTS.newPassword],
             confirmPassword: values[CONSTANTS.confirmPassword],
           });
-          console.log("submit");
-          toast.success(response?.message);
+          toast.success(response?.data.message);
           setTimeout(() => {
             navigate(LoginRoutes.LOGIN);
           }, 1500);
@@ -176,8 +173,7 @@ const ForgetPasswordPage = () => {
                             type={CONSTANTS.text}
                             placeholder={inputField(CONSTANTS.OTP)}
                             formik={validation}
-                            onlyNumbers={true}
-                            maxLength={6}
+                            isOtp={true}
                           />
 
                           <BaseInput
