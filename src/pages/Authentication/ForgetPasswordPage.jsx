@@ -110,6 +110,13 @@ const ForgetPasswordPage = () => {
     },
   });
 
+  const handleOtpChange = (e) => {
+    const { value } = e.target;
+    if (otpRegex.test(value)) {
+      validation.handleChange(e);
+    }
+  };
+
   document.title = "forgot-password";
 
   return (
@@ -160,6 +167,7 @@ const ForgetPasswordPage = () => {
                           placeholder={inputField(CONSTANTS.Email)}
                           formik={validation}
                           disabled={submitted}
+                          onChange={validation.handleChange}
                         />
                       </div>
 
@@ -174,6 +182,7 @@ const ForgetPasswordPage = () => {
                             placeholder={inputField(CONSTANTS.OTP)}
                             formik={validation}
                             isOtp={true}
+                            onChange={handleOtpChange}
                           />
 
                           <BaseInput
@@ -186,6 +195,7 @@ const ForgetPasswordPage = () => {
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
+                            onChange={validation.handleChange}
                           />
 
                           <BaseInput
@@ -198,6 +208,7 @@ const ForgetPasswordPage = () => {
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
+                            onChange={validation.handleChange}
                           />
                         </>
                       )}

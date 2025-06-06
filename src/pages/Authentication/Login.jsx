@@ -136,6 +136,7 @@ const Login = () => {
                           placeholder={inputField(CONSTANTS.Email)}
                           type={CONSTANTS.email}
                           formik={validation}
+                          onChange={validation.handleChange}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
@@ -162,6 +163,7 @@ const Login = () => {
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
+                            onChange={validation.handleChange}
                           />
                         </div>
                       </div>

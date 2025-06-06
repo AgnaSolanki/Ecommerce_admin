@@ -18,7 +18,7 @@ const BaseInput = ({
   showPasswordToggle = false,
   passwordShown = false,
   setPasswordShown = () => {},
-   isOtp = false,
+  onChange = {}
 }) => {
   const isInvalid = formik.touched[name] && formik.errors[name];
   const inputType = showPasswordToggle
@@ -29,10 +29,6 @@ const BaseInput = ({
 
   const handleChange = (e) => {
     let val = e.target.value;
-
-     if (isOtp) {
-      val = val.replace(/\D/g, "").slice(0, 6);
-    }
     formik.setFieldValue(name, val);
   };
 
@@ -51,7 +47,7 @@ const BaseInput = ({
             placeholder={placeholder}
             disabled={disabled}
             className="form-control"
-            onChange={handleChange}
+            onChange={onChange}
             onBlur={formik.handleBlur}
             value={formik.values[name] || ""}
             invalid={!!isInvalid}
