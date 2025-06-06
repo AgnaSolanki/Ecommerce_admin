@@ -85,7 +85,6 @@ const UserProfile = () => {
           const uploadRes = await userApi.fileUpload(selectedImage);
           imagePath = uploadRes.data?.file_path || avatarPreview;
         }
-
         const payload = {
           name: values.first_name,
           email: userEmail,
