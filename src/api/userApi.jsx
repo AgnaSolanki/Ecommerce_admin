@@ -1,4 +1,4 @@
-import apiService from "./authApi";
+import apiService from "./apiServices";
 import {
   LOGIN,
   VERIFY_EMAIL,
@@ -9,6 +9,12 @@ import {
   STATE,
   VIEW_PROFILE,
   CHANGE_PASSWORD,
+  listOfProduct,
+  addProduct,
+  viewProduct,
+  editProduct,
+  deleteProduct,
+  getCategories,
 } from "./apiRoutes";
 
 const userApi = {
@@ -29,10 +35,20 @@ const userApi = {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-
-      changePassword: (data) => apiService.put(CHANGE_PASSWORD, data),
     });
   },
+  changePassword: (data) => apiService.put(CHANGE_PASSWORD, data),
+  productList: (data) => apiService.post(listOfProduct, data),
+  addProduct: (data) => apiService.post(addProduct, data),
+  viewProduct: (productId) =>
+    apiService.get(viewProduct.replace("{product_id}", productId)),
+  editProduct: (productId, data) =>
+    apiService.put(editProduct.replace("{product_id}", productId), data),
+
+  deleteProduct: (productId) =>
+    apiService.delete(deleteProduct.replace("{product_id}", productId)),
+    getCategories:() => apiService.get(getCategories)
+
 };
 
 export default userApi;

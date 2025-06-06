@@ -10,7 +10,7 @@ import logoLight from "../assets/images/logo-light.png";
 import VerticalLayout from "./VerticalLayouts";
 
 import { Container } from "reactstrap";
-
+import { LoginRoutes } from "../Routes/apiRoutes";
 
 const Sidebar = ({ layoutType }) => {
   useEffect(() => {
@@ -78,6 +78,11 @@ const Sidebar = ({ layoutType }) => {
               <div id="two-column-menu"></div>
               <ul className="navbar-nav" id="navbar-nav">
                 <VerticalLayout layoutType={layoutType} />
+                <li className="nav-item">
+                  <Link className="nav-link" to={LoginRoutes.PRODUCT_LIST}>
+                    <i className="ri-list-check-2"></i> Product List
+                  </Link>
+                </li>
               </ul>
             </Container>
           </SimpleBar>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import authService from "../../api/apiServices";
@@ -14,7 +14,7 @@ import {
   validationField,
 } from "../../Components/constants/validation";
 
-const ForgetPasswordPage = () => {
+const ChangePasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -183,4 +183,4 @@ const ForgetPasswordPage = () => {
   );
 };
 
-export default ForgetPasswordPage;
+export default ChangePasswordPage;
