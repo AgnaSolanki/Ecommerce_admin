@@ -92,22 +92,10 @@ const ForgetPasswordPage = () => {
   document.title = "Change Password";
 
   return (
-    <ParticlesAuth>
-      <div className="auth-page-content mt-lg-5">
-        <Container>
-          <Row>
-            <Col lg={12}>
-              <div className="text-center mt-sm-5 mb-4 text-white-50">
-                <Link
-                  to={LoginRoutes.Home}
-                  className="d-inline-block auth-logo"
-                >
-                  <img src={logoLight} alt="" height="20" />
-                </Link>
-              </div>
-            </Col>
-          </Row>
 
+      <div className="page-content mt-lg-5 w-100">
+        <Container fluid>
+        
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={5}>
               <Card className="mt-4">
@@ -197,7 +185,7 @@ const ForgetPasswordPage = () => {
           </Row>
         </Container>
       </div>
-    </ParticlesAuth>
+   
   );
 };
 
