@@ -56,9 +56,7 @@ const AddProduct = () => {
     onSubmit: async (values) => {
       try {
         setLoading(true);
-
         const payload = { ...values };
-
         for (let i = 0; i < values.product_variants.length; i++) {
           const imageFile = values.product_variants[i].variant_image;
           if (imageFile) {
@@ -108,7 +106,7 @@ const AddProduct = () => {
 
               <FieldArray
                 name="product_variants"
-                render={({ push, remove }) => (
+                render={() => (
                   <>
                     {formik.values.product_variants.map((variant, index) => (
                       <Card key={index} className="my-3">
@@ -117,7 +115,7 @@ const AddProduct = () => {
                             <Col md={6}>
                               <BaseInput
                                 type="text"
-                                name={`product_variants[${index}].product_title_name`}
+                                name="product_title_name"
                                 label="Variant Title"
                                 formik={formik}
                               />
@@ -125,7 +123,7 @@ const AddProduct = () => {
                             <Col md={6}>
                               <BaseInput
                                 type="text"
-                                name={`product_variants[${index}].description`}
+                                name="description"
                                 label="Description"
                                 formik={formik}
                               />
@@ -133,39 +131,39 @@ const AddProduct = () => {
                             <Col md={4}>
                               <BaseInput
                                 type="text"
-                                name={`product_variants[${index}].color`}
                                 label="Color"
+                                name="color"
                                 formik={formik}
                               />
                             </Col>
                             <Col md={4}>
                               <BaseInput
                                 type="text"
-                                name={`product_variants[${index}].size`}
                                 label="Size"
+                                name="size"
                                 formik={formik}
                               />
                             </Col>
                             <Col md={2}>
                               <BaseInput
-                                name={`product_variants[${index}].price`}
                                 label="Price"
                                 type="number"
+                                name="price"
                                 formik={formik}
                               />
                             </Col>
                             <Col md={2}>
                               <BaseInput
-                                name={`product_variants[${index}].quantity`}
                                 label="Qty"
+                                name="quantity"
                                 type="number"
                                 formik={formik}
                               />
                             </Col>
                             <Col md={6}>
                               <BaseInput
-                                name={`product_variants[${index}].variant_image`}
                                 label="Variant Image"
+                                name="variant_mage"
                                 type="file"
                                 formik={formik}
                                 onFileChange={(file) => {
@@ -177,37 +175,12 @@ const AddProduct = () => {
                                 isAvatarUpload={true}
                               />
                             </Col>
-                            <Col md={12} className="text-end">
-                              {index > 0 && (
-                                <BaseButton
-                                  color="danger"
-                                  type="button"
-                                  onClick={() => remove(index)}
-                                >
-                                  Remove Variant
-                                </BaseButton>
-                              )}
-                            </Col>
+                     
                           </Row>
                         </CardBody>
                       </Card>
                     ))}
-                    <BaseButton
-                      type="button"
-                      onClick={() =>
-                        push({
-                          product_title_name: "",
-                          description: "",
-                          color: "",
-                          size: "",
-                          price: "",
-                          quantity: "",
-                          variant_image: null,
-                        })
-                      }
-                    >
-                      + Add Variant
-                    </BaseButton>
+ 
                   </>
                 )}
               />

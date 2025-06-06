@@ -15,6 +15,7 @@ import {
   emailRegex,
   inputField,
   otpRegex,
+  otpTypeRegex,
   passwordRegex,
   validationField,
 } from "../../Components/constants/validation";
@@ -110,6 +111,13 @@ const ForgetPasswordPage = () => {
     },
   });
 
+  const handleOtpChange = (e) => {
+    const { value } = e.target;
+    if (otpTypeRegex.test(value)) {
+      validation.handleChange(e);
+    }
+  };
+
   document.title = "forgot-password";
 
   return (
@@ -159,6 +167,7 @@ const ForgetPasswordPage = () => {
                           type={CONSTANTS.email}
                           placeholder={inputField(CONSTANTS.Email)}
                           formik={validation}
+                          onChange={validation.handleChange}
                           disabled={submitted}
                         />
                       </div>
@@ -173,7 +182,8 @@ const ForgetPasswordPage = () => {
                             type={CONSTANTS.text}
                             placeholder={inputField(CONSTANTS.OTP)}
                             formik={validation}
-                            isOtp={true}
+                            maxLength={6}
+                            onChange={handleOtpChange}
                           />
 
                           <BaseInput
@@ -185,6 +195,7 @@ const ForgetPasswordPage = () => {
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
+                            onChange={validation.handleChange}
                             setPasswordShown={setPasswordShow}
                           />
 
@@ -197,6 +208,7 @@ const ForgetPasswordPage = () => {
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
+                            onChange={validation.handleChange}
                             setPasswordShown={setPasswordShow}
                           />
                         </>
