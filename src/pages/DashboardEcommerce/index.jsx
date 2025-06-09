@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Col, Container, Row } from "reactstrap";
 
 const DashboardEcommerce = () => {
-  document.title = "Dashboard | Velzon - React Admin & Dashboard Template";
+  document.title = "Dashboard";
 
   return (
     <React.Fragment>

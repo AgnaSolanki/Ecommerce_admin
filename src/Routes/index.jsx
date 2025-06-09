@@ -8,7 +8,7 @@ const renderRouteElement = (element) => {
   if (typeof element === "function") {
     return React.createElement(element);
   }
-  // Already JSX
+ 
   return element;
 };
 
@@ -22,7 +22,6 @@ const Index = () => {
           element={<NonAuthLayout>{renderRouteElement(route.element)}</NonAuthLayout>}
         />
       ))}
-
       {authProtectedRoutes.map((route, idx) => (
         <Route
           key={idx}

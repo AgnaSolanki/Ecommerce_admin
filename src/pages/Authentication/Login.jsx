@@ -8,7 +8,7 @@ import {
   Form,
   FormFeedback,
 } from "reactstrap";
-
+import * as Yup from "yup";
 import { CONSTANTS } from "../../Components/constants/common";
 import { toast } from "react-toastify";
 import ParticlesAuth from "./ParticlesAuth";
@@ -21,49 +21,44 @@ import { useFormik } from "formik";
 import logoLight from "../../assets/images/logo-light.png";
 import authService from "../../api/apiServices";
 import { LoginRoutes } from "../../Routes/apiRoutes";
-import { validation } from "../../Components/constants/validation";
-
-const validateLogin = (values) => {
-  const errors = {};
-  const emailValidation = validation("Email");
-  const passwordValidation = validation("Password");
-
-  if (!values[CONSTANTS.email]) {
-    errors[CONSTANTS.email] = emailValidation.required;
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values[CONSTANTS.email])
-  ) {
-    errors[CONSTANTS.email] = emailValidation.invalidEmail;
-  }
-
-  if (!values[CONSTANTS.password]) {
-    errors[CONSTANTS.password] = passwordValidation.required;
-  } else if (values[CONSTANTS.password].length < 8) {
-    errors[CONSTANTS.password] = passwordValidation.minLength(8);
-  } else if (!/[A-Z]/.test(values[CONSTANTS.password])) {
-    errors[CONSTANTS.password] = passwordValidation.passwordPattern;
-  }
-
-  return errors;
-};
+import {
+  validationField,
+  emailRegex,
+  passwordRegex,
+  inputField,
+} from "../../Components/constants/validation";
 
 const Login = () => {
   const navigate = useNavigate();
 
   document.title = "Login";
 
+  const [submitted, setSubmitted] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const emailValidation = validationField(CONSTANTS.Email);
+  const passwordValidation = validationField(CONSTANTS.Password);
+
+  const validateLogin = Yup.object({
+    [CONSTANTS.email]: Yup.string()
+      .matches(emailRegex, emailValidation.format(CONSTANTS.Email))
+      .required(emailValidation.required),
+
+    [CONSTANTS.password]: Yup.string()
+      .matches(passwordRegex, passwordValidation.passwordPattern)
+      .required(passwordValidation.required),
+  });
 
   const validation = useFormik({
     initialValues: {
       [CONSTANTS.email]: "",
       [CONSTANTS.password]: "",
     },
-    validate: validateLogin,
-    onSubmit: async (values, { setSubmitting }) => {
-      setSubmitting(true);
+    validationSchema: validateLogin,
+    onSubmit: async (values) => {
+      setSubmitted(true);
       setLoading(true);
       setError("");
       try {
@@ -138,9 +133,10 @@ const Login = () => {
                           id={CONSTANTS.email}
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
-                          placeholder={CONSTANTS.EmailPlaceholder}
+                          placeholder={inputField(CONSTANTS.Email)}
                           type={CONSTANTS.email}
                           formik={validation}
+                          onChange={validation.handleChange}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
@@ -162,11 +158,12 @@ const Login = () => {
                             id={CONSTANTS.password}
                             name={CONSTANTS.password}
                             label={CONSTANTS.Password}
-                            placeholder={CONSTANTS.PasswordPlaceholder}
+                            placeholder={inputField(CONSTANTS.Password)}
                             formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
+                            onChange={validation.handleChange}
                           />
                         </div>
                       </div>

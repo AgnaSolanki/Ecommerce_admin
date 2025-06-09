@@ -14,9 +14,11 @@ const BaseInput = ({
   type = "text",
   placeholder,
   formik,
+  disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
   setPasswordShown = () => {},
+  onChange = {}
 }) => {
   const isInvalid = formik.touched[name] && formik.errors[name];
   const inputType = showPasswordToggle
@@ -24,6 +26,11 @@ const BaseInput = ({
       ? "text"
       : "password"
     : type;
+
+  const handleChange = (e) => {
+    let val = e.target.value;
+    formik.setFieldValue(name, val);
+  };
 
   return (
     <div className="mb-3">
@@ -38,8 +45,9 @@ const BaseInput = ({
             name={name}
             type={inputType}
             placeholder={placeholder}
+            disabled={disabled}
             className="form-control"
-            onChange={formik.handleChange}
+            onChange={onChange}
             onBlur={formik.handleBlur}
             value={formik.values[name] || ""}
             invalid={!!isInvalid}
@@ -60,9 +68,7 @@ const BaseInput = ({
           )}
         </InputGroup>
         {isInvalid && (
-          <FormFeedback className="d-block">
-            {formik.errors[name]}
-          </FormFeedback>
+          <FormFeedback className="d-block">{formik.errors[name]}</FormFeedback>
         )}
       </div>
     </div>
