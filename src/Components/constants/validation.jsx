@@ -1,6 +1,5 @@
 export const validationField = (field) => ({
   required: `${field} is required`,
-  otpRequired: `${field} should not be empty`,
   otpNumber: `${field} must be a number conforming to the specified constraints`,
   passwordPattern: `${field} must contain one capital letter and at least 8 characters long`,
   passwordsMatch: (fieldName, confirmFieldName) =>
@@ -10,7 +9,6 @@ export const validationField = (field) => ({
   maxLength: (fieldName, max) => `${fieldName} only should be ${max} long`,
   format: (fieldName) => `${fieldName} should be in correct format`,
   minLength: (field, min) => `${field} must be at least ${min} characters long`,
-  Invalid: (fieldName) => `Invalid ${fieldName}`,
 });
 
 export const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
