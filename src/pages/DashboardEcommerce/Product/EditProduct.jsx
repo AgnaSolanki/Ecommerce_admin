@@ -4,8 +4,8 @@ import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
-import authService from "../../../api/apiServices";
-import { useNavigate } from "react-router-dom";
+import userApi from "../../../api/userApi";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   onlyNum,
   validationField,
@@ -13,30 +13,68 @@ import {
 import { CONSTANTS } from "../../../Components/constants/common";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 
-const AddProduct = () => {
+const EditProduct = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await authService.getCategories();
+        const res = await userApi.getCategories();
         setCategories(res.data?.data || []);
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
     };
+
+    const fetchProduct = async () => {
+      try {
+        const res = await userApi.viewProduct(id);
+        const product = res.data?.data;
+
+        if (product) {
+          formik.setValues({
+            name: product.name || "",
+            category_id: String(product.category_id || ""),
+            product_variants: product.product_variants.map((v) => ({
+              product_title_name: v.product_title_name || "",
+              description: v.description || "",
+              color: v.color || "",
+              size: v.size || "",
+              price: String(v.price || ""),
+              quantity: String(v.quantity || ""),
+              variant_image: v.variant_image?.image_path || null,
+            })),
+          });
+
+          // Initialize image previews
+          const previews = {};
+          product.product_variants.forEach((v, idx) => {
+            if (v.variant_image?.image_path) {
+              previews[`variant_image_preview_${idx}`] = v.variant_image.image_path;
+            }
+          });
+          setImagePreviews(previews);
+        }
+      } catch (error) {
+        console.error("Error loading product:", error);
+      }
+    };
+
     fetchCategories();
-  }, []);
+    fetchProduct();
+  }, [id]);
 
 
   const formik = useFormik({
     initialValues: {
       name: "",
-      category_id: +"",
+      category_id: "",
       product_variants: [
         {
           product_title_name: "",
@@ -49,6 +87,7 @@ const AddProduct = () => {
         },
       ],
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       name: Yup.string().required("Product name is required"),
       category_id: Yup.string()
@@ -82,8 +121,6 @@ const AddProduct = () => {
       ),
     }),
     onSubmit: async (values) => {
-      console.log("Submitting form", values);
-
       try {
         setSaveLoading(true);
 
@@ -101,7 +138,7 @@ const AddProduct = () => {
           if (imageFile instanceof File) {
             const formData = new FormData();
             formData.append("files", imageFile);
-            const res = await authService.fileUpload(formData);
+            const res = await userApi.fileUpload(formData);
             const filePath = res.data?.data?.[0];
             if (!filePath) {
               setSaveLoading(false);
@@ -114,13 +151,15 @@ const AddProduct = () => {
             payload.product_variants[i].variant_image = {
               image_path: imageFile,
             };
+          } else {
+            payload.product_variants[i].variant_image = null;
           }
         }
 
-        await authService.addProduct(payload);
+        await userApi.editProduct(id, payload);
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
-        console.error("Add Product Error:", err);
+        console.error("Edit Product Error:", err);
       } finally {
         setSaveLoading(false);
       }
@@ -139,12 +178,12 @@ const AddProduct = () => {
     setTimeout(() => {
       setCancelLoading(false);
       navigate(LoginRoutes.PRODUCT_LIST);
-    }, 500); 
+    }, 500);
   };
 
   return (
     <Container fluid className="page-content mt-lg-5 w-100">
-      <Card mt={5}>
+      <Card>
         <CardBody>
           <FormikProvider value={formik}>
             <Form onSubmit={formik.handleSubmit}>
@@ -240,12 +279,10 @@ const AddProduct = () => {
                                 formik={formik}
                                 onFileChange={(file) => {
                                   const fileUrl = URL.createObjectURL(file);
-
                                   formik.setFieldValue(
                                     `product_variants[${index}].variant_image`,
                                     file
                                   );
-
                                   const previewKey = `variant_image_preview_${index}`;
                                   setImagePreviews((prev) => ({
                                     ...prev,
@@ -256,9 +293,7 @@ const AddProduct = () => {
 
                               <img
                                 src={
-                                  imagePreviews[
-                                    `variant_image_preview_${index}`
-                                  ] ||
+                                  imagePreviews[`variant_image_preview_${index}`] ||
                                   (typeof variant.variant_image === "string"
                                     ? variant.variant_image
                                     : "")
@@ -283,7 +318,7 @@ const AddProduct = () => {
                   onClick={formik.handleSubmit}
                   loading={saveLoading}
                 >
-                  {!saveLoading ? "Submit Product" : null}
+                  {!saveLoading ? "Update Product" : null}
                 </BaseButton>
                 <BaseButton
                   type="button"
@@ -303,4 +338,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

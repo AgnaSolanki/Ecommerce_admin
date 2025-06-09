@@ -20,11 +20,9 @@ const BaseInput = ({
   isAvatarUpload = false,
   onFileChange,
   options = [],
-  onChange = {},
 }) => {
   const touched = formik?.touched?.[name];
   const error = formik?.errors?.[name];
-  const value = formik?.values?.[name] || "";
   const isInvalid = touched && error;
 
   const inputType = showPasswordToggle
@@ -33,32 +31,21 @@ const BaseInput = ({
       : "password"
     : type;
 
-  const handleChange = (e) => {
-    let val = e.target.value;
+  const fieldProps =
+    formik && name && type !== "file" ? formik.getFieldProps(name) : {};
 
-    if (type === "file") {
-      const file = e.target.files[0];
-      if (file) {
-        if (typeof onFileChange === "function") {
-          onFileChange(file);
-        } else {
-          formik.setFieldValue(name, file);
-        }
-      }
-    } else {
-      formik.setFieldValue(name, val);
-    }
-  };
+  const inputId = id || `input-${name}`;
 
   return (
     <div className="mb-3">
-      {label && (
-        <Label htmlFor={id} className="form-label d-block">
+      {label && !isAvatarUpload && (
+        <Label htmlFor={inputId} className="form-label d-block">
           {label}
         </Label>
       )}
 
       <div className="position-relative auth-pass-inputgroup mb-3">
+        {/* Radio Input */}
         {type === "radio" && Array.isArray(options) ? (
           <div className="d-flex gap-3">
             {options.map((opt, idx) => (
@@ -69,7 +56,7 @@ const BaseInput = ({
                   name={name}
                   id={`${name}-${opt.value}`}
                   value={opt.value}
-                  checked={value === opt.value}
+                  checked={formik.values?.[name] === opt.value}
                   onChange={formik.handleChange}
                   disabled={disabled}
                 />
@@ -87,12 +74,12 @@ const BaseInput = ({
           </div>
         ) : type === "select" ? (
           <Input
-            id={id}
+            id={inputId}
             name={name}
             type="select"
             disabled={disabled}
             className="form-select"
-            value={value}
+            value={formik.values?.[name] || ""}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             invalid={!!isInvalid}
@@ -105,16 +92,36 @@ const BaseInput = ({
           </Input>
         ) : type === "file" ? (
           <>
+            {/* Hidden input for avatar-style uploads */}
             <Input
-              id={id}
+              id={inputId}
               name={name}
               type="file"
               className={isAvatarUpload ? "d-none" : "form-control"}
-              onChange={onChange}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file && typeof onFileChange === "function") {
+                  onFileChange(file);
+                } else if (file && formik.setFieldValue) {
+                  formik.setFieldValue(name, file);
+                }
+              }}
               onBlur={formik.handleBlur}
               accept="image/*"
               disabled={disabled}
             />
+
+            {/* Avatar upload label as trigger */}
+            {isAvatarUpload && (
+              <label
+                htmlFor={inputId}
+                className="position-absolute img-avatar"
+                style={{ cursor: "pointer" }}
+              >
+                <i className="ri-edit-2-line" />
+              </label>
+            )}
+
             {isInvalid && (
               <FormFeedback className="d-block">{error}</FormFeedback>
             )}
@@ -122,17 +129,15 @@ const BaseInput = ({
         ) : (
           <InputGroup className={isInvalid ? "is-invalid" : ""}>
             <Input
-              id={id}
+              id={inputId}
               name={name}
               type={inputType}
               placeholder={placeholder}
               disabled={disabled}
               className="form-control"
-              onChange={onChange}
-              onBlur={formik.handleBlur}
-              value={value}
+              {...fieldProps}
               invalid={!!isInvalid}
-              accept={type === "file" ? "image/*" : undefined}
+              autoComplete="off"
             />
             {showPasswordToggle && (
               <InputGroupText

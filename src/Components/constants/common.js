@@ -46,5 +46,6 @@ export const CONSTANTS = {
     userName: "User Name",
     submit: "submit",
     currentPassword: "currentPassword",
-    CurrentPassword: "Current Password"
+    CurrentPassword: "Current Password",
+    price: "price"
 }

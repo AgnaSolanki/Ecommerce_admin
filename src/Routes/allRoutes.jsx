@@ -7,6 +7,8 @@ import UserProfile from "../pages/Authentication/user-profile";
 import ChangePassword from "../pages/DashboardEcommerce/ChangePassword"
 import ProductList from "../pages/DashboardEcommerce/Product/ProductList";
 import AddProduct from "../pages/DashboardEcommerce/Product/AddProduct";
+import ViewProduct from "../pages/DashboardEcommerce/Product/ViewProduct"
+import EditProduct from "../pages/DashboardEcommerce/Product/EditProduct"
 
 const authProtectedRoutes = [
   { path: LoginRoutes.DASHBOARD_ROUTE, element: DashboardEcommerce },
@@ -14,6 +16,9 @@ const authProtectedRoutes = [
   { path: LoginRoutes.CHANGE_PASSWORD, element: ChangePassword  },
   { path: LoginRoutes.PRODUCT_LIST, element: ProductList  },
   { path: LoginRoutes.ADD_PRODUCT, element: AddProduct  },
+  { path: `${LoginRoutes.VIEW_PRODUCT}/:id`, element: ViewProduct  },
+  { path: `${LoginRoutes.EDIT_PRODUCT}/:id`, element: EditProduct  },
+
   {
     path: LoginRoutes.HOME,
     exact: true,
