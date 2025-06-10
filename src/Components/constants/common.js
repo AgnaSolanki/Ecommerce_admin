@@ -47,5 +47,18 @@ export const CONSTANTS = {
     submit: "submit",
     currentPassword: "currentPassword",
     CurrentPassword: "Current Password",
-    price: "price"
+    price: "price",
+    Quantity: "Quantity",
+    ProductName: "Product name",
+    Color: "Color",
+    Size: "Size",
+    Price: "Price",
+    Product: "Product",
+    Category: "Category",
+    Description: "Description",
+    Qty: "Qty",
+    file: "file",
+    Title: "Title",
+    name: "name",
+    button: "button"
 }

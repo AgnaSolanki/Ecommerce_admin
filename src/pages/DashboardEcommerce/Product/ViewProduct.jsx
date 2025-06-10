@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Card, CardBody} from "reactstrap";
+import { toast } from "react-toastify";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Badge,
+  Spinner,
+} from "reactstrap";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
-import apiService from "../../../api/authApi";
+import authService from "../../../api/apiServices";
+import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -15,10 +25,10 @@ const ViewProduct = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const res = await apiService.viewProduct(id);
+        const res = await authService.viewProduct(id);
         setProduct(res.data?.data || null);
       } catch (error) {
-        console.error("Error fetching product:", error);
+        toast.error(error?.message);
       } finally {
         setLoading(false);
       }
@@ -26,85 +36,160 @@ const ViewProduct = () => {
     fetchProduct();
   }, [id]);
 
-  if (loading) return <p>Loading product details...</p>;
-  if (!product) return <p>Product not found.</p>;
+  const handleEdit = (productId) => {
+    navigate(`${LoginRoutes.EDIT_PRODUCT}/${productId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner color="primary" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <h4>Product not found.</h4>
+      </div>
+    );
+  }
 
   return (
-    <Container fluid className="page-content mt-lg-5 w-100">
-      <Card>
-        <CardBody>
-          <h3>Product Details</h3>
-          <Row>
-            <Col md={6}>
-              <strong>Name:</strong> {product.name}
-            </Col>
-            <Col md={6}>
-              <strong>Category ID:</strong> {product.category_id}
-            </Col>
-          </Row>
+    <Container fluid className="page-content mt-4">
+      <Card className="shadow-sm p-4 bg-light mb-4">
+        <h4 className="mb-3 fw-bold">Basic Information</h4>
+        <Row className="mb-2">
+          <Col md={4} className="mb-3 d-flex align-items-center">
+            <span className="fw-semibold me-2">Product ID:</span>
+            <Badge color="primary" pill>
+              {product.id}
+            </Badge>
+          </Col>
+          <Col md={4} className="mb-3 d-flex align-items-center">
+            <span className="fw-semibold me-2">Product Name:</span>
+            {product.name}
+          </Col>
+          <Col md={4} className="mb-3 d-flex align-items-center">
+            <span className="fw-semibold me-2">Category:</span>
+            <Badge color="info" pill className="me-1">
+              {product.category?.category_name || "N/A"}
+            </Badge>
+            <small className="text-muted">
+              (ID: {product.category?.id || "N/A"})
+            </small>
+          </Col>
+        </Row>
+      </Card>
 
-          <h4 className="mt-4">Product Variants</h4>
-          {product.product_variants && product.product_variants.length > 0 ? (
-            product.product_variants.map((variant, index) => (
-              <Card key={index} className="my-3">
-                <CardBody>
+      <h4 className="mb-3 fw-bold">Product Variants</h4>
+      {product.variants && product.variants.length > 0 ? (
+        product.variants.map((variant, index) => (
+          <Card key={index} className="mb-4 p-3 border-0 shadow-sm">
+            <CardBody>
+              <Row>
+                <Col
+                  md={2}
+                  className="d-flex justify-content-center align-items-center mb-3 mb-md-0"
+                >
+                  {variant.image?.image_path ? (
+                    <img
+                      src={`${import.meta.env.VITE_BASE_IMAGE}/${
+                        variant.image.image_path
+                      }`}
+                      alt="Variant"
+                      className="rounded-circle border"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={avatar}
+                      alt="No Image"
+                      className="rounded-circle border"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
+                </Col>
+
+                <Col md={10}>
+                  <h5 className="fw-bold mb-2">{variant.product_title_name}</h5>
+
+                  <p className="mb-2">
+                    <span className="text-success fw-bold me-3">
+                      Price ${variant.price}
+                    </span>
+                    <span className="fw-semibold me-1">Color:</span>{" "}
+                    {variant.color || "N/A"}
+                    {variant.color && (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: "12px",
+                          height: "12px",
+                          backgroundColor: variant.color,
+                          borderRadius: "50%",
+                          marginLeft: "8px",
+                          border: "1px solid #000",
+                        }}
+                      ></span>
+                    )}
+                  </p>
+
+                  <p className="mb-2">
+                    {variant.description || "No description provided."}
+                  </p>
+
                   <Row>
-                    <Col md={6}>
-                      <strong>Title:</strong> {variant.product_title_name}
+                    <Col md={2} className="mb-2">
+                      <span className="fw-semibold me-2">ID:</span>
+                      <Badge color="primary" pill>
+                        {variant.id}
+                      </Badge>
                     </Col>
-                    <Col md={6}>
-                      <strong>Description:</strong> {variant.description}
+                    <Col md={2} className="mb-2">
+                      <span className="fw-semibold me-2">Size:</span>
+                      {variant.size || "N/A"}
                     </Col>
-                    <Col md={4}>
-                      <strong>Color:</strong> {variant.color}
-                    </Col>
-                    <Col md={4}>
-                      <strong>Size:</strong> {variant.size}
-                    </Col>
-                    <Col md={2}>
-                      <strong>Price:</strong> {variant.price}
-                    </Col>
-                    <Col md={2}>
-                      <strong>Quantity:</strong> {variant.quantity}
-                    </Col>
-                    <Col md={6} className="mt-3">
-                      {variant.variant_image?.image_path ? (
-                        <img
-                          src={variant.variant_image.image_path}
-                          alt={`Variant ${index + 1}`}
-                          className="rounded avatar-md img-thumbnail"
-                        />
-                      ) : (
-                        <p>No Image</p>
-                      )}
+                    <Col md={2} className="mb-2">
+                      <span className="fw-semibold me-2">Quantity:</span>
+                      {variant.quantity || "N/A"}
                     </Col>
                   </Row>
-                </CardBody>
-              </Card>
-            ))
-          ) : (
-            <p>No variants available.</p>
-          )}
+                </Col>
+              </Row>
+            </CardBody>
+          </Card>
+        ))
+      ) : (
+        <p>No variants available.</p>
+      )}
 
-          <div className="text-end mt-3">
-            <BaseButton
-              color="primary"
-              size="sm"
-              onClick={() => navigate(LoginRoutes.EDIT_PRODUCT)}
-            >
-              Edit Product
-            </BaseButton>
-            <BaseButton
-              color="secondary"
-              size="sm"
-              className="ms-2"
-              onClick={() => navigate(LoginRoutes.PRODUCT_LIST)}
-            >
-              Back to List
-            </BaseButton>
-          </div>
-        </CardBody>
-      </Card>
+      <div className="d-flex justify-content-end mt-4">
+        <BaseButton
+          color="primary"
+          size="md"
+          onClick={() => handleEdit(product.id)}
+        >
+          Edit Product
+        </BaseButton>
+        <BaseButton
+          color="secondary"
+          size="md"
+          className="ms-3"
+          onClick={() => navigate(LoginRoutes.PRODUCT_LIST)}
+        >
+          Back to List
+        </BaseButton>
+      </div>
     </Container>
   );
 };

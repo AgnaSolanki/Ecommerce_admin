@@ -4,33 +4,37 @@ import {
   Card,
   CardBody,
   Table,
-  Button,
-  Input,
   Row,
   Col,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
-import avatar from "../../../assets/images/users/user-dummy-img.jpg";
-import BaseButton from "../../../Components/BASE/BaseButton";
 import authService from "../../../api/apiServices";
 import { useNavigate } from "react-router-dom";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import { toast } from "react-toastify";
+import avatar from "../../../assets/images/users/user-dummy-img.jpg";
+import BaseButton from "../../../Components/BASE/BaseButton";
+import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 
 const ProductList = () => {
   const navigate = useNavigate();
   const [productList, setProductList] = useState([]);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const response = await authService.productList({
-        page: page,
+        page,
         pageSize: limit,
         sortKey: "id",
         sortValue: "desc",
@@ -41,8 +45,7 @@ const ProductList = () => {
       setTotalPages(response?.data?.data?.totalPage || 1);
       setTotalRecords(response?.data?.data?.totalItems || 0);
     } catch (err) {
-      console.error("Error fetching products:", err.message);
-      setError("Failed to fetch products");
+      toast.error(err?.message);
     } finally {
       setLoading(false);
     }
@@ -52,8 +55,8 @@ const ProductList = () => {
     fetchProducts();
   }, [page, limit]);
 
-  const onLimitChange = (e) => {
-    setLimit(parseInt(e.target.value, 10));
+  const onLimitChange = (selectedOption) => {
+    setLimit(selectedOption.value);
     setPage(1);
   };
 
@@ -65,29 +68,33 @@ const ProductList = () => {
 
   const handleView = (productId) => {
     navigate(`${LoginRoutes.VIEW_PRODUCT}/${productId}`);
-    console.log(`${LoginRoutes.VIEW_PRODUCT}/${productId}`);
   };
 
   const handleEdit = (productId) => {
     navigate(`${LoginRoutes.EDIT_PRODUCT}/${productId}`);
   };
 
-  const handleDelete = async (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      try {
-        const response = await authService.deleteProduct(productId);
-        console.log("product id", productId);
+  const confirmDelete = (productId) => {
+    setSelectedProductId(productId);
+    setDeleteModal(true);
+  };
 
-        if (response?.data?.statusCode === 200) {
-          toast.success("Product deleted successfully");
-          fetchProducts();
-        } else {
-          toast.error(response?.data?.message || "Failed to delete product");
-        }
-      } catch (err) {
-        console.error("Delete error:", err.message);
-        toast.error("Error deleting product");
+  const handleDelete = async () => {
+    try {
+      const response = await authService.deleteProduct(selectedProductId);
+      console.log("res", response);
+      
+      if (response?.data?.statusCode === 200) {
+        toast.success(response?.data?.message);
+        fetchProducts();
+      } else {
+        toast.error(response?.data?.message);
       }
+    } catch (err) {
+      toast.error(err?.message);
+    } finally {
+      setDeleteModal(false);
+      setSelectedProductId(null);
     }
   };
 
@@ -117,7 +124,7 @@ const ProductList = () => {
 
     return (
       <div className="d-flex flex-end align-items-center justify-content-end flex-wrap mt-3">
-        <Button
+        <BaseButton
           color="primary"
           size="sm"
           className="me-2"
@@ -125,7 +132,7 @@ const ProductList = () => {
           onClick={() => goToPage(page - 1)}
         >
           Previous
-        </Button>
+        </BaseButton>
 
         {pages.map((item, index) =>
           item === "..." ? (
@@ -133,7 +140,7 @@ const ProductList = () => {
               ...
             </span>
           ) : (
-            <Button
+            <BaseButton
               key={index}
               size="sm"
               color={item === page ? "dark" : "secondary"}
@@ -141,11 +148,11 @@ const ProductList = () => {
               onClick={() => goToPage(item)}
             >
               {item}
-            </Button>
+            </BaseButton>
           )
         )}
 
-        <Button
+        <BaseButton
           color="primary"
           size="sm"
           className="ms-2"
@@ -153,7 +160,7 @@ const ProductList = () => {
           onClick={() => goToPage(page + 1)}
         >
           Next
-        </Button>
+        </BaseButton>
       </div>
     );
   };
@@ -162,21 +169,30 @@ const ProductList = () => {
     <div className="page-content mt-lg-5 w-100">
       <Container fluid>
         <Row className="mb-3 align-items-center">
-          <Col md="4" xs="12" className="mb-2 mb-md-0">
-            <label htmlFor="limitSelect" className="me-2">
+          <Col
+            md="4"
+            xs="12"
+            className="mb-2 mb-md-0 d-flex align-items-center"
+          >
+            <label htmlFor="limitSelect" className="me-2 mb-0">
               Items per page:
             </label>
-            <Input
-              type="select"
+            <BaseSelectInput
               id="limitSelect"
+              name="limitSelect"
               value={limit}
-              onChange={onLimitChange}
-              style={{ width: "100px", display: "inline-block" }}
-            >
-              <option value={5}>5</option>
-              <option value={15}>15</option>
-              <option value={25}>25</option>
-            </Input>
+              onChange={(e) => {
+                const selectedValue = parseInt(e.target.value, 10);
+                setLimit(selectedValue);
+                setPage(1);
+              }}
+              options={[
+                { label: "5", value: 5 },
+                { label: "15", value: 15 },
+                { label: "25", value: 25 },
+              ]}
+              style={{ width: "100px" }}
+            />
           </Col>
           <Col md="8" xs="12" className="text-md-end">
             <BaseButton
@@ -188,8 +204,6 @@ const ProductList = () => {
             </BaseButton>
           </Col>
         </Row>
-
-        {error && <p className="text-danger">{error}</p>}
 
         <h4 className="mb-3">
           Showing {(page - 1) * limit + 1} to{" "}
@@ -215,6 +229,11 @@ const ProductList = () => {
                     productList.map((product, index) => {
                       const variant = product.variants?.[0] || {};
                       const imagePath = variant?.image?.image_path;
+                      const IMAGE_BASE_URL =
+                        import.meta.env.VITE_BASE_IMAGE || "";
+                      const imageUrl = imagePath
+                        ? `${IMAGE_BASE_URL}/${imagePath}`
+                        : avatar;
 
                       return (
                         <tr key={product.id}>
@@ -222,40 +241,36 @@ const ProductList = () => {
                           <td>{product.name}</td>
                           <td>
                             <img
-                              src={
-                                imagePath
-                                  ? `${import.meta.env.REACT_APP_IMAGE_URL}/${imagePath}`
-                                  : avatar
-                              } 
+                              src={imageUrl}
                               alt="Product"
                               width="50"
                               height="50"
                             />
                           </td>
                           <td>
-                            <Button
+                            <BaseButton
                               size="sm"
                               color="info"
                               className="me-2"
                               onClick={() => handleView(product.id)}
                             >
                               View
-                            </Button>
-                            <Button
+                            </BaseButton>
+                            <BaseButton
                               size="sm"
                               color="warning"
                               className="me-2"
                               onClick={() => handleEdit(product.id)}
                             >
                               Edit
-                            </Button>
-                            <Button
+                            </BaseButton>
+                            <BaseButton
                               size="sm"
                               color="danger"
-                              onClick={() => handleDelete(product.id)}
+                              onClick={() => confirmDelete(product.id)}
                             >
                               Delete
-                            </Button>
+                            </BaseButton>
                           </td>
                         </tr>
                       );
@@ -275,6 +290,22 @@ const ProductList = () => {
           </CardBody>
         </Card>
       </Container>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)}>
+        <ModalHeader toggle={() => setDeleteModal(false)}>
+          Confirm Delete
+        </ModalHeader>
+        <ModalBody>Are you sure you want to delete this product?</ModalBody>
+        <ModalFooter>
+          <BaseButton color="danger" onClick={handleDelete}>
+            Delete
+          </BaseButton>{" "}
+          <BaseButton color="secondary" onClick={() => setDeleteModal(false)}>
+            Cancel
+          </BaseButton>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

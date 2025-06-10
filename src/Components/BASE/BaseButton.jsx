@@ -1,5 +1,3 @@
-// src/components/Common/BaseButton.js
-import React from "react";
 import { Button} from "reactstrap";
 import BaseLoader from "./BaseLoader";
 

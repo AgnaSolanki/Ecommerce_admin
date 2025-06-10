@@ -1,17 +1,20 @@
+// Complete Updated EditProduct Component
+
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, CardBody, Form } from "reactstrap";
 import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
-import userApi from "../../../api/userApi";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  onlyNum,
-  validationField,
-} from "../../../Components/constants/validation";
-import { CONSTANTS } from "../../../Components/constants/common";
+import { onlyNum, validationField } from "../../../Components/constants/validation";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
+import authService from "../../../api/apiServices";
+import avatar from "../../../assets/images/users/user-dummy-img.jpg";
+import { toast } from "react-toastify";
+import { CONSTANTS } from "../../../Components/constants/common";
+import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
+import BaseFileInput from "../../../Components/BASE/BaseFileInput";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -21,48 +24,68 @@ const EditProduct = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    category_id: "",
+    id: "",
+    product_variants: [
+      {
+        product_title_name: "",
+        description: "",
+        color: "",
+        size: "",
+        price: "",
+        quantity: "",
+        variant_image: "",
+      },
+    ],
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await userApi.getCategories();
+        const res = await authService.getCategories();
         setCategories(res.data?.data || []);
       } catch (err) {
-        console.error("Error fetching categories:", err);
+       toast.error(err?.message);
       }
     };
 
     const fetchProduct = async () => {
       try {
-        const res = await userApi.viewProduct(id);
+        const res = await authService.viewProduct(id);
         const product = res.data?.data;
 
-        if (product) {
-          formik.setValues({
+        if (product && Array.isArray(product.variants)) {
+          const mappedVariants = product.variants.map((v) => ({
+            product_title_name: v.product_title_name || "",
+            description: v.description || "",
+            color: v.color || "",
+            size: v.size || "",
+            price: String(v.price || ""),
+            quantity: String(v.quantity || ""),
+            variant_image: v.image?.image_path || "",
+          }));
+
+          setInitialValues({
             name: product.name || "",
-            category_id: String(product.category_id || ""),
-            product_variants: product.product_variants.map((v) => ({
-              product_title_name: v.product_title_name || "",
-              description: v.description || "",
-              color: v.color || "",
-              size: v.size || "",
-              price: String(v.price || ""),
-              quantity: String(v.quantity || ""),
-              variant_image: v.variant_image?.image_path || null,
-            })),
+            category_id: product.category?.id || "",
+            id: String(product.id || ""),
+            product_variants: mappedVariants,
           });
 
-          // Initialize image previews
           const previews = {};
-          product.product_variants.forEach((v, idx) => {
-            if (v.variant_image?.image_path) {
-              previews[`variant_image_preview_${idx}`] = v.variant_image.image_path;
+          product.variants.forEach((v, idx) => {
+            if (v.image?.image_path) {
+              previews[`variant_image_preview_${idx}`] = `${
+                import.meta.env.VITE_BASE_IMAGE
+              }/${v.image.image_path}`;
             }
           });
           setImagePreviews(previews);
         }
       } catch (error) {
-        console.error("Error loading product:", error);
+        toast.error(error?.message);
       }
     };
 
@@ -70,48 +93,36 @@ const EditProduct = () => {
     fetchProduct();
   }, [id]);
 
+  const productValidation = validationField(CONSTANTS.Product);
+  const categoryValidation = validationField(CONSTANTS.Category);
+  const titleValidation = validationField(CONSTANTS.Title);
+  const descriptionValidation = validationField(CONSTANTS.Description);
+  const colorValidation = validationField(CONSTANTS.Color);
+  const sizeValidation = validationField(CONSTANTS.Size);
+  const priceValidation = validationField(CONSTANTS.Price);
+  const quantityValidation = validationField(CONSTANTS.Quantity);
 
   const formik = useFormik({
-    initialValues: {
-      name: "",
-      category_id: "",
-      product_variants: [
-        {
-          product_title_name: "",
-          description: "",
-          color: "",
-          size: "",
-          price: "",
-          quantity: "",
-          variant_image: null,
-        },
-      ],
-    },
+    initialValues: initialValues,
     enableReinitialize: true,
     validationSchema: Yup.object({
-      name: Yup.string().required("Product name is required"),
-      category_id: Yup.string()
-        .required("Category is required")
-        .test(
-          "is-num",
-          "Category must be a number",
-          (val) => !isNaN(Number(val))
-        ),
+      name: Yup.string().required(productValidation.required),
+      category_id: Yup.string().required(categoryValidation.required),
       product_variants: Yup.array().of(
         Yup.object().shape({
-          product_title_name: Yup.string().required("Title is required"),
-          description: Yup.string().required("Description is required"),
-          color: Yup.string().required("Color is required"),
-          size: Yup.string().required("Size is required"),
+          product_title_name: Yup.string().required(titleValidation.required),
+          description: Yup.string().required(descriptionValidation.required),
+          color: Yup.string().required(colorValidation.required),
+          size: Yup.string().required(sizeValidation.required),
           price: Yup.string()
-            .required("Price is required")
+            .required(priceValidation.required)
             .test(
               "is-num",
               "Price must be a number",
               (val) => !isNaN(Number(val))
             ),
           quantity: Yup.string()
-            .required("Quantity is required")
+            .required(quantityValidation.required)
             .test(
               "is-num",
               "Quantity must be a number",
@@ -123,22 +134,24 @@ const EditProduct = () => {
     onSubmit: async (values) => {
       try {
         setSaveLoading(true);
-
         const payload = JSON.parse(JSON.stringify(values));
+        delete payload.id;
         payload.category_id = Number(payload.category_id);
-        payload.product_variants = payload.product_variants.map((v) => ({
-          ...v,
-          price: Number(v.price),
-          quantity: Number(v.quantity),
-        }));
 
-        for (let i = 0; i < values.product_variants.length; i++) {
+        for (let i = 0; i < payload.product_variants.length; i++) {
+          payload.product_variants[i].price = Number(
+            payload.product_variants[i].price
+          );
+          payload.product_variants[i].quantity = Number(
+            payload.product_variants[i].quantity
+          );
+
           const imageFile = values.product_variants[i].variant_image;
 
           if (imageFile instanceof File) {
             const formData = new FormData();
             formData.append("files", imageFile);
-            const res = await userApi.fileUpload(formData);
+            const res = await authService.fileUpload(formData);
             const filePath = res.data?.data?.[0];
             if (!filePath) {
               setSaveLoading(false);
@@ -147,19 +160,20 @@ const EditProduct = () => {
             payload.product_variants[i].variant_image = {
               image_path: filePath,
             };
-          } else if (typeof imageFile === "string") {
+          } else if (typeof imageFile === "string" && imageFile !== "") {
             payload.product_variants[i].variant_image = {
               image_path: imageFile,
             };
           } else {
-            payload.product_variants[i].variant_image = null;
+            delete payload.product_variants[i].variant_image;
           }
         }
 
-        await userApi.editProduct(id, payload);
+        await authService.editProduct(id, payload);
+
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
-        console.error("Edit Product Error:", err);
+        toast.error(err?.message);
       } finally {
         setSaveLoading(false);
       }
@@ -183,11 +197,12 @@ const EditProduct = () => {
 
   return (
     <Container fluid className="page-content mt-lg-5 w-100">
-      <Card>
+      <Card className="p-4">
         <CardBody>
           <FormikProvider value={formik}>
             <Form onSubmit={formik.handleSubmit}>
-              <Row>
+              <h4 className="mb-4">Edit Product</h4>
+              <Row className="mb-3">
                 <Col md={6}>
                   <BaseInput
                     name="name"
@@ -197,10 +212,10 @@ const EditProduct = () => {
                   />
                 </Col>
                 <Col md={6}>
-                  <BaseInput
+                  <BaseSelectInput
                     name="category_id"
-                    label="Category"
-                    type="select"
+                    label={CONSTANTS.Category}
+                    type={CONSTANTS.select}
                     options={[
                       { label: "Select Category", value: "" },
                       ...categories.map((cat) => ({
@@ -218,118 +233,117 @@ const EditProduct = () => {
                 render={() => (
                   <>
                     {formik.values.product_variants.map((variant, index) => (
-                      <Card key={index} className="my-3">
-                        <CardBody>
-                          <Row>
-                            <Col md={6}>
-                              <BaseInput
-                                type="text"
-                                name={`product_variants[${index}].product_title_name`}
-                                label="Variant Title"
-                                formik={formik}
-                              />
-                            </Col>
-                            <Col md={6}>
-                              <BaseInput
-                                type="text"
-                                name={`product_variants[${index}].description`}
-                                label="Description"
-                                formik={formik}
-                              />
-                            </Col>
-                            <Col md={4}>
-                              <BaseInput
-                                type="text"
-                                name={`product_variants[${index}].color`}
-                                label="Color"
-                                formik={formik}
-                              />
-                            </Col>
-                            <Col md={4}>
-                              <BaseInput
-                                type="text"
-                                name={`product_variants[${index}].size`}
-                                label="Size"
-                                formik={formik}
-                              />
-                            </Col>
-                            <Col md={2}>
-                              <BaseInput
-                                label="Price"
-                                type="text"
-                                name={`product_variants[${index}].price`}
-                                formik={formik}
-                                onChange={handleOtpChange}
-                              />
-                            </Col>
-                            <Col md={2}>
-                              <BaseInput
-                                label="Qty"
-                                name={`product_variants[${index}].quantity`}
-                                type="text"
-                                formik={formik}
-                                onChange={handleOtpChange}
-                              />
-                            </Col>
-                            <Col md={6}>
-                              <BaseInput
-                                name={`product_variants[${index}].variant_image`}
-                                type="file"
-                                isAvatarUpload={false}
-                                formik={formik}
-                                onFileChange={(file) => {
-                                  const fileUrl = URL.createObjectURL(file);
-                                  formik.setFieldValue(
-                                    `product_variants[${index}].variant_image`,
-                                    file
-                                  );
-                                  const previewKey = `variant_image_preview_${index}`;
-                                  setImagePreviews((prev) => ({
-                                    ...prev,
-                                    [previewKey]: fileUrl,
-                                  }));
-                                }}
-                              />
-
+                      <Card key={index} className="my-4 shadow-sm p-3">
+                        <h5 className="mb-3">Variant {index + 1}</h5>
+                        <Row className="g-3">
+                          <Col md={6}>
+                            <BaseInput
+                              type={CONSTANTS.text}
+                              name={`product_variants[${index}].product_title_name`}
+                              label="Variant Title"
+                              formik={formik}
+                            />
+                          </Col>
+                          <Col md={6}>
+                            <BaseInput
+                              type={CONSTANTS.text}
+                              name={`product_variants[${index}].description`}
+                              label={CONSTANTS.Description}
+                              formik={formik}
+                            />
+                          </Col>
+                          <Col md={4}>
+                            <BaseInput
+                              type={CONSTANTS.text}
+                              name={`product_variants[${index}].color`}
+                              label={CONSTANTS.Color}
+                              formik={formik}
+                            />
+                          </Col>
+                          <Col md={4}>
+                            <BaseInput
+                              type={CONSTANTS.text}
+                              name={`product_variants[${index}].size`}
+                              label={CONSTANTS.Size}
+                              formik={formik}
+                            />
+                          </Col>
+                          <Col md={2}>
+                            <BaseInput
+                              label={CONSTANTS.Price}
+                              type={CONSTANTS.text}
+                              name={`product_variants[${index}].price`}
+                              formik={formik}
+                              onChange={handleOtpChange}
+                            />
+                          </Col>
+                          <Col md={2}>
+                            <BaseInput
+                              label={CONSTANTS.Qty}
+                              name={`product_variants[${index}].quantity`}
+                              type={CONSTANTS.text}
+                              formik={formik}
+                              onChange={handleOtpChange}
+                            />
+                          </Col>
+                          <Col md={6}>
+                            <BaseFileInput
+                              name={`product_variants[${index}].variant_image`}
+                              type={CONSTANTS.file}
+                              isAvatarUpload={false}
+                              formik={formik}
+                              onFileChange={(file) => {
+                                const fileUrl = URL.createObjectURL(file);
+                                formik.setFieldValue(
+                                  `product_variants[${index}].variant_image`,
+                                  file
+                                );
+                                const previewKey = `variant_image_preview_${index}`;
+                                setImagePreviews((prev) => ({
+                                  ...prev,
+                                  [previewKey]: fileUrl,
+                                }));
+                              }}
+                            />
+                            <div className="mt-2">
                               <img
                                 src={
-                                  imagePreviews[`variant_image_preview_${index}`] ||
-                                  (typeof variant.variant_image === "string"
-                                    ? variant.variant_image
-                                    : "")
+                                  imagePreviews[
+                                    `variant_image_preview_${index}`
+                                  ] || avatar
                                 }
-                                className="rounded avatar-md img-thumbnail"
-                                alt="variant preview"
+                                alt="Variant Preview"
+                                height="80"
                               />
-                            </Col>
-                          </Row>
-                        </CardBody>
+                            </div>
+                          </Col>
+                        </Row>
                       </Card>
                     ))}
                   </>
                 )}
               />
 
-              <div className="text-end mt-3">
-                <BaseButton
-                  color="success"
-                  size="sm"
-                  type={CONSTANTS.submit}
-                  onClick={formik.handleSubmit}
-                  loading={saveLoading}
-                >
-                  {!saveLoading ? "Update Product" : null}
-                </BaseButton>
-                <BaseButton
-                  type="button"
-                  color="secondary"
-                  size="sm"
-                  onClick={handleCancel}
-                  loading={cancelLoading}
-                >
-                  {!cancelLoading ? "Cancel" : null}
-                </BaseButton>
-              </div>
+              <Row className="mt-4">
+                <Col>
+                  <BaseButton
+                    type={CONSTANTS.submit}
+                    loading={saveLoading}
+                    color="primary"
+                  >
+                    Save
+                  </BaseButton>
+                  <BaseButton
+                    type={CONSTANTS.Button}
+                    loading={cancelLoading}
+                    color="secondary"
+                    className="ms-3"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </BaseButton>
+                </Col>
+              </Row>
             </Form>
           </FormikProvider>
         </CardBody>

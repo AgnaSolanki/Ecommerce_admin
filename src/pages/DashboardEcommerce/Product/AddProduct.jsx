@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, CardBody, Form } from "reactstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Form,
+  CardHeader,
+} from "reactstrap";
 import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
+import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import authService from "../../../api/apiServices";
 import { useNavigate } from "react-router-dom";
-import {
-  onlyNum,
-  validationField,
-} from "../../../Components/constants/validation";
+import { onlyNum, validationField } from "../../../Components/constants/validation";
 import { CONSTANTS } from "../../../Components/constants/common";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
+import { toast } from "react-toastify";
+import BaseFileInput from "../../../Components/BASE/BaseFileInput";
 
 const AddProduct = () => {
   const [categories, setCategories] = useState([]);
@@ -26,12 +34,18 @@ const AddProduct = () => {
         const res = await authService.getCategories();
         setCategories(res.data?.data || []);
       } catch (err) {
-        console.error("Error fetching categories:", err);
+        toast.error(err?.message);
       }
     };
     fetchCategories();
   }, []);
-
+    const categoryValidation = validationField(CONSTANTS.Category);
+    const titleValidation = validationField(CONSTANTS.Title);
+    const descriptionValidation = validationField(CONSTANTS.Description);
+    const colorValidation = validationField(CONSTANTS.Color);
+    const sizeValidation = validationField(CONSTANTS.Size);
+    const priceValidation = validationField(CONSTANTS.Price);
+    const quantityValidation = validationField(CONSTANTS.Quantity);
 
   const formik = useFormik({
     initialValues: {
@@ -49,10 +63,11 @@ const AddProduct = () => {
         },
       ],
     },
+    
     validationSchema: Yup.object({
-      name: Yup.string().required("Product name is required"),
+      name: Yup.string().required(priceValidation.required),
       category_id: Yup.string()
-        .required("Category is required")
+        .required(categoryValidation.required)
         .test(
           "is-num",
           "Category must be a number",
@@ -60,19 +75,19 @@ const AddProduct = () => {
         ),
       product_variants: Yup.array().of(
         Yup.object().shape({
-          product_title_name: Yup.string().required("Title is required"),
-          description: Yup.string().required("Description is required"),
-          color: Yup.string().required("Color is required"),
-          size: Yup.string().required("Size is required"),
+          product_title_name: Yup.string().required(titleValidation.required),
+          description: Yup.string().required(descriptionValidation.required),
+          color: Yup.string().required(colorValidation.required),
+          size: Yup.string().required(sizeValidation.required),
           price: Yup.string()
-            .required("Price is required")
+            .required(priceValidation.required)
             .test(
               "is-num",
               "Price must be a number",
               (val) => !isNaN(Number(val))
             ),
           quantity: Yup.string()
-            .required("Quantity is required")
+            .required(quantityValidation.required)
             .test(
               "is-num",
               "Quantity must be a number",
@@ -82,8 +97,6 @@ const AddProduct = () => {
       ),
     }),
     onSubmit: async (values) => {
-      console.log("Submitting form", values);
-
       try {
         setSaveLoading(true);
 
@@ -120,7 +133,7 @@ const AddProduct = () => {
         await authService.addProduct(payload);
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
-        console.error("Add Product Error:", err);
+        toast.error(err?.message);
       } finally {
         setSaveLoading(false);
       }
@@ -139,29 +152,33 @@ const AddProduct = () => {
     setTimeout(() => {
       setCancelLoading(false);
       navigate(LoginRoutes.PRODUCT_LIST);
-    }, 500); 
+    }, 500);
   };
 
   return (
     <Container fluid className="page-content mt-lg-5 w-100">
-      <Card mt={5}>
+      <Card>
+        <CardHeader>
+          <h4 className="mb-0">Add New Product</h4>
+        </CardHeader>
         <CardBody>
           <FormikProvider value={formik}>
             <Form onSubmit={formik.handleSubmit}>
-              <Row>
-                <Col md={6}>
+              <h5 className="mb-3">Basic Product Details</h5>
+              <Row className="mb-4">
+                <Col md={6} className="mb-3">
                   <BaseInput
-                    name="name"
-                    label="Product Name"
+                    name={CONSTANTS.name}
+                    label={CONSTANTS.ProductName}
                     formik={formik}
                     onChange={formik.handleChange}
                   />
                 </Col>
-                <Col md={6}>
-                  <BaseInput
+                <Col md={6} className="mb-3">
+                  <BaseSelectInput
                     name="category_id"
-                    label="Category"
-                    type="select"
+                    label={CONSTANTS.Category}
+                    type={CONSTANTS.select}
                     options={[
                       { label: "Select Category", value: "" },
                       ...categories.map((cat) => ({
@@ -179,12 +196,18 @@ const AddProduct = () => {
                 render={() => (
                   <>
                     {formik.values.product_variants.map((variant, index) => (
-                      <Card key={index} className="my-3">
+                      <Card
+                        key={index}
+                        className="mb-4 border rounded shadow-sm"
+                      >
+                        <CardHeader className="bg-light">
+                          <h6 className="mb-0">Variant {index + 1}</h6>
+                        </CardHeader>
                         <CardBody>
-                          <Row>
+                          <Row className="gy-3">
                             <Col md={6}>
                               <BaseInput
-                                type="text"
+                                type={CONSTANTS.text}
                                 name={`product_variants[${index}].product_title_name`}
                                 label="Variant Title"
                                 formik={formik}
@@ -192,32 +215,32 @@ const AddProduct = () => {
                             </Col>
                             <Col md={6}>
                               <BaseInput
-                                type="text"
+                                type={CONSTANTS.text}
                                 name={`product_variants[${index}].description`}
-                                label="Description"
+                                label={CONSTANTS.Description}
                                 formik={formik}
                               />
                             </Col>
                             <Col md={4}>
                               <BaseInput
-                                type="text"
+                                type={CONSTANTS.text}
                                 name={`product_variants[${index}].color`}
-                                label="Color"
+                                label={CONSTANTS.Color}
                                 formik={formik}
                               />
                             </Col>
                             <Col md={4}>
                               <BaseInput
-                                type="text"
+                                type={CONSTANTS.text}
                                 name={`product_variants[${index}].size`}
-                                label="Size"
+                                label={CONSTANTS.Size}
                                 formik={formik}
                               />
                             </Col>
                             <Col md={2}>
                               <BaseInput
-                                label="Price"
-                                type="text"
+                                label={CONSTANTS.Price}
+                                type={CONSTANTS.text}
                                 name={`product_variants[${index}].price`}
                                 formik={formik}
                                 onChange={handleOtpChange}
@@ -225,27 +248,26 @@ const AddProduct = () => {
                             </Col>
                             <Col md={2}>
                               <BaseInput
-                                label="Qty"
+                                label={CONSTANTS.Qty}
                                 name={`product_variants[${index}].quantity`}
-                                type="text"
+                                type={CONSTANTS.text}
                                 formik={formik}
                                 onChange={handleOtpChange}
                               />
                             </Col>
+
                             <Col md={6}>
-                              <BaseInput
+                              <BaseFileInput
                                 name={`product_variants[${index}].variant_image`}
-                                type="file"
+                                type={CONSTANTS.file}
                                 isAvatarUpload={false}
                                 formik={formik}
                                 onFileChange={(file) => {
                                   const fileUrl = URL.createObjectURL(file);
-
                                   formik.setFieldValue(
                                     `product_variants[${index}].variant_image`,
                                     file
                                   );
-
                                   const previewKey = `variant_image_preview_${index}`;
                                   setImagePreviews((prev) => ({
                                     ...prev,
@@ -254,18 +276,25 @@ const AddProduct = () => {
                                 }}
                               />
 
-                              <img
-                                src={
-                                  imagePreviews[
-                                    `variant_image_preview_${index}`
-                                  ] ||
-                                  (typeof variant.variant_image === "string"
-                                    ? variant.variant_image
-                                    : "")
-                                }
-                                className="rounded avatar-md img-thumbnail"
-                                alt="variant preview"
-                              />
+                              <div className="mt-3 text-center">
+                                <img
+                                  src={
+                                    imagePreviews[
+                                      `variant_image_preview_${index}`
+                                    ] ||
+                                    (typeof variant.variant_image === "string"
+                                      ? variant.variant_image
+                                      : "")
+                                  }
+                                  className="rounded avatar-lg img-thumbnail"
+                                  alt="variant preview"
+                                  style={{
+                                    objectFit: "cover",
+                                    width: "120px",
+                                    height: "120px",
+                                  }}
+                                />
+                              </div>
                             </Col>
                           </Row>
                         </CardBody>
@@ -275,18 +304,19 @@ const AddProduct = () => {
                 )}
               />
 
-              <div className="text-end mt-3">
+              <div className="text-end mt-4">
                 <BaseButton
                   color="success"
                   size="sm"
                   type={CONSTANTS.submit}
                   onClick={formik.handleSubmit}
                   loading={saveLoading}
+                  className="me-2"
                 >
                   {!saveLoading ? "Submit Product" : null}
                 </BaseButton>
                 <BaseButton
-                  type="button"
+                  type={CONSTANTS.button}
                   color="secondary"
                   size="sm"
                   onClick={handleCancel}

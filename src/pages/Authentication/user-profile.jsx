@@ -13,6 +13,9 @@ import {
   selectLabel,
   validationField,
 } from "../../Components/constants/validation";
+import BaseFileInput from "../../Components/BASE/BaseFileInput";
+import BaseRadioInput from "../../Components/BASE/BaseRadioInput";
+import BaseSelectInput from "../../Components/BASE/BaseSelectInput";
 
 const UserProfile = () => {
   const [idx] = useState("1");
@@ -231,7 +234,7 @@ const UserProfile = () => {
                       <>
                         <label htmlFor="avatar-upload" className="img-avatar">
                           <i className="ri-edit-2-fill text-size"></i>
-                          <BaseInput
+                          <BaseFileInput
                             id="avatar-upload"
                             name="avatar"
                             type="file"
@@ -306,7 +309,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={6}>
-                  <BaseInput
+                  <BaseRadioInput
                     id={CONSTANTS.gender}
                     name={CONSTANTS.gender}
                     label={CONSTANTS.Gender}
@@ -335,7 +338,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={4}>
-                  <BaseInput
+                  <BaseSelectInput
                     id={CONSTANTS.country}
                     name={CONSTANTS.country}
                     label={CONSTANTS.Country}
@@ -354,7 +357,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={4}>
-                  <BaseInput
+                  <BaseSelectInput
                     id={CONSTANTS.state}
                     name={CONSTANTS.state}
                     label={CONSTANTS.state}
@@ -373,7 +376,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={4}>
-                  <BaseInput
+                  <BaseSelectInput
                     id={CONSTANTS.city}
                     name={CONSTANTS.city}
                     label={CONSTANTS.City}
