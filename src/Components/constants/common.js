@@ -60,5 +60,8 @@ export const CONSTANTS = {
     file: "file",
     Title: "Title",
     name: "name",
-    button: "button"
+    button: "button",
+    category_id:"category_id",
+    VariantTitle: "Variant Title",
+    product_variants: "product_variants"
 }

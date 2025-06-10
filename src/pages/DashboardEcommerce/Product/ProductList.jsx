@@ -55,10 +55,6 @@ const ProductList = () => {
     fetchProducts();
   }, [page, limit]);
 
-  const onLimitChange = (selectedOption) => {
-    setLimit(selectedOption.value);
-    setPage(1);
-  };
 
   const goToPage = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {

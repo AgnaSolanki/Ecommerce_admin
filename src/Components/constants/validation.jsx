@@ -25,3 +25,7 @@ export const inputField = (fieldName) => {
 export const selectLabel = (fieldName) =>{
   return `Select ${fieldName}`
 }
+
+export const isNumber = (fieldName) =>{
+   return `${fieldName} must be is number`
+}

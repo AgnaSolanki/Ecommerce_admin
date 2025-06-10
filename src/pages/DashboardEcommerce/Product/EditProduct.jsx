@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import { useNavigate, useParams } from "react-router-dom";
-import { onlyNum, validationField } from "../../../Components/constants/validation";
+import { isNumber, onlyNum, selectLabel, validationField } from "../../../Components/constants/validation";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import authService from "../../../api/apiServices";
 import avatar from "../../../assets/images/users/user-dummy-img.jpg";
@@ -118,14 +118,14 @@ const EditProduct = () => {
             .required(priceValidation.required)
             .test(
               "is-num",
-              "Price must be a number",
+              isNumber(CONSTANTS.Price),
               (val) => !isNaN(Number(val))
             ),
           quantity: Yup.string()
             .required(quantityValidation.required)
             .test(
               "is-num",
-              "Quantity must be a number",
+              isNumber(CONSTANTS.Quantity),
               (val) => !isNaN(Number(val))
             ),
         })
@@ -213,11 +213,11 @@ const EditProduct = () => {
                 </Col>
                 <Col md={6}>
                   <BaseSelectInput
-                    name="category_id"
+                    name={CONSTANTS.category_id}
                     label={CONSTANTS.Category}
                     type={CONSTANTS.select}
                     options={[
-                      { label: "Select Category", value: "" },
+                      { label: selectLabel(CONSTANTS.Category), value: "" },
                       ...categories.map((cat) => ({
                         label: cat.category_name,
                         value: cat.id,
@@ -229,7 +229,7 @@ const EditProduct = () => {
               </Row>
 
               <FieldArray
-                name="product_variants"
+                name={CONSTANTS.product_variants}
                 render={() => (
                   <>
                     {formik.values.product_variants.map((variant, index) => (
@@ -240,7 +240,7 @@ const EditProduct = () => {
                             <BaseInput
                               type={CONSTANTS.text}
                               name={`product_variants[${index}].product_title_name`}
-                              label="Variant Title"
+                              label={CONSTANTS.VariantTitle}
                               formik={formik}
                             />
                           </Col>

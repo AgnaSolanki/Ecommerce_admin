@@ -15,7 +15,12 @@ import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import authService from "../../../api/apiServices";
 import { useNavigate } from "react-router-dom";
-import { onlyNum, validationField } from "../../../Components/constants/validation";
+import {
+  isNumber,
+  onlyNum,
+  selectLabel,
+  validationField,
+} from "../../../Components/constants/validation";
 import { CONSTANTS } from "../../../Components/constants/common";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import { toast } from "react-toastify";
@@ -39,13 +44,13 @@ const AddProduct = () => {
     };
     fetchCategories();
   }, []);
-    const categoryValidation = validationField(CONSTANTS.Category);
-    const titleValidation = validationField(CONSTANTS.Title);
-    const descriptionValidation = validationField(CONSTANTS.Description);
-    const colorValidation = validationField(CONSTANTS.Color);
-    const sizeValidation = validationField(CONSTANTS.Size);
-    const priceValidation = validationField(CONSTANTS.Price);
-    const quantityValidation = validationField(CONSTANTS.Quantity);
+  const categoryValidation = validationField(CONSTANTS.Category);
+  const titleValidation = validationField(CONSTANTS.Title);
+  const descriptionValidation = validationField(CONSTANTS.Description);
+  const colorValidation = validationField(CONSTANTS.Color);
+  const sizeValidation = validationField(CONSTANTS.Size);
+  const priceValidation = validationField(CONSTANTS.Price);
+  const quantityValidation = validationField(CONSTANTS.Quantity);
 
   const formik = useFormik({
     initialValues: {
@@ -63,14 +68,14 @@ const AddProduct = () => {
         },
       ],
     },
-    
+
     validationSchema: Yup.object({
       name: Yup.string().required(priceValidation.required),
       category_id: Yup.string()
         .required(categoryValidation.required)
         .test(
           "is-num",
-          "Category must be a number",
+          isNumber(CONSTANTS.Category),
           (val) => !isNaN(Number(val))
         ),
       product_variants: Yup.array().of(
@@ -83,14 +88,14 @@ const AddProduct = () => {
             .required(priceValidation.required)
             .test(
               "is-num",
-              "Price must be a number",
+              isNumber(CONSTANTS.Price),
               (val) => !isNaN(Number(val))
             ),
           quantity: Yup.string()
             .required(quantityValidation.required)
             .test(
               "is-num",
-              "Quantity must be a number",
+             isNumber(CONSTANTS.Quantity),
               (val) => !isNaN(Number(val))
             ),
         })
@@ -176,11 +181,11 @@ const AddProduct = () => {
                 </Col>
                 <Col md={6} className="mb-3">
                   <BaseSelectInput
-                    name="category_id"
+                    name={CONSTANTS.category_id}
                     label={CONSTANTS.Category}
                     type={CONSTANTS.select}
                     options={[
-                      { label: "Select Category", value: "" },
+                      { label: selectLabel(CONSTANTS.Category), value: "" },
                       ...categories.map((cat) => ({
                         label: cat.category_name,
                         value: cat.id,
@@ -209,7 +214,7 @@ const AddProduct = () => {
                               <BaseInput
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].product_title_name`}
-                                label="Variant Title"
+                                label={CONSTANTS.VariantTitle}
                                 formik={formik}
                               />
                             </Col>
@@ -286,13 +291,8 @@ const AddProduct = () => {
                                       ? variant.variant_image
                                       : "")
                                   }
-                                  className="rounded avatar-lg img-thumbnail"
+                                  className="rounded avatar-lg img-thumbnail variant_img"
                                   alt="variant preview"
-                                  style={{
-                                    objectFit: "cover",
-                                    width: "120px",
-                                    height: "120px",
-                                  }}
                                 />
                               </div>
                             </Col>

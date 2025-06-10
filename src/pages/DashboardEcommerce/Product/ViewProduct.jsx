@@ -74,7 +74,7 @@ const ViewProduct = () => {
           <Col md={4} className="mb-3 d-flex align-items-center">
             <span className="fw-semibold me-2">Category:</span>
             <Badge color="info" pill className="me-1">
-              {product.category?.category_name || "N/A"}
+              {product.category?.category_name }
             </Badge>
             <small className="text-muted">
               (ID: {product.category?.id || "N/A"})
@@ -99,23 +99,15 @@ const ViewProduct = () => {
                         variant.image.image_path
                       }`}
                       alt="Variant"
-                      className="rounded-circle border"
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        objectFit: "cover",
-                      }}
+                      className="rounded-circle border variant_img"
+                   
                     />
                   ) : (
                     <img
                       src={avatar}
                       alt="No Image"
-                      className="rounded-circle border"
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        objectFit: "cover",
-                      }}
+                      className="rounded-circle border variant_img"
+                   
                     />
                   )}
                 </Col>
@@ -128,24 +120,12 @@ const ViewProduct = () => {
                       Price ${variant.price}
                     </span>
                     <span className="fw-semibold me-1">Color:</span>{" "}
-                    {variant.color || "N/A"}
-                    {variant.color && (
-                      <span
-                        style={{
-                          display: "inline-block",
-                          width: "12px",
-                          height: "12px",
-                          backgroundColor: variant.color,
-                          borderRadius: "50%",
-                          marginLeft: "8px",
-                          border: "1px solid #000",
-                        }}
-                      ></span>
-                    )}
+                    {variant.color }
+                 
                   </p>
 
                   <p className="mb-2">
-                    {variant.description || "No description provided."}
+                    {variant.description }
                   </p>
 
                   <Row>
@@ -157,11 +137,11 @@ const ViewProduct = () => {
                     </Col>
                     <Col md={2} className="mb-2">
                       <span className="fw-semibold me-2">Size:</span>
-                      {variant.size || "N/A"}
+                      {variant.size }
                     </Col>
                     <Col md={2} className="mb-2">
                       <span className="fw-semibold me-2">Quantity:</span>
-                      {variant.quantity || "N/A"}
+                      {variant.quantity}
                     </Col>
                   </Row>
                 </Col>

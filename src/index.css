@@ -111,7 +111,6 @@ button:focus-visible {
   right: 0;
   cursor: "pointer";
   background: "#fff";
-
 }
 .text-size {
   font-size: 18px;
@@ -139,4 +138,17 @@ button:focus-visible {
 .user-profile-image {
   margin-top: 15px;
   margin-right: 5px;
+}
+.variant_img {
+  object-fit: cover;
+  width: 120px;
+  height: 120px;
+}
+.span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 8px;
+  border: 1px solid #000;
 }
