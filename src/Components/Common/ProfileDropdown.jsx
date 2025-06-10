@@ -16,6 +16,7 @@ import userApi from "../../api/userApi";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import avatarFallback from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";
+import { toast } from "react-toastify";
 
 const ProfileDropdown = () => {
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
@@ -29,7 +30,7 @@ const ProfileDropdown = () => {
         const res = await userApi.viewProfile();
         setUserProfile(res.data?.data || {});
       } catch (err) {
-        console.error("Failed to fetch user profile", err);
+        toast.error(err.message);
       }
     };
 

@@ -13,6 +13,10 @@ import {
   selectLabel,
   validationField,
 } from "../../Components/constants/validation";
+import BaseFileInput from "../../Components/BASE/BaseFileInput";
+import BaseRadioInput from "../../Components/BASE/BaseRadioInput";
+import BaseSelectInput from "../../Components/BASE/BaseSelectInput";
+import { toast } from "react-toastify";
 
 const UserProfile = () => {
   const [idx] = useState("1");
@@ -36,7 +40,7 @@ const UserProfile = () => {
         setUserEmail(parsedUser.email || "");
         setUserRole(parsedUser.role);
       } catch (err) {
-        console.error(err);
+        toast.error(err.message);
       }
     }
   }, [userRole]);
@@ -109,7 +113,7 @@ const UserProfile = () => {
 
         setError("");
       } catch (error) {
-        console.error(error.message);
+        toast.error(error.message);
       } finally {
         setSaveLoading(false);
       }
@@ -122,7 +126,7 @@ const UserProfile = () => {
         const res = await userApi.getCountries();
         setCountries(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error(err.message);
+        toast.error(err.message);
       }
     };
     fetchCountries();
@@ -139,7 +143,7 @@ const UserProfile = () => {
         const res = await userApi.getStates(formik.values.country);
         setStates(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error(err.message);
+        toast.error(err.message);
       }
     };
     fetchStates();
@@ -154,7 +158,7 @@ const UserProfile = () => {
         const res = await userApi.getCities(formik.values.state);
         setCities(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error(err.message);
+        toast.error(err.message);
       }
     };
     fetchCities();
@@ -186,7 +190,7 @@ const UserProfile = () => {
 
       setAvatarPreview(profile.profile_image || avatar);
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
     }
   };
   useEffect(() => {
@@ -217,7 +221,11 @@ const UserProfile = () => {
                 <div className="d-flex">
                   <div className="profile-user position-relative d-inline-block mx-auto mb-4">
                     <img
-                      src={avatarPreview || avatar}
+                      src={avatarPreview}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = avatar;
+                      }}
                       className="rounded-circle avatar-md img-thumbnail user-profile-image"
                       alt="user-avatar"
                     />
@@ -226,10 +234,10 @@ const UserProfile = () => {
                       <>
                         <label htmlFor="avatar-upload" className="img-avatar">
                           <i className="ri-edit-2-fill text-size"></i>
-                          <BaseInput
+                          <BaseFileInput
                             id="avatar-upload"
                             name="avatar"
-                            type="file"
+                            type={CONSTANTS.file}
                             isAvatarUpload={true}
                             formik={formik}
                             onFileChange={(file) => {
@@ -299,7 +307,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={6}>
-                  <BaseInput
+                  <BaseRadioInput
                     id={CONSTANTS.gender}
                     name={CONSTANTS.gender}
                     label={CONSTANTS.Gender}
@@ -326,7 +334,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={4}>
-                  <BaseInput
+                  <BaseSelectInput
                     id={CONSTANTS.country}
                     name={CONSTANTS.country}
                     label={CONSTANTS.Country}
@@ -344,7 +352,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={4}>
-                  <BaseInput
+                  <BaseSelectInput
                     id={CONSTANTS.state}
                     name={CONSTANTS.state}
                     label={CONSTANTS.state}
@@ -362,7 +370,7 @@ const UserProfile = () => {
                 </Col>
 
                 <Col md={4}>
-                  <BaseInput
+                  <BaseSelectInput
                     id={CONSTANTS.city}
                     name={CONSTANTS.city}
                     label={CONSTANTS.City}

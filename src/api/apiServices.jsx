@@ -2,7 +2,7 @@ import authApi from "./authApi";
 
 import { LOGIN, VERIFY_EMAIL, UPDATE_PASSWORD, UPDATE_PROFILE, VIEW_PROFILE, UPLOAD_FILE  } from "./apiRoutes";
 
-const authService = {
+const apiService = {
   login: (data) => authApi.post(LOGIN, data),
   verifyEmail: (email) =>
     authApi.post(VERIFY_EMAIL, { email }),
@@ -17,4 +17,4 @@ const authService = {
      })
 };
 
-export default authService;
+export default apiService;
