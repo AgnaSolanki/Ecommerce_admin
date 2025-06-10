@@ -23,12 +23,6 @@ const BaseInput = ({
       : "password"
     : "text";
 
-  const handleChange = (e) => {
-    let val = e.target.value;
-
-    formik.setFieldValue(name, val);
-  };
-
   return (
     <div className="mb-3">
       {label && <label htmlFor={id} className="form-label d-block">{label}</label>}
@@ -49,7 +43,6 @@ const BaseInput = ({
         {showPasswordToggle && (
           <InputGroupText
             onClick={() => setPasswordShown(!passwordShown)}
-            style={{ cursor: "pointer" }}
           >
             <i
               className={passwordShown ? "ri-eye-off-fill align-middle" : "ri-eye-fill align-middle"}
