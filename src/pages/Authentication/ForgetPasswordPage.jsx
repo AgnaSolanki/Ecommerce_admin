@@ -18,6 +18,7 @@ import {
   validationField,
 } from "../../Components/constants/validation";
 import userApi from "../../api/userApi";
+import BaseButton from "../../Components/BASE/BaseButton";
 
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
@@ -216,24 +217,23 @@ const ForgetPasswordPage = () => {
                       )}
 
                       <div className="text-center mt-4">
-                        <button
-                          disabled={!!error || loading}
-                          className="btn btn-success w-100"
+                             <BaseButton
                           type="submit"
+                          color="success"
+                          block={true}
+                          loading={loading}
+                            disabled={!!error || loading}
                         >
-                          {loading && (
-                            <span
-                              className="spinner-border spinner-border-sm me-2"
-                              role="status"
-                              aria-hidden="true"
-                            ></span>
-                          )}
+                    
                           {!loading
                             ? submitted
                               ? "Reset Password"
                               : "Send OTP"
                             : null}
-                        </button>
+                        </BaseButton>
+                  
+                         
+                
                       </div>
                     </Form>
                   </div>
