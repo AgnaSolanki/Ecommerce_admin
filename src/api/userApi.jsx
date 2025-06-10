@@ -15,6 +15,10 @@ import {
   editProduct,
   deleteProduct,
   getCategories,
+  listOfCategory,
+  addCategory,
+  updateCategory,
+  deleteCategory,
 } from "./apiRoutes";
 
 const userApi = {
@@ -47,7 +51,13 @@ const userApi = {
 
   deleteProduct: (productId) =>
     apiService.delete(deleteProduct.replace("{product_id}", productId)),
-    getCategories:() => apiService.get(getCategories)
+    getCategories:() => apiService.get(getCategories),
+    categoryList: (data) => apiService.post(listOfCategory, data),
+  addCategory: (data) => apiService.post(addCategory, data),
+  updateCategory: (categoryId, data) =>
+    apiService.put(updateCategory.replace("{id}", categoryId), data),
+  deleteCategory: (categoryId) => 
+    apiService.delete(deleteCategory.replace("{id}", categoryId))
 
 };
 

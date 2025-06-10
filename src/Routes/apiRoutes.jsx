@@ -9,4 +9,7 @@ export const LoginRoutes = {
   ADD_PRODUCT: "/add-product",
   VIEW_PRODUCT: "/product/view",
   EDIT_PRODUCT: "/product/edit",
+  CATEGORY_LIST: "/category",
+  ADD_CATEGORY: "/add-category",
+  EDIT_CATEGORY: "/category/edit",
 };

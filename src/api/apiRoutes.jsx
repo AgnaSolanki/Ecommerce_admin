@@ -14,3 +14,7 @@ export const viewProduct = "/products/productViewForAdmin/{product_id}";
 export const editProduct = "/products/editProduct/{product_id}";
 export const deleteProduct = "/products/deleteProduct/{product_id}";
 export const getCategories = "category/categoryDropdown";
+export const listOfCategory = "category/listOfCategories"
+export const addCategory = "category/addCategory";
+export const deleteCategory = "category/deleteCategory/{id}";
+export const updateCategory = "category/updateCategory/{id}";

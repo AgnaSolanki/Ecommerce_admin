@@ -83,6 +83,12 @@ const Sidebar = ({ layoutType }) => {
                     <i className="ri-list-check-2"></i> Product List
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to={LoginRoutes.CATEGORY_LIST}>
+                    <i className="ri-grid-fill"></i>
+                    Category
+                  </Link>
+                </li>
               </ul>
             </Container>
           </SimpleBar>
