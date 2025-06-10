@@ -1,7 +1,8 @@
 import axios from "axios";
+import apiService from "./apiServices";
 
 const authApi = axios.create({
-  baseURL: import.meta.env.VITE_BASE_API,
+  baseURL: apiService.baseURL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -13,6 +14,11 @@ authApi.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
+
+    if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

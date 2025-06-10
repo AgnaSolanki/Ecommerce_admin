@@ -9,8 +9,7 @@ const BaseInput = ({
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
-  onlyNumbers = false,
-  maxLength = null,
+  onChange= {},
   setPasswordShown = () => {},
 }) => {
   const touched = formik?.touched?.[name];
@@ -27,14 +26,6 @@ const BaseInput = ({
   const handleChange = (e) => {
     let val = e.target.value;
 
-    if (onlyNumbers) {
-      val = val.replace(/\D/g, "");
-    }
-
-    if (maxLength !== null && val.length > maxLength) {
-      val = val.slice(0, maxLength);
-    }
-
     formik.setFieldValue(name, val);
   };
 
@@ -50,7 +41,7 @@ const BaseInput = ({
           placeholder={placeholder}
           disabled={disabled}
           className="form-control"
-          onChange={handleChange}
+          onChange={onChange}
           onBlur={formik.handleBlur}
           value={value}
           invalid={!!isInvalid}
