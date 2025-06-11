@@ -31,7 +31,7 @@ const BaseInput = ({
   return (
     <div className="mb-3">
     <label htmlFor={id} className="form-label">
-        {label} {required && <span style={{ color: "red" }}>*</span>}
+        {label} {required && <span className="color">*</span>}
       </label>
 
       <div className="position-relative auth-pass-inputgroup mb-3">

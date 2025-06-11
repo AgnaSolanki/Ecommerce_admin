@@ -113,3 +113,6 @@ button:focus-visible {
 input:disabled {
   cursor: not-allowed !important;  
 }
+.color{
+  color: rgb(252, 13, 13);
+}
