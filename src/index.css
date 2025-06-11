@@ -123,7 +123,6 @@ button:focus-visible {
   color: white;
 }
 
-
 .close-icon {
   color: #fff;
   font-size: 20px;
@@ -132,10 +131,10 @@ button:focus-visible {
   margin-right: 25px;
 }
 
-.image-close{
+.image-close {
   display: none;
 }
-.user-profile-image:hover  ~.image-close {
+.user-profile-image:hover ~ .image-close {
   position: absolute;
   top: 0;
   left: 0;

@@ -7,7 +7,8 @@ import BaseInput from "../../Components/BASE/BaseInput";
 import BaseButton from "../../Components/BASE/BaseButton";
 import userApi from "../../api/userApi";
 import { CONSTANTS } from "../../Components/constants/common";
-import { AiOutlineEdit } from "react-icons/ai";import {
+import { AiOutlineEdit } from "react-icons/ai";
+import {
   inputField,
   postalCodeRegex,
   selectLabel,
@@ -86,11 +87,8 @@ const UserProfile = () => {
     onSubmit: async (values) => {
       try {
         setSaveLoading(true);
-        let imagePath = avatarPreview;
-        if (selectedImage) {
-          const uploadRes = await userApi.fileUpload(selectedImage);
-          imagePath = uploadRes.data?.file_path || avatarPreview;
-        }
+
+        const imagePath = selectedImage || avatarPreview;
 
         const payload = {
           name: values.first_name,
@@ -112,7 +110,6 @@ const UserProfile = () => {
         await userApi.updateProfile(payload);
         setUserProfile({ ...formik.values });
         setIsEditing(false);
-
         setError("");
       } catch (error) {
         toast.error(error.message);
@@ -190,7 +187,13 @@ const UserProfile = () => {
         idx: idx,
       });
 
-      setAvatarPreview(profile.profile_image || avatar);
+      const fileName = profile.profile_image || "";
+      const imagePath = fileName
+        ? `${import.meta.env.VITE_BASE_IMAGE}${fileName}`
+        : avatar;
+
+      setSelectedImage(fileName);
+      setAvatarPreview(imagePath);
     } catch (error) {
       toast.error(error.message);
     }
@@ -222,7 +225,6 @@ const UserProfile = () => {
               <CardBody>
                 <div className="d-flex">
                   <div className="profile-user position-relative d-inline-block mx-auto mb-4 user-img">
-                 
                     <img
                       src={avatarPreview}
                       onError={(e) => {
@@ -243,10 +245,31 @@ const UserProfile = () => {
                             type={CONSTANTS.file}
                             isAvatarUpload={true}
                             formik={formik}
-                            onFileChange={(file) => {
+                            onFileChange={async (file) => {
                               if (file) {
-                                setSelectedImage(file);
-                                setAvatarPreview(URL.createObjectURL(file));
+                                try {
+                                  const uploadRes = await userApi.fileUpload(
+                                    file
+                                  );
+                                  const fileData = uploadRes.data?.data;
+                                  const fileName = Array.isArray(fileData)
+                                    ? fileData[0]
+                                    : fileData;
+
+                                  if (fileName) {
+                                    setSelectedImage(fileName);
+                                    const imageURL = `${
+                                      import.meta.env.VITE_BASE_IMAGE
+                                    }${fileName}`;
+                                    setAvatarPreview(imageURL);
+                                  } else {
+                                    toast.error("Failed to upload image.");
+                                  }
+                                } catch (err) {
+                                  toast.error(
+                                    err.message || "Image upload failed."
+                                  );
+                                }
                               }
                             }}
                           />
@@ -266,8 +289,7 @@ const UserProfile = () => {
                         )}
                       </>
                     )}
-               
-</div>
+                  </div>
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
                       <h5>{name}</h5>
@@ -295,6 +317,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.firstName)}
                     formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -308,6 +331,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.phone_number)}
                     formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -336,6 +360,7 @@ const UserProfile = () => {
                     onChange={formik.handleChange}
                     formik={formik}
                     disabled={true}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -403,6 +428,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.address_line1)}
                     formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -416,6 +442,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.address_line2)}
                     formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -429,8 +456,7 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.Postal_code)}
                     formik={formik}
                     disabled={!isEditing}
-                    onlyNumbers={true}
-                    maxLength={6}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
               </Row>

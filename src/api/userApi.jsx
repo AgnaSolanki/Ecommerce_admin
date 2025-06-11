@@ -24,11 +24,7 @@ const userApi = {
     const formData = new FormData();
     formData.append("files", file);
 
-    return authApi.post("/fileUpload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    return authApi.post("/fileUpload", formData);
   },
 };
 

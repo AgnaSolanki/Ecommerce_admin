@@ -24,7 +24,7 @@ const ProfileDropdown = () => {
   const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
-
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await userApi.viewProfile();
@@ -34,11 +34,7 @@ const ProfileDropdown = () => {
       }
     };
     fetchProfile();
- 
-   useEffect(() => {
-      fetchProfile();
-    }, []);
-  
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -46,7 +42,12 @@ const ProfileDropdown = () => {
     navigate(LoginRoutes.LOGIN, { replace: true });
   };
 
-  const avatarSrc = userProfile?.profile_image || avatarFallback;
+  const profileImage = userProfile?.profile_image;
+
+  const avatarSrc = profileImage
+    ? `${import.meta.env.VITE_BASE_IMAGE}${profileImage}`
+    : avatarFallback;
+
   const email = userProfile?.email || "";
   const role = userProfile?.role || "";
 

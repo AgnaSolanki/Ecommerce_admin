@@ -80,15 +80,14 @@ const ForgetPasswordPage = () => {
       if (!submitted) {
         try {
           const response = await userApi.verifyEmail({
-            email: values[CONSTANTS.email]
-        });
-          toast.success(response?.data.message);          
+            email: values[CONSTANTS.email],
+          });
+          toast.success(response?.data.message);
           setSubmitted(true);
           validation.setTouched({});
         } catch (error) {
           toast.error(error?.response?.data?.message || error?.message);
           console.log(error);
-          
         } finally {
           setLoading(false);
         }
@@ -171,10 +170,10 @@ const ForgetPasswordPage = () => {
                           formik={validation}
                           disabled={submitted}
                           onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
                         />
                       </div>
 
-                      {/* Step 2 fields */}
                       {submitted && (
                         <>
                           <BaseInput
@@ -186,6 +185,7 @@ const ForgetPasswordPage = () => {
                             formik={validation}
                             isOtp={true}
                             onChange={handleOtpChange}
+                            onBlur={validation.handleBlur}
                           />
 
                           <BaseInput
@@ -199,6 +199,7 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
                           />
 
                           <BaseInput
@@ -212,28 +213,25 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
                           />
                         </>
                       )}
 
                       <div className="text-center mt-4">
-                             <BaseButton
+                        <BaseButton
                           type="submit"
                           color="success"
                           block={true}
                           loading={loading}
-                            disabled={!!error || loading}
+                          disabled={!!error || loading}
                         >
-                    
                           {!loading
                             ? submitted
                               ? "Reset Password"
                               : "Send OTP"
                             : null}
                         </BaseButton>
-                  
-                         
-                
                       </div>
                     </Form>
                   </div>

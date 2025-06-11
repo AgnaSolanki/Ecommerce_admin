@@ -10,6 +10,7 @@ const BaseInput = ({
   showPasswordToggle = false,
   passwordShown = false,
   onChange= {},
+  onBlur={},
   setPasswordShown = () => {},
 }) => {
   const touched = formik?.touched?.[name];
@@ -36,7 +37,7 @@ const BaseInput = ({
           disabled={disabled}
           className="form-control"
           onChange={onChange}
-          onBlur={formik.handleBlur}
+          onBlur={onBlur}
           value={value}
           invalid={!!isInvalid}
         />

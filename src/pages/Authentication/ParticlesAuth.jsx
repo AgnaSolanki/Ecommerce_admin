@@ -19,7 +19,6 @@ const ParticlesAuth = ({ children }) => {
             </svg>
           </div>
 
-          {/* pass the children */}
           {children}
         </div>
       </div>

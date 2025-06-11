@@ -137,6 +137,7 @@ const Login = () => {
                           type={CONSTANTS.email}
                           formik={validation}
                           onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
@@ -164,6 +165,7 @@ const Login = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
                           />
                         </div>
                       </div>
