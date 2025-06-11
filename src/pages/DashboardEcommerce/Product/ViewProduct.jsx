@@ -12,8 +12,8 @@ import {
 } from "reactstrap";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
-import authService from "../../../api/apiServices";
 import avatar from "../../../assets/images/users/user-dummy-img.jpg";
+import userApi from "../../../api/userApi";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -25,7 +25,7 @@ const ViewProduct = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const res = await authService.viewProduct(id);
+        const res = await userApi.viewProduct(id);
         setProduct(res.data?.data || null);
       } catch (error) {
         toast.error(error?.message);

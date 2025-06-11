@@ -11,13 +11,13 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
-import authService from "../../../api/apiServices";
 import { useNavigate } from "react-router-dom";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import { toast } from "react-toastify";
 import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
+import userApi from "../../../api/userApi";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -30,10 +30,12 @@ const ProductList = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
 
+  const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await authService.productList({
+      const response = await userApi.productList({
         page,
         pageSize: limit,
         sortKey: "id",
@@ -54,7 +56,6 @@ const ProductList = () => {
   useEffect(() => {
     fetchProducts();
   }, [page, limit]);
-
 
   const goToPage = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -77,9 +78,9 @@ const ProductList = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await authService.deleteProduct(selectedProductId);
+      const response = await userApi.deleteProduct(selectedProductId);
       console.log("res", response);
-      
+
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
         fetchProducts();
@@ -165,11 +166,7 @@ const ProductList = () => {
     <div className="page-content mt-lg-5 w-100">
       <Container fluid>
         <Row className="mb-3 align-items-center">
-          <Col
-            md="4"
-            xs="12"
-            className="mb-2 mb-md-0 d-flex align-items-center"
-          >
+          <Col md="4" xs="12" className="mb-2 mb-md-0 d-flex align-items-center">
             <label htmlFor="limitSelect" className="me-2 mb-0">
               Items per page:
             </label>
@@ -225,11 +222,13 @@ const ProductList = () => {
                     productList.map((product, index) => {
                       const variant = product.variants?.[0] || {};
                       const imagePath = variant?.image?.image_path;
-                      const IMAGE_BASE_URL =
-                        import.meta.env.VITE_BASE_IMAGE || "";
-                      const imageUrl = imagePath
-                        ? `${IMAGE_BASE_URL}/${imagePath}`
-                        : avatar;
+
+                      let imageUrl = avatar;
+                      if (imagePath && !imagePath.startsWith('http')) {
+                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                      } else if (imagePath) {
+                        imageUrl = imagePath;
+                      }
 
                       return (
                         <tr key={product.id}>

@@ -37,6 +37,8 @@ const CategoryList = () => {
   const [modalLoading, setModalLoading] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
 
+  const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
+
   const fetchCategories = async () => {
     try {
       setLoading(true);
@@ -84,18 +86,24 @@ const CategoryList = () => {
       return;
     }
 
-    if (!trimmedName || trimmedName.length > 50) {
-      toast.error("Category name is invalid or too long.");
-      return;
-    }
-
     let imageValue = null;
 
     if (typeof form.category_image === "string" && form.category_image !== "") {
       imageValue = form.category_image;
-    } else {
-      imageValue = null;
+    } else if (typeof form.category_image === "object" && form.category_image) {
+      const imageForm = new FormData();
+      imageForm.append("image", form.category_image);
+
+      try {
+        const imageUploadResponse = await userApi.uploadImage(imageForm);
+        imageValue = imageUploadResponse?.data?.data?.file_name;
+      } catch (err) {
+        toast.error("Image upload failed");
+        console.log(err);
+        return;
+      }
     }
+
     setModalLoading(true);
     try {
       const payload = {
@@ -109,11 +117,9 @@ const CategoryList = () => {
       if (editCategory?.id) {
         response = await userApi.updateCategory(editCategory.id, payload);
         toast.success("Category updated successfully!");
-        console.log("res", response);
       } else {
         response = await userApi.addCategory(payload);
         toast.success("Category added successfully!");
-        console.log("res", response);
       }
 
       setModalOpen(false);
@@ -121,7 +127,6 @@ const CategoryList = () => {
       fetchCategories();
     } catch (err) {
       const errorMessages = err?.response?.data?.message;
-      console.log(err);
 
       if (Array.isArray(errorMessages)) {
         errorMessages.forEach((msg) => toast.error(msg));
@@ -142,7 +147,6 @@ const CategoryList = () => {
   const handleDelete = async () => {
     try {
       const response = await userApi.deleteCategory(selectedCategoryId);
-      console.log("res ...", response);
 
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
@@ -222,8 +226,6 @@ const CategoryList = () => {
       </div>
     );
   };
-
-  const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
   const CategoryModal = ({
     isOpen,
@@ -378,9 +380,15 @@ const CategoryList = () => {
                 <tbody>
                   {categoryList.length > 0 ? (
                     categoryList.map((cat, index) => {
-                      const imageUrl = cat.category_image
-                        ? `${IMAGE_BASE_URL}/${cat.category_image}`
-                        : avatar;
+                      const imagePath = cat?.category_image;
+
+                      let imageUrl = avatar;
+                      if (imagePath && !imagePath.startsWith("http")) {
+                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                      } else if (imagePath) {
+                        imageUrl = imagePath;
+                      }
+
                       return (
                         <tr key={cat.id}>
                           <td>{(page - 1) * limit + index + 1}</td>
@@ -392,6 +400,7 @@ const CategoryList = () => {
                               alt="Category"
                               width="50"
                               height="50"
+                              style={{ objectFit: "cover", borderRadius: "8px" }}
                             />
                           </td>
                           <td>
