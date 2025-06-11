@@ -7,7 +7,6 @@ import * as Yup from "yup";
 
 import logoLight from "../../assets/images/logo-light.png";
 import ParticlesAuth from "../Authentication/ParticlesAuth";
-import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
@@ -18,6 +17,8 @@ import {
   passwordRegex,
   validationField,
 } from "../../Components/constants/validation";
+import userApi from "../../api/userApi";
+import BaseButton from "../../Components/BASE/BaseButton";
 
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
@@ -78,20 +79,22 @@ const ForgetPasswordPage = () => {
       setLoading(true);
       if (!submitted) {
         try {
-          const response = await authService.verifyEmail(
-            values[CONSTANTS.email]
-          );
-          toast.success(response?.data.message);
+          const response = await userApi.verifyEmail({
+            email: values[CONSTANTS.email]
+        });
+          toast.success(response?.data.message);          
           setSubmitted(true);
           validation.setTouched({});
         } catch (error) {
           toast.error(error?.response?.data?.message || error?.message);
+          console.log(error);
+          
         } finally {
           setLoading(false);
         }
       } else {
         try {
-          const response = await authService.forgotPassword({
+          const response = await userApi.forgotPassword({
             email: values[CONSTANTS.email],
             otp: Number(values[CONSTANTS.otp]),
             newPassword: values[CONSTANTS.newPassword],
@@ -217,24 +220,23 @@ const ForgetPasswordPage = () => {
                       )}
 
                       <div className="text-center mt-4">
-                        <button
-                          disabled={!!error || loading}
-                          className="btn btn-success w-100"
+                             <BaseButton
                           type="submit"
+                          color="success"
+                          block={true}
+                          loading={loading}
+                            disabled={!!error || loading}
                         >
-                          {loading && (
-                            <span
-                              className="spinner-border spinner-border-sm me-2"
-                              role="status"
-                              aria-hidden="true"
-                            ></span>
-                          )}
+                    
                           {!loading
                             ? submitted
                               ? "Reset Password"
                               : "Send OTP"
                             : null}
-                        </button>
+                        </BaseButton>
+                  
+                         
+                
                       </div>
                     </Form>
                   </div>

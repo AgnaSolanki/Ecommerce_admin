@@ -16,6 +16,7 @@ import userApi from "../../api/userApi";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import avatarFallback from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";
+import { toast } from "react-toastify";
 
 const ProfileDropdown = () => {
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
@@ -23,21 +24,22 @@ const ProfileDropdown = () => {
   const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await userApi.viewProfile();
         setUserProfile(res.data?.data || {});
       } catch (err) {
-        console.error("Failed to fetch user profile", err);
+        toast.error(err.message);
       }
-    };
-
-    fetchProfile();
-  }, [userProfile]);
+    }; 
+      fetchProfile();
+    }, []);
+  
 
   const handleLogout = () => {
-    sessionStorage.clear(); 
+    sessionStorage.clear();
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
   };
@@ -56,9 +58,13 @@ const ProfileDropdown = () => {
         <DropdownToggle tag="button" type={CONSTANTS.Button} className="btn">
           <span className="d-flex align-items-center">
             <img
-              className="rounded-circle header-profile-user"
               src={avatarSrc}
-              alt="Header Avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = avatarFallback;
+              }}
+              className="rounded-circle header-profile-user"
+              alt="user-avatar"
             />
             <span className="text-start ms-xl-2">
               <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
@@ -78,12 +84,6 @@ const ProfileDropdown = () => {
               <span className="align-middle">Profile</span>
             </Link>
           </DropdownItem>
-          <DropdownItem className="p-0">
-            <Link to={LoginRoutes.CHANGE_PASSWORD} className="dropdown-item">
-              <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
-              <span className="align-middle">Change Password</span>
-            </Link>
-          </DropdownItem>
           <DropdownItem onClick={() => setShowLogoutModal(true)}>
             <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
             <span className="align-middle" data-key="t-logout">
@@ -93,7 +93,6 @@ const ProfileDropdown = () => {
         </DropdownMenu>
       </Dropdown>
 
-      {/* Logout Confirmation Modal */}
       <Modal
         isOpen={showLogoutModal}
         toggle={() => setShowLogoutModal(false)}

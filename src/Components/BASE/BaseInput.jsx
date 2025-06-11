@@ -3,8 +3,8 @@ import { Input, InputGroup, InputGroupText, FormFeedback, Label } from "reactstr
 const BaseTextInput = ({
   id,
   name,
+  type,
   label,
-  type = "text",
   placeholder,
   formik = {},
   disabled = false,
