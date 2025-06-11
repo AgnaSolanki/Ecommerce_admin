@@ -54,8 +54,7 @@ const CategoryList = () => {
       setTotalRecords(data?.totalItems || 0);
     } catch (err) {
       toast.error(err?.message);
-            console.log(err);
-
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -77,36 +76,59 @@ const CategoryList = () => {
   };
 
   const handleSaveCategory = async (form) => {
+    const trimmedName = String(form.category_name || "").trim();
+    const trimmedDesc = String(form.description || "").trim();
+
+    if (!trimmedName || trimmedName.length > 50) {
+      toast.error("Category name is invalid or too long.");
+      return;
+    }
+
+    if (!trimmedName || trimmedName.length > 50) {
+      toast.error("Category name is invalid or too long.");
+      return;
+    }
+
+    let imageValue = null;
+
+    if (typeof form.category_image === "string" && form.category_image !== "") {
+      imageValue = form.category_image;
+    } else {
+      imageValue = null;
+    }
     setModalLoading(true);
     try {
-      const formData = new FormData();
+      const payload = {
+        category_name: trimmedName,
+        description: trimmedDesc,
+        category_image: imageValue,
+      };
 
-      formData.append("category_name", String(form.category_name || ""));
-      formData.append("description", String(form.description || ""));
-
-      if (form.category_image instanceof File) {
-        formData.append("category_image", form.category_image);
-      }
+      let response;
 
       if (editCategory?.id) {
-        const response = await userApi.updateCategory(
-          editCategory.id,
-          formData
-        );
-        console.log("res update", response);
-        toast.success("Category updated!");
+        response = await userApi.updateCategory(editCategory.id, payload);
+        toast.success("Category updated successfully!");
+        console.log("res", response);
       } else {
-        const res = await userApi.addCategory(formData);
-        console.log("add res", res);
-        toast.success("Category added!");
+        response = await userApi.addCategory(payload);
+        toast.success("Category added successfully!");
+        console.log("res", response);
       }
 
       setModalOpen(false);
+      setEditCategory(null);
       fetchCategories();
     } catch (err) {
-      toast.error(err?.message);
+      const errorMessages = err?.response?.data?.message;
       console.log(err);
-      
+
+      if (Array.isArray(errorMessages)) {
+        errorMessages.forEach((msg) => toast.error(msg));
+      } else {
+        toast.error(err?.message || "Something went wrong.");
+      }
+      console.log(err);
     } finally {
       setModalLoading(false);
     }
@@ -130,8 +152,7 @@ const CategoryList = () => {
       }
     } catch (err) {
       toast.error(err?.message);
-            console.log(err);
-
+      console.log(err);
     } finally {
       setDeleteModal(false);
       setSelectedCategoryId(null);
@@ -216,22 +237,30 @@ const CategoryList = () => {
       initialValues: initialData,
       enableReinitialize: true,
       validationSchema: Yup.object({
-        category_name: Yup.string().required("Category Name is required"),
-        description: Yup.string().required("Description is required"),
+        category_name: Yup.string()
+          .required("Category Name is required")
+          .max(50, "Category name must be 50 characters or less"),
+        description: Yup.string()
+          .required("Description is required")
+          .max(255, "Description must be 255 characters or less"),
         category_image: editCategory
           ? Yup.mixed()
           : Yup.mixed().required("Category Image is required"),
       }),
       onSubmit: (values) => {
-        console.log("Formik Submit Values:", values);
         onSave(values);
       },
     });
 
+    const handleClose = () => {
+      formik.resetForm();
+      toggle();
+    };
+
     return (
-      <Modal isOpen={isOpen} toggle={toggle} size="md">
+      <Modal isOpen={isOpen} toggle={handleClose} size="md">
         <Form onSubmit={formik.handleSubmit}>
-          <ModalHeader toggle={toggle}>{title}</ModalHeader>
+          <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <FormGroup>
               <Label>
@@ -242,6 +271,7 @@ const CategoryList = () => {
                 name="category_name"
                 value={formik.values.category_name}
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 invalid={
                   formik.touched.category_name && !!formik.errors.category_name
                 }
@@ -257,6 +287,7 @@ const CategoryList = () => {
                 name="description"
                 value={formik.values.description}
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
                 invalid={
                   formik.touched.description && !!formik.errors.description
                 }
@@ -288,7 +319,7 @@ const CategoryList = () => {
             <BaseButton type="submit" color="primary" loading={loading}>
               {title}
             </BaseButton>
-            <BaseButton type="button" color="secondary" onClick={toggle}>
+            <BaseButton type="button" color="secondary" onClick={handleClose}>
               Cancel
             </BaseButton>
           </ModalFooter>
