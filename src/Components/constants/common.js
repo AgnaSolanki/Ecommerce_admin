@@ -8,6 +8,7 @@ export const CONSTANTS = {
   login: "login",
   Button: "Button",
   confirmPassword: "confirm Password",
+  Confirmpassword: "Confirm password",
   newPassword: "new Password",
   otp: "otp",
   ConfirmPassword: "Confirm Password",

@@ -168,10 +168,12 @@ const ForgetPasswordPage = () => {
                           formik={validation}
                           disabled={submitted}
                           onChange={validation.handleChange}
+                          required={true}
+                           className={submitted ? "cursor-not-allowed" : ""}
                         />
                       </div>
 
-                      {/* Step 2 fields */}
+                      
                       {submitted && (
                         <>
                           <BaseInput
@@ -183,6 +185,7 @@ const ForgetPasswordPage = () => {
                             formik={validation}
                             isOtp={true}
                             onChange={handleOtpChange}
+                            required={true}
                           />
 
                           <BaseInput
@@ -196,12 +199,13 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            required={true}
                           />
 
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
                             name={CONSTANTS.confirmPassword}
-                            label={CONSTANTS.ConfirmPassword}
+                            label={CONSTANTS.Confirmpassword}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
                             formik={validation}
@@ -209,6 +213,7 @@ const ForgetPasswordPage = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            required={true}
                           />
                         </>
                       )}

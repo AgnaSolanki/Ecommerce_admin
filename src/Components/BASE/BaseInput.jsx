@@ -17,6 +17,7 @@ const BaseInput = ({
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
+  required = false,
   setPasswordShown = () => {},
   onChange = {}
 }) => {
@@ -27,16 +28,11 @@ const BaseInput = ({
       : "password"
     : type;
 
-  const handleChange = (e) => {
-    let val = e.target.value;
-    formik.setFieldValue(name, val);
-  };
-
   return (
     <div className="mb-3">
-      <Label htmlFor={id} className="form-label">
-        {label}
-      </Label>
+    <label htmlFor={id} className="form-label">
+        {label} {required && <span style={{ color: "red" }}>*</span>}
+      </label>
 
       <div className="position-relative auth-pass-inputgroup mb-3">
         <InputGroup className={isInvalid ? "is-invalid" : ""}>
