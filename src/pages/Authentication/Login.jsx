@@ -141,6 +141,7 @@ const Login = () => {
                           placeholder={CONSTANTS.EmailPlaceholder}
                           type={CONSTANTS.email}
                           formik={validation}
+                          required={true}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
@@ -167,6 +168,7 @@ const Login = () => {
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
+                            required={true}
                           />
                         </div>
                       </div>

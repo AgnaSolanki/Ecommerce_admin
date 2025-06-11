@@ -16,6 +16,7 @@ const BaseInput = ({
   formik,
   showPasswordToggle = false,
   passwordShown = false,
+  required = false,
   setPasswordShown = () => {},
 }) => {
   const isInvalid = formik.touched[name] && formik.errors[name];
@@ -27,9 +28,9 @@ const BaseInput = ({
 
   return (
     <div className="mb-3">
-      <Label htmlFor={id} className="form-label">
-        {label}
-      </Label>
+    <label htmlFor={id} className="form-label">
+        {label} {required && <span style={{ color: "red" }}>*</span>}
+      </label>
 
       <div className="position-relative auth-pass-inputgroup mb-3">
         <InputGroup className={isInvalid ? "is-invalid" : ""}>
