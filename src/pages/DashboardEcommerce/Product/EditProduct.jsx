@@ -290,17 +290,39 @@ const EditProduct = () => {
                               type={CONSTANTS.file}
                               isAvatarUpload={false}
                               formik={formik}
-                              onFileChange={(file) => {
-                                const fileUrl = URL.createObjectURL(file);
-                                formik.setFieldValue(
-                                  `product_variants[${index}].variant_image`,
-                                  file
-                                );
-                                const previewKey = `variant_image_preview_${index}`;
-                                setImagePreviews((prev) => ({
-                                  ...prev,
-                                  [previewKey]: fileUrl,
-                                }));
+                                onFileChange={async (file) => {
+                                if (file) {
+                                  try {
+                                    const uploadRes = await userApi.fileUpload(
+                                      file
+                                    );
+                                    const fileData = uploadRes.data?.data;
+                                    const fileName = Array.isArray(fileData)
+                                      ? fileData[0]
+                                      : fileData;
+
+                                    if (fileName) {
+                                      formik.setFieldValue(
+                                        `product_variants[${index}].variant_image`,
+                                        fileName
+                                      );
+                                      const imageURL = `${
+                                        import.meta.env.VITE_BASE_IMAGE
+                                      }${fileName}`;
+                                      const previewKey = `variant_image_preview_${index}`;
+                                      setImagePreviews((prev) => ({
+                                        ...prev,
+                                        [previewKey]: imageURL,
+                                      }));
+                                    } else {
+                                      toast.error("Failed to upload image.");
+                                    }
+                                  } catch (err) {
+                                    toast.error(
+                                      err.message || "Image upload failed."
+                                    );
+                                  }
+                                }
                               }}
                             />
                             <div className="mt-2">

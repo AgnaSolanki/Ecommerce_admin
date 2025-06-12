@@ -63,5 +63,6 @@ export const CONSTANTS = {
     button: "button",
     category_id:"category_id",
     VariantTitle: "Variant Title",
-    product_variants: "product_variants"
+    product_variants: "product_variants", 
+    category_image: "category image"
 }

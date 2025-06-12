@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import {
   Container,
   Card,
@@ -11,10 +11,6 @@ import {
   ModalBody,
   ModalFooter,
   Form,
-  FormGroup,
-  Label,
-  Input,
-  FormFeedback,
 } from "reactstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -23,6 +19,10 @@ import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
+import { validationField } from "../../../Components/constants/validation";
+import { CONSTANTS } from "../../../Components/constants/common";
+import BaseInput from "../../../Components/BASE/BaseInput";
+import BaseFileInput from "../../../Components/BASE/BaseFileInput";
 
 const CategoryList = () => {
   const [categoryList, setCategoryList] = useState([]);
@@ -81,11 +81,6 @@ const CategoryList = () => {
     const trimmedName = String(form.category_name || "").trim();
     const trimmedDesc = String(form.description || "").trim();
 
-    if (!trimmedName || trimmedName.length > 50) {
-      toast.error("Category name is invalid or too long.");
-      return;
-    }
-
     let imageValue = null;
 
     if (typeof form.category_image === "string" && form.category_image !== "") {
@@ -98,7 +93,7 @@ const CategoryList = () => {
         const imageUploadResponse = await userApi.uploadImage(imageForm);
         imageValue = imageUploadResponse?.data?.data?.file_name;
       } catch (err) {
-        toast.error("Image upload failed");
+        toast.error(err.message);
         console.log(err);
         return;
       }
@@ -111,15 +106,12 @@ const CategoryList = () => {
         description: trimmedDesc,
         category_image: imageValue,
       };
-
-      let response;
-
       if (editCategory?.id) {
-        response = await userApi.updateCategory(editCategory.id, payload);
-        toast.success("Category updated successfully!");
+        const res = await userApi.updateCategory(editCategory.id, payload);
+        toast.success(res?.data?.message);
       } else {
-        response = await userApi.addCategory(payload);
-        toast.success("Category added successfully!");
+        const res = await userApi.addCategory(payload);
+        toast.success(res?.data?.message);
       }
 
       setModalOpen(false);
@@ -131,7 +123,7 @@ const CategoryList = () => {
       if (Array.isArray(errorMessages)) {
         errorMessages.forEach((msg) => toast.error(msg));
       } else {
-        toast.error(err?.message || "Something went wrong.");
+        toast.error(err?.message);
       }
       console.log(err);
     } finally {
@@ -235,28 +227,64 @@ const CategoryList = () => {
     loading,
     title,
   }) => {
+    const [imagePreview, setImagePreview] = useState("");
+    const categoryValidation = validationField(CONSTANTS.Category);
+    const descriptionValidation = validationField(CONSTANTS.Description);
+    const imageValidation = validationField(CONSTANTS.category_image);
     const formik = useFormik({
       initialValues: initialData,
       enableReinitialize: true,
       validationSchema: Yup.object({
         category_name: Yup.string()
-          .required("Category Name is required")
-          .max(50, "Category name must be 50 characters or less"),
+          .required(categoryValidation.required)
+          .max(50, categoryValidation.maxLength(CONSTANTS.Category, 50)),
         description: Yup.string()
-          .required("Description is required")
-          .max(255, "Description must be 255 characters or less"),
+          .required(descriptionValidation.required)
+          .max(
+            255,
+            descriptionValidation.maxLength(CONSTANTS.Description, 255)
+          ),
         category_image: editCategory
           ? Yup.mixed()
-          : Yup.mixed().required("Category Image is required"),
+          : Yup.mixed().required(imageValidation.required),
       }),
       onSubmit: (values) => {
         onSave(values);
       },
     });
 
+    useEffect(() => {
+      if (typeof formik.values.category_image === "string") {
+        setImagePreview(
+          `${import.meta.env.VITE_BASE_IMAGE}${formik.values.category_image}`
+        );
+      } else {
+        setImagePreview("");
+      }
+    }, [formik.values.category_image]);
+
+    const handleImageUpload = async (file) => {
+      if (file) {
+        try {
+          const uploadRes = await userApi.fileUpload(file);
+          const fileData = uploadRes.data?.data;
+          const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+          if (fileName) {
+            formik.setFieldValue("category_image", fileName);
+            const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+            setImagePreview(imageURL);
+          }
+        } catch (err) {
+          toast.error(err.message);
+        }
+      }
+    };
+
     const handleClose = () => {
       formik.resetForm();
       toggle();
+      setImagePreview("");
     };
 
     return (
@@ -264,58 +292,42 @@ const CategoryList = () => {
         <Form onSubmit={formik.handleSubmit}>
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
-            <FormGroup>
-              <Label>
-                Category Name <span className="text-danger">*</span>
-              </Label>
-              <Input
-                type="text"
-                name="category_name"
-                value={formik.values.category_name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                invalid={
-                  formik.touched.category_name && !!formik.errors.category_name
-                }
-              />
-              <FormFeedback>{formik.errors.category_name}</FormFeedback>
-            </FormGroup>
-            <FormGroup>
-              <Label>
-                Description <span className="text-danger">*</span>
-              </Label>
-              <Input
-                type="textarea"
-                name="description"
-                value={formik.values.description}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                invalid={
-                  formik.touched.description && !!formik.errors.description
-                }
-              />
-              <FormFeedback>{formik.errors.description}</FormFeedback>
-            </FormGroup>
-            <FormGroup>
-              <Label>
-                Category Image <span className="text-danger">*</span>
-              </Label>
-              <Input
-                type="file"
-                name="category_image"
-                onChange={(e) => {
-                  formik.setFieldValue(
-                    "category_image",
-                    e.currentTarget.files[0]
-                  );
+            <BaseInput
+              label="Category Name *"
+              name="category_name"
+              type="text"
+              placeholder="Enter category name"
+              formik={formik}
+            />
+
+            <BaseInput
+              label="Description *"
+              name="description"
+              type="textarea"
+              placeholder="Enter description"
+              formik={formik}
+            />
+
+            <BaseFileInput
+              label="Category Image *"
+              name="category_image"
+              formik={formik}
+              onFileChange={handleImageUpload}
+            />
+
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  marginTop: "10px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
                 }}
-                invalid={
-                  formik.touched.category_image &&
-                  !!formik.errors.category_image
-                }
               />
-              <FormFeedback>{formik.errors.category_image}</FormFeedback>
-            </FormGroup>
+            )}
           </ModalBody>
           <ModalFooter>
             <BaseButton type="submit" color="primary" loading={loading}>
@@ -400,7 +412,10 @@ const CategoryList = () => {
                               alt="Category"
                               width="50"
                               height="50"
-                              style={{ objectFit: "cover", borderRadius: "8px" }}
+                              style={{
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                              }}
                             />
                           </td>
                           <td>
@@ -453,7 +468,6 @@ const CategoryList = () => {
         title={editCategory ? "Update Category" : "Add Category"}
       />
 
-      {/* Delete Confirmation Modal */}
       <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)}>
         <ModalHeader toggle={() => setDeleteModal(false)}>
           Confirm Delete

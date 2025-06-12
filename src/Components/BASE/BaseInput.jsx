@@ -1,6 +1,6 @@
 import { Input, InputGroup, InputGroupText, FormFeedback, Label } from "reactstrap";
 
-const BaseTextInput = ({
+const BaseInput = ({
   id,
   name,
   type,
@@ -50,4 +50,4 @@ const BaseTextInput = ({
   );
 };
 
-export default BaseTextInput;
+export default BaseInput;
