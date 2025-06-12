@@ -123,7 +123,6 @@ button:focus-visible {
   color: white;
 }
 
-
 .close-icon {
   color: #fff;
   font-size: 20px;
@@ -132,10 +131,10 @@ button:focus-visible {
   margin-right: 25px;
 }
 
-.image-close{
+.image-close {
   display: none;
 }
-.user-profile-image:hover  ~.image-close {
+.user-profile-image:hover ~ .image-close {
   position: absolute;
   top: 0;
   left: 0;
@@ -161,4 +160,14 @@ button:focus-visible {
   margin-left: 8px;
   border: 1px solid #000;
 }
-
+.imgPreview {
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.image-category {
+  object-fit: cover;
+  border-radius: 8px;
+}

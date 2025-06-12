@@ -293,7 +293,7 @@ const CategoryList = () => {
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <BaseInput
-              label="Category Name *"
+              label="Category Name"
               name="category_name"
               type="text"
               placeholder="Enter category name"
@@ -301,7 +301,7 @@ const CategoryList = () => {
             />
 
             <BaseInput
-              label="Description *"
+              label="Description"
               name="description"
               type="textarea"
               placeholder="Enter description"
@@ -309,7 +309,7 @@ const CategoryList = () => {
             />
 
             <BaseFileInput
-              label="Category Image *"
+              label="Category Image"
               name="category_image"
               formik={formik}
               onFileChange={handleImageUpload}
@@ -319,13 +319,7 @@ const CategoryList = () => {
               <img
                 src={imagePreview}
                 alt="Preview"
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  marginTop: "10px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
+                className="imgPreview"
               />
             )}
           </ModalBody>
@@ -412,10 +406,7 @@ const CategoryList = () => {
                               alt="Category"
                               width="50"
                               height="50"
-                              style={{
-                                objectFit: "cover",
-                                borderRadius: "8px",
-                              }}
+                              className="image-category"
                             />
                           </td>
                           <td>
