@@ -1,12 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, "Poppins", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+    background-color: var(--vz-body-bg) !important;
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  color: rgba(255, 255, 255, 0.87) !important;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -100,6 +99,9 @@ button:focus-visible {
 .float-en {
   display: flex;
   justify-content: flex-end;
+  position: absolute;
+  padding-left: 60%;
+  z-index: 1000;
 }
 .lord-icon {
   width: 120px;
@@ -146,4 +148,7 @@ button:focus-visible {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+.color{
+  color: red;
 }

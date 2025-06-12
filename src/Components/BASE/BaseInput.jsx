@@ -10,7 +10,9 @@ const BaseInput = ({
   showPasswordToggle = false,
   passwordShown = false,
   onChange= {},
+  type,
   onBlur={},
+  required = false,
   setPasswordShown = () => {},
 }) => {
   const touched = formik?.touched?.[name];
@@ -22,11 +24,14 @@ const BaseInput = ({
     ? passwordShown
       ? "text"
       : "password"
-    : "text";
+    : type;
+
 
   return (
     <div className="mb-3">
-      {label && <label htmlFor={id} className="form-label d-block">{label}</label>}
+    <label htmlFor={id} className="form-label">
+        {label} {required && <span className="color">*</span>}
+      </label>
 
       <InputGroup className={isInvalid ? "is-invalid" : ""}>
         <Input

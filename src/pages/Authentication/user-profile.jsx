@@ -272,6 +272,7 @@ const UserProfile = () => {
                                 }
                               }
                             }}
+                            required={true}
                           />
                         </label>
 
@@ -318,6 +319,7 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -332,6 +334,7 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -348,6 +351,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
                 </Col>
 
@@ -361,6 +365,7 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={true}
                     onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -379,6 +384,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
                 </Col>
 
@@ -397,6 +403,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
                 </Col>
 
@@ -415,6 +422,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
                 </Col>
 
@@ -429,6 +437,7 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -443,6 +452,7 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -457,6 +467,7 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
               </Row>

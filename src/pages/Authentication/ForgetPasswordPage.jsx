@@ -171,9 +171,12 @@ const ForgetPasswordPage = () => {
                           disabled={submitted}
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
+                          required={true}
+                           className={submitted ? "cursor-not-allowed" : ""}
                         />
                       </div>
 
+                      {/* Step 2 fields */}
                       {submitted && (
                         <>
                           <BaseInput
@@ -186,6 +189,7 @@ const ForgetPasswordPage = () => {
                             isOtp={true}
                             onChange={handleOtpChange}
                             onBlur={validation.handleBlur}
+                            required={true}
                           />
 
                           <BaseInput
@@ -200,12 +204,13 @@ const ForgetPasswordPage = () => {
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
+                            required={true}
                           />
 
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
                             name={CONSTANTS.confirmPassword}
-                            label={CONSTANTS.ConfirmPassword}
+                            label={CONSTANTS.Confirmpassword}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
                             formik={validation}
@@ -214,6 +219,7 @@ const ForgetPasswordPage = () => {
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
+                            required={true}
                           />
                         </>
                       )}

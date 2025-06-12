@@ -7,6 +7,7 @@ const BaseRadioInput = ({
   formik = {},
   disabled = false,
   options = [],
+  required = false,
 }) => {
   const touched = formik?.touched?.[name];
   const error = formik?.errors?.[name];
@@ -15,7 +16,9 @@ const BaseRadioInput = ({
 
   return (
     <div className="mb-3">
-      {label && <Label className="form-label d-block">{label}</Label>}
+      <label className="form-label">
+        {label} {required && <span className="color">*</span>}
+      </label>
 
       <div className="d-flex gap-3">
         {options.map((opt, idx) => (
@@ -30,7 +33,10 @@ const BaseRadioInput = ({
               onChange={formik.handleChange}
               disabled={disabled}
             />
-            <label className="form-check-label" htmlFor={`${name}-${opt.value}`}>
+            <label
+              className="form-check-label"
+              htmlFor={`${name}-${opt.value}`}
+            >
               {opt.label}
             </label>
           </div>

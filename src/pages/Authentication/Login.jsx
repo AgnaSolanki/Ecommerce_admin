@@ -138,6 +138,7 @@ const Login = () => {
                           formik={validation}
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
+                          required={true}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
@@ -166,6 +167,8 @@ const Login = () => {
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
+                            required={true}
+                            className="cursor"
                           />
                         </div>
                       </div>

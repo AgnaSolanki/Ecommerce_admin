@@ -9,6 +9,7 @@ const BaseFileInput = ({
   disabled = false,
   onFileChange = null,
   isAvatarUpload = false,
+  required = false,
 }) => {
   const touched = formik?.touched?.[name];
   const error = formik?.errors?.[name];
@@ -27,9 +28,9 @@ const BaseFileInput = ({
   return (
     <div className="mb-3">
       {label && (
-        <Label htmlFor={id} className="form-label d-block">
-          {label}
-        </Label>
+        <label htmlFor={id} className="form-label">
+          {label} {required && <span className="color">*</span>}
+        </label>
       )}
       <Input
         id={id}

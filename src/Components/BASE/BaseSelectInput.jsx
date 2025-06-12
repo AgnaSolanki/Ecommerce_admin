@@ -8,6 +8,7 @@ const BaseSelectInput = ({
   formik = {},
   disabled = false,
   options = [],
+  required = false,
 }) => {
   const touched = formik?.touched?.[name];
   const error = formik?.errors?.[name];
@@ -17,9 +18,10 @@ const BaseSelectInput = ({
   return (
     <div className="mb-3">
       {label && (
-        <Label htmlFor={id} className="form-label d-block">
-          {label}
-        </Label>
+           <label className="form-label">
+        {label} {required && <span className="color">*</span>}
+      </label>
+      
       )}
       <Input
         id={id}
