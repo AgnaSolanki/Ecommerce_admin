@@ -11,13 +11,13 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
-import authService from "../../../api/apiServices";
 import { useNavigate } from "react-router-dom";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import { toast } from "react-toastify";
 import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
+import userApi from "../../../api/userApi";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const ProductList = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await authService.productList({
+      const response = await userApi.productList({
         page,
         pageSize: limit,
         sortKey: "id",
@@ -77,7 +77,7 @@ const ProductList = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await authService.deleteProduct(selectedProductId);
+      const response = await userApi.deleteProduct(selectedProductId);
       console.log("res", response);
       
       if (response?.data?.statusCode === 200) {

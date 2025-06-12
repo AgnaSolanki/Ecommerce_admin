@@ -7,14 +7,19 @@ import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import { useNavigate, useParams } from "react-router-dom";
-import { isNumber, onlyNum, selectLabel, validationField } from "../../../Components/constants/validation";
+import {
+  isNumber,
+  onlyNum,
+  selectLabel,
+  validationField,
+} from "../../../Components/constants/validation";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
-import authService from "../../../api/apiServices";
 import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import { toast } from "react-toastify";
 import { CONSTANTS } from "../../../Components/constants/common";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import BaseFileInput from "../../../Components/BASE/BaseFileInput";
+import userApi from "../../../api/userApi";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -44,16 +49,16 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await authService.getCategories();
+        const res = await userApi.getCategories();
         setCategories(res.data?.data || []);
       } catch (err) {
-       toast.error(err?.message);
+        toast.error(err?.message);
       }
     };
 
     const fetchProduct = async () => {
       try {
-        const res = await authService.viewProduct(id);
+        const res = await userApi.viewProduct(id);
         const product = res.data?.data;
 
         if (product && Array.isArray(product.variants)) {
@@ -151,7 +156,7 @@ const EditProduct = () => {
           if (imageFile instanceof File) {
             const formData = new FormData();
             formData.append("files", imageFile);
-            const res = await authService.fileUpload(formData);
+            const res = await userApi.fileUpload(formData);
             const filePath = res.data?.data?.[0];
             if (!filePath) {
               setSaveLoading(false);
@@ -169,7 +174,7 @@ const EditProduct = () => {
           }
         }
 
-        await authService.editProduct(id, payload);
+        await userApi.editProduct(id, payload);
 
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
@@ -224,6 +229,7 @@ const EditProduct = () => {
                       })),
                     ]}
                     formik={formik}
+                    onChange={formik.handleChange}
                   />
                 </Col>
               </Row>
@@ -292,17 +298,39 @@ const EditProduct = () => {
                               type={CONSTANTS.file}
                               isAvatarUpload={false}
                               formik={formik}
-                              onFileChange={(file) => {
-                                const fileUrl = URL.createObjectURL(file);
-                                formik.setFieldValue(
-                                  `product_variants[${index}].variant_image`,
-                                  file
-                                );
-                                const previewKey = `variant_image_preview_${index}`;
-                                setImagePreviews((prev) => ({
-                                  ...prev,
-                                  [previewKey]: fileUrl,
-                                }));
+                              onFileChange={async (file) => {
+                                if (file) {
+                                  try {
+                                    const uploadRes = await userApi.fileUpload(
+                                      file
+                                    );
+                                    const fileData = uploadRes.data?.data;
+                                    const fileName = Array.isArray(fileData)
+                                      ? fileData[0]
+                                      : fileData;
+
+                                    if (fileName) {
+                                      formik.setFieldValue(
+                                        `product_variants[${index}].variant_image`,
+                                        fileName
+                                      );
+                                      const imageURL = `${
+                                        import.meta.env.VITE_BASE_IMAGE
+                                      }${fileName}`;
+                                      const previewKey = `variant_image_preview_${index}`;
+                                      setImagePreviews((prev) => ({
+                                        ...prev,
+                                        [previewKey]: imageURL,
+                                      }));
+                                    } else {
+                                      toast.error("Failed to upload image.");
+                                    }
+                                  } catch (err) {
+                                    toast.error(
+                                      err.message || "Image upload failed."
+                                    );
+                                  }
+                                }
                               }}
                             />
                             <div className="mt-2">

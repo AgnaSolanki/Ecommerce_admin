@@ -1,4 +1,4 @@
-import apiService from "./apiServices";
+import authApi from "./authApi";
 import {
   LOGIN,
   VERIFY_EMAIL,
@@ -18,36 +18,32 @@ import {
 } from "./apiRoutes";
 
 const userApi = {
-  loginUser: (credentials) => apiService.post(LOGIN, credentials),
-  verifyEmail: (data) => apiService.post(VERIFY_EMAIL, data),
-  forgotPassword: (data) => apiService.put(UPDATE_PASSWORD, data),
-  updateProfile: (data) => apiService.put(UPDATE_PROFILE, data),
-  getCountries: () => apiService.get(COUNTRY),
+  loginUser: (credentials) => authApi.post(LOGIN, credentials),
+  verifyEmail: (data) => authApi.post(VERIFY_EMAIL, data),
+  forgotPassword: (data) => authApi.put(UPDATE_PASSWORD, data),
+  updateProfile: (data) => authApi.put(UPDATE_PROFILE, data),
+  getCountries: () => authApi.get(COUNTRY),
   getStates: (countryId) =>
-    apiService.get(STATE.replace("{country_id}", countryId)),
-  getCities: (stateId) => apiService.get(CITY.replace("{state_id}", stateId)),
-  viewProfile: () => apiService.get(VIEW_PROFILE),
+    authApi.get(STATE.replace("{country_id}", countryId)),
+  getCities: (stateId) => authApi.get(CITY.replace("{state_id}", stateId)),
+  viewProfile: () => authApi.get(VIEW_PROFILE),
   fileUpload: (file) => {
     const formData = new FormData();
     formData.append("files", file);
 
-    return apiService.post("/fileUpload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    return authApi.post("/fileUpload", formData);
   },
-  changePassword: (data) => apiService.put(CHANGE_PASSWORD, data),
-  productList: (data) => apiService.post(listOfProduct, data),
-  addProduct: (data) => apiService.post(addProduct, data),
+  changePassword: (data) => authApi.put(CHANGE_PASSWORD, data),
+  productList: (data) => authApi.post(listOfProduct, data),
+  addProduct: (data) => authApi.post(addProduct, data),
   viewProduct: (productId) =>
-    apiService.get(viewProduct.replace("{product_id}", productId)),
+    authApi.get(viewProduct.replace("{product_id}", productId)),
   editProduct: (productId, data) =>
-    apiService.put(editProduct.replace("{product_id}", productId), data),
+    authApi.put(editProduct.replace("{product_id}", productId), data),
 
   deleteProduct: (productId) =>
-    apiService.delete(deleteProduct.replace("{product_id}", productId)),
-    getCategories:() => apiService.get(getCategories)
+    authApi.delete(deleteProduct.replace("{product_id}", productId)),
+    getCategories:() => authApi.get(getCategories)
 
 };
 

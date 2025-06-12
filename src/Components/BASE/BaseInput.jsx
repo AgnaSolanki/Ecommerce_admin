@@ -1,53 +1,71 @@
-import { Input, InputGroup, InputGroupText, FormFeedback, Label } from "reactstrap";
+import {
+  Input,
+  Label,
+  FormFeedback,
+  InputGroup,
+  InputGroupText,
+} from "reactstrap";
 
-const BaseTextInput = ({
+const BaseInput = ({
   id,
   name,
   label,
-  type = "text",
   placeholder,
   formik = {},
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
+ onChange = () => {},
+   type,
+  value,
+  onBlur=() => {},
+  required = false,
   setPasswordShown = () => {},
 }) => {
   const touched = formik?.touched?.[name];
   const error = formik?.errors?.[name];
   const isInvalid = touched && error;
 
-  const inputType = showPasswordToggle ? (passwordShown ? "text" : "password") : type;
-  const fieldProps = formik && name ? formik.getFieldProps(name) : {};
-  const inputId = id || `input-${name}`;
+  const inputType = showPasswordToggle
+    ? passwordShown
+      ? "text"
+      : "password"
+    : type;
+
 
   return (
     <div className="mb-3">
-      {label && (
-        <Label htmlFor={inputId} className="form-label d-block">
-          {label}
-        </Label>
-      )}
+    <label htmlFor={id} className="form-label">
+        {label} {required && <span className="color">*</span>}
+      </label>
+
       <InputGroup className={isInvalid ? "is-invalid" : ""}>
         <Input
-          id={inputId}
+          id={id}
           name={name}
           type={inputType}
           placeholder={placeholder}
           disabled={disabled}
           className="form-control"
-          {...fieldProps}
+          onChange={onChange}
+          onBlur={onBlur}
+          value={value}
           invalid={!!isInvalid}
-          autoComplete="off"
         />
         {showPasswordToggle && (
-          <InputGroupText onClick={() => setPasswordShown(!passwordShown)} style={{ cursor: "pointer" }}>
-            <i className={passwordShown ? "ri-eye-off-fill align-middle" : "ri-eye-fill align-middle"} />
+          <InputGroupText
+            onClick={() => setPasswordShown(!passwordShown)}
+          >
+            <i
+              className={passwordShown ? "ri-eye-off-fill align-middle" : "ri-eye-fill align-middle"}
+            />
           </InputGroupText>
         )}
       </InputGroup>
+
       {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };
 
-export default BaseTextInput;
+export default BaseInput;

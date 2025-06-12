@@ -7,6 +7,7 @@ import BaseInput from "../../Components/BASE/BaseInput";
 import BaseButton from "../../Components/BASE/BaseButton";
 import userApi from "../../api/userApi";
 import { CONSTANTS } from "../../Components/constants/common";
+import { AiOutlineEdit } from "react-icons/ai";
 import {
   inputField,
   postalCodeRegex,
@@ -16,6 +17,7 @@ import {
 import BaseFileInput from "../../Components/BASE/BaseFileInput";
 import BaseRadioInput from "../../Components/BASE/BaseRadioInput";
 import BaseSelectInput from "../../Components/BASE/BaseSelectInput";
+import { toast } from "react-toastify";
 
 const UserProfile = () => {
   const [idx] = useState("1");
@@ -39,7 +41,7 @@ const UserProfile = () => {
         setUserEmail(parsedUser.email || "");
         setUserRole(parsedUser.role);
       } catch (err) {
-        console.error(err);
+        toast.error(err.message);
       }
     }
   }, [userRole]);
@@ -63,12 +65,14 @@ const UserProfile = () => {
   const cityValidation = validationField(CONSTANTS.city);
   const stateValidation = validationField(CONSTANTS.state);
   const postalCodeValidation = validationField(CONSTANTS.postalCode);
+  const phoneValidation = validationField(CONSTANTS.phone);
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: userProfile,
     validationSchema: Yup.object({
       first_name: Yup.string().required(firstNameValidation.required),
+      phone: Yup.string().required(phoneValidation.required),
       country: Yup.string().required(countryValidation.required),
       state: Yup.string().required(stateValidation.required),
       city: Yup.string().required(cityValidation.required),
@@ -83,11 +87,8 @@ const UserProfile = () => {
     onSubmit: async (values) => {
       try {
         setSaveLoading(true);
-        let imagePath = avatarPreview;
-        if (selectedImage) {
-          const uploadRes = await userApi.fileUpload(selectedImage);
-          imagePath = uploadRes.data?.file_path || avatarPreview;
-        }
+
+        const imagePath = selectedImage || avatarPreview;
 
         const payload = {
           name: values.first_name,
@@ -111,7 +112,7 @@ const UserProfile = () => {
         setIsEditing(false);
         setError("");
       } catch (error) {
-        console.error(error.message);
+        toast.error(error.message);
       } finally {
         setSaveLoading(false);
       }
@@ -124,7 +125,7 @@ const UserProfile = () => {
         const res = await userApi.getCountries();
         setCountries(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error(err.message);
+        toast.error(err.message);
       }
     };
     fetchCountries();
@@ -141,7 +142,7 @@ const UserProfile = () => {
         const res = await userApi.getStates(formik.values.country);
         setStates(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error(err.message);
+        toast.error(err.message);
       }
     };
     fetchStates();
@@ -156,7 +157,7 @@ const UserProfile = () => {
         const res = await userApi.getCities(formik.values.state);
         setCities(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
-        console.error(err.message);
+        toast.error(err.message);
       }
     };
     fetchCities();
@@ -186,20 +187,21 @@ const UserProfile = () => {
         idx: idx,
       });
 
-      setAvatarPreview(profile.profile_image || avatar);
+      const fileName = profile.profile_image || "";
+      const imagePath = fileName
+        ? `${import.meta.env.VITE_BASE_IMAGE}${fileName}`
+        : avatar;
+
+      setSelectedImage(fileName);
+      setAvatarPreview(imagePath);
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
     }
   };
   useEffect(() => {
     fetchProfile();
   }, []);
-  const handlecodeChange = (e) => {
-    const { value } = e.target;
-    if (postalCodeRegex.test(value)) {
-      formik.handleChange(e);
-    }
-  };
+ 
 
   document.title = "Profile";
 
@@ -223,29 +225,55 @@ const UserProfile = () => {
             <Card className="position-relative">
               <CardBody>
                 <div className="d-flex">
-                  <div className="profile-user position-relative d-inline-block mx-auto mb-4">
+                  <div className="profile-user position-relative d-inline-block mx-auto mb-4 user-img">
                     <img
-                      src={avatarPreview || avatar}
-                      className="rounded-circle avatar-md img-thumbnail user-profile-image"
+                      src={avatarPreview}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = avatar;
+                      }}
+                      className="rounded-circle avatar-md img-thumbnail user-profile-image "
                       alt="user-avatar"
                     />
 
                     {isEditing && (
                       <>
                         <label htmlFor="avatar-upload" className="img-avatar">
-                          <i className="ri-edit-2-fill text-size"></i>
+                          <AiOutlineEdit className="text-size" />
                           <BaseFileInput
                             id="avatar-upload"
                             name="avatar"
-                            type="file"
+                            type={CONSTANTS.file}
                             isAvatarUpload={true}
                             formik={formik}
-                            onFileChange={(file) => {
+                            onFileChange={async (file) => {
                               if (file) {
-                                setSelectedImage(file);
-                                setAvatarPreview(URL.createObjectURL(file));
+                                try {
+                                  const uploadRes = await userApi.fileUpload(
+                                    file
+                                  );
+                                  const fileData = uploadRes.data?.data;
+                                  const fileName = Array.isArray(fileData)
+                                    ? fileData[0]
+                                    : fileData;
+
+                                  if (fileName) {
+                                    setSelectedImage(fileName);
+                                    const imageURL = `${
+                                      import.meta.env.VITE_BASE_IMAGE
+                                    }${fileName}`;
+                                    setAvatarPreview(imageURL);
+                                  } else {
+                                    toast.error("Failed to upload image.");
+                                  }
+                                } catch (err) {
+                                  toast.error(
+                                    err.message || "Image upload failed."
+                                  );
+                                }
                               }
                             }}
+                            required={true}
                           />
                         </label>
 
@@ -264,7 +292,6 @@ const UserProfile = () => {
                       </>
                     )}
                   </div>
-
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
                       <h5>{name}</h5>
@@ -288,10 +315,12 @@ const UserProfile = () => {
                     name={CONSTANTS.first_name}
                     label={CONSTANTS.userName}
                     type={CONSTANTS.text}
+                    onChange={formik.handleChange}
                     placeholder={inputField(CONSTANTS.firstName)}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -301,10 +330,12 @@ const UserProfile = () => {
                     name={CONSTANTS.phone}
                     label={CONSTANTS.phone_number}
                     type={CONSTANTS.text}
+                    onChange={formik.handleChange}
                     placeholder={inputField(CONSTANTS.phone_number)}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -321,7 +352,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    required={true}
                   />
                 </Col>
 
@@ -331,9 +362,11 @@ const UserProfile = () => {
                     name={CONSTANTS.role}
                     label={CONSTANTS.Role}
                     type={CONSTANTS.text}
+                    onChange={formik.handleChange}
                     formik={formik}
                     disabled={true}
-                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -352,7 +385,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    required={true}
                   />
                 </Col>
 
@@ -371,7 +404,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    required={true}
                   />
                 </Col>
 
@@ -390,7 +423,7 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    required={true}
                   />
                 </Col>
 
@@ -399,11 +432,13 @@ const UserProfile = () => {
                     id={CONSTANTS.address_line1}
                     name={CONSTANTS.address_line1}
                     label={CONSTANTS.addressLabel1}
+                    onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.address_line1)}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -412,11 +447,13 @@ const UserProfile = () => {
                     id={CONSTANTS.address_line2}
                     name={CONSTANTS.address_line2}
                     label={CONSTANTS.addressLabel2}
+                    onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.address_line2)}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
 
@@ -425,11 +462,13 @@ const UserProfile = () => {
                     id={CONSTANTS.postal_code}
                     name={CONSTANTS.postal_code}
                     label={CONSTANTS.Postal_code}
+                    onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.Postal_code)}
                     formik={formik}
                     disabled={!isEditing}
-                    onChange={handlecodeChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
               </Row>

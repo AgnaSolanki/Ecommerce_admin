@@ -13,7 +13,6 @@ import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
-import authService from "../../../api/apiServices";
 import { useNavigate } from "react-router-dom";
 import {
   isNumber,
@@ -25,6 +24,7 @@ import { CONSTANTS } from "../../../Components/constants/common";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import { toast } from "react-toastify";
 import BaseFileInput from "../../../Components/BASE/BaseFileInput";
+import userApi from "../../../api/userApi";
 
 const AddProduct = () => {
   const [categories, setCategories] = useState([]);
@@ -36,7 +36,7 @@ const AddProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await authService.getCategories();
+        const res = await userApi.getCategories();
         setCategories(res.data?.data || []);
       } catch (err) {
         toast.error(err?.message);
@@ -119,7 +119,7 @@ const AddProduct = () => {
           if (imageFile instanceof File) {
             const formData = new FormData();
             formData.append("files", imageFile);
-            const res = await authService.fileUpload(formData);
+            const res = await userApi.fileUpload(formData);
             const filePath = res.data?.data?.[0];
             if (!filePath) {
               setSaveLoading(false);
@@ -135,7 +135,7 @@ const AddProduct = () => {
           }
         }
 
-        await authService.addProduct(payload);
+        await userApi.addProduct(payload);
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
         toast.error(err?.message);

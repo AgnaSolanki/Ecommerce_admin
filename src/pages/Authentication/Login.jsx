@@ -19,7 +19,6 @@ import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../../Components/Common/withRouter";
 import { useFormik } from "formik";
 import logoLight from "../../assets/images/logo-light.png";
-import authService from "../../api/apiServices";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import {
   validationField,
@@ -27,6 +26,7 @@ import {
   passwordRegex,
   inputField,
 } from "../../Components/constants/validation";
+import userApi from "../../api/userApi";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const Login = () => {
       setLoading(true);
       setError("");
       try {
-        const response = await authService.login({
+        const response = await userApi.loginUser({
           email: values.email,
           password: values.password,
         });
@@ -137,6 +137,8 @@ const Login = () => {
                           type={CONSTANTS.email}
                           formik={validation}
                           onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
+                          required={true}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
@@ -164,6 +166,9 @@ const Login = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            required={true}
+                            className="cursor"
                           />
                         </div>
                       </div>

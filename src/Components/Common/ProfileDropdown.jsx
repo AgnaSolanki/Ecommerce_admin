@@ -16,6 +16,7 @@ import userApi from "../../api/userApi";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import avatarFallback from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";
+import { toast } from "react-toastify";
 
 const ProfileDropdown = () => {
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
@@ -29,20 +30,24 @@ const ProfileDropdown = () => {
         const res = await userApi.viewProfile();
         setUserProfile(res.data?.data || {});
       } catch (err) {
-        console.error("Failed to fetch user profile", err);
+        toast.error(err.message);
       }
     };
-
     fetchProfile();
-  }, [userProfile]);
+  }, []);
 
   const handleLogout = () => {
-    sessionStorage.clear(); 
+    sessionStorage.clear();
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
   };
 
-  const avatarSrc = userProfile?.profile_image || avatarFallback;
+  const profileImage = userProfile?.profile_image;
+
+  const avatarSrc = profileImage
+    ? `${import.meta.env.VITE_BASE_IMAGE}${profileImage}`
+    : avatarFallback;
+
   const email = userProfile?.email || "";
   const role = userProfile?.role || "";
 
@@ -56,9 +61,13 @@ const ProfileDropdown = () => {
         <DropdownToggle tag="button" type={CONSTANTS.Button} className="btn">
           <span className="d-flex align-items-center">
             <img
-              className="rounded-circle header-profile-user"
               src={avatarSrc}
-              alt="Header Avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = avatarFallback;
+              }}
+              className="rounded-circle header-profile-user"
+              alt="user-avatar"
             />
             <span className="text-start ms-xl-2">
               <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
@@ -93,7 +102,6 @@ const ProfileDropdown = () => {
         </DropdownMenu>
       </Dropdown>
 
-      {/* Logout Confirmation Modal */}
       <Modal
         isOpen={showLogoutModal}
         toggle={() => setShowLogoutModal(false)}
