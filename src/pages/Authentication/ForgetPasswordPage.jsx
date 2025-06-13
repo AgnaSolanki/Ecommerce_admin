@@ -95,7 +95,6 @@ const ForgetPasswordPage = () => {
           validation.setTouched({});
         } catch (error) {
           toast.error(error?.response?.data?.message || error?.message);
-          console.log(error);
         } finally {
           setLoading(false);
         }
@@ -120,15 +119,12 @@ const ForgetPasswordPage = () => {
     },
   });
 
-const handleOtpChange = (e) => {
-  let { value } = e.target;
-  value = value.replace(/\D/g, "");
-
-  if (value.length <= 6) {
-    validation.setFieldValue(CONSTANTS.otp, value);
-  }
-};
-
+  const handleOtpChange = (e) => {
+    const { value } = e.target;
+    if (otpRegex.test(value)) {
+      validation.handleChange(e);
+    }
+  };
 
   document.title = "forgot-password";
 
@@ -202,7 +198,7 @@ const handleOtpChange = (e) => {
                             onBlur={validation.handleBlur}
                             maxLength={6}
                             required={true}
-                              value={validation.values[CONSTANTS.otp]}
+                            value={validation.values[CONSTANTS.otp]}
                           />
                           {validation.touched.otp && validation.errors.otp && (
                             <FormFeedback className="d-block">

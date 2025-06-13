@@ -8,6 +8,7 @@ import {
   COUNTRY,
   STATE,
   VIEW_PROFILE,
+  UPLOAD_FILE,
 } from "./apiRoutes";
 
 const userApi = {
@@ -24,7 +25,7 @@ const userApi = {
     const formData = new FormData();
     formData.append("files", file);
 
-    return authApi.post("/fileUpload", formData);
+    return authApi.post(UPLOAD_FILE, formData);
   },
 };
 

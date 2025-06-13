@@ -227,11 +227,9 @@ const UserProfile = () => {
           setSelectedImage(fileName);
           const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
           setAvatarPreview(imageURL);
-        } else {
-          toast.error("Failed to upload image.");
         }
       } catch (err) {
-        toast.error(err.message || "Image upload failed.");
+        toast.error(err.message);
       }
     }
   };
@@ -247,11 +245,9 @@ const UserProfile = () => {
           setSelectedImage(fileName);
           const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
           setAvatarPreview(imageURL);
-        } else {
-          toast.error("Failed to upload image.");
         }
       } catch (err) {
-        toast.error(err.message || "Image upload failed.");
+        toast.error(err.message);
       }
     }
   };
