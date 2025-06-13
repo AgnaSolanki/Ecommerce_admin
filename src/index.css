@@ -3,11 +3,9 @@
   font-family: system-ui, "Poppins", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+    background-color: var(--vz-body-bg) !important;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87) !important;
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -105,14 +103,52 @@ button:focus-visible {
   padding-left: 60%;
   z-index: 1000;
 }
-.lord-icon{
+.lord-icon {
   width: 120px;
   height: 120px;
 }
+.img-avatar {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: "pointer";
+  background: "#fff";
+}
+.text-size {
+  font-size: 24px;
+  bottom: 0;
+  right: 20px;
+  position: absolute;
+  background-color: rgba(51, 46, 53, 0.9);
+  border-radius: 50%;
+  padding: 3px;
+  color: white;
+}
 
-input:disabled {
-  cursor: not-allowed !important;  
+.close-icon {
+  color: #fff;
+  font-size: 20px;
+}
+.user-profile-image {
+  margin-right: 25px;
+}
+
+.image-close {
+  display: none;
+}
+.user-profile-image:hover ~ .image-close {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 75%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 .color{
-  color: rgb(252, 13, 13);
+  color: red;
 }

@@ -19,7 +19,6 @@ import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../../Components/Common/withRouter";
 import { useFormik } from "formik";
 import logoLight from "../../assets/images/logo-light.png";
-import authService from "../../api/apiServices";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import {
   validationField,
@@ -27,13 +26,13 @@ import {
   passwordRegex,
   inputField,
 } from "../../Components/constants/validation";
+import userApi from "../../api/userApi";
 
 const Login = () => {
   const navigate = useNavigate();
 
   document.title = "Login";
 
-  const [submitted, setSubmitted] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,11 +57,10 @@ const Login = () => {
     },
     validationSchema: validateLogin,
     onSubmit: async (values) => {
-      setSubmitted(true);
       setLoading(true);
       setError("");
       try {
-        const response = await authService.login({
+        const response = await userApi.loginUser({
           email: values.email,
           password: values.password,
         });
@@ -134,14 +132,16 @@ const Login = () => {
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
                           placeholder={inputField(CONSTANTS.Email)}
+                          value={validation.values[CONSTANTS.email]}
                           type={CONSTANTS.email}
                           formik={validation}
                           onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
                           required={true}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">
+                          <FormFeedback className="d-block">
                             {validation.errors.email}
                           </FormFeedback>
                         ) : null}
@@ -165,9 +165,17 @@ const Login = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
                             required={true}
                             className="cursor"
                           />
+                      {validation.touched.password &&
+                          validation.errors.password ? (
+                            <FormFeedback className="d-block">
+                              {validation.errors.password}
+                            </FormFeedback>
+                          ) : null}
+                          
                         </div>
                       </div>
 

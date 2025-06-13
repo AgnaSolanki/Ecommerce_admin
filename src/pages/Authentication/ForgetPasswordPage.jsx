@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
+import { useState } from "react";
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Container,
+  Form,
+  FormFeedback,
+} from "reactstrap";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
@@ -7,7 +15,6 @@ import * as Yup from "yup";
 
 import logoLight from "../../assets/images/logo-light.png";
 import ParticlesAuth from "../Authentication/ParticlesAuth";
-import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
@@ -18,12 +25,14 @@ import {
   passwordRegex,
   validationField,
 } from "../../Components/constants/validation";
+import userApi from "../../api/userApi";
+import BaseButton from "../../Components/BASE/BaseButton";
 
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const navigate = useNavigate();
 
   const emailValidation = validationField(CONSTANTS.Email);
@@ -78,9 +87,9 @@ const ForgetPasswordPage = () => {
       setLoading(true);
       if (!submitted) {
         try {
-          const response = await authService.verifyEmail(
-            values[CONSTANTS.email]
-          );
+          const response = await userApi.verifyEmail({
+            email: values[CONSTANTS.email],
+          });
           toast.success(response?.data.message);
           setSubmitted(true);
           validation.setTouched({});
@@ -91,7 +100,7 @@ const ForgetPasswordPage = () => {
         }
       } else {
         try {
-          const response = await authService.forgotPassword({
+          const response = await userApi.forgotPassword({
             email: values[CONSTANTS.email],
             otp: Number(values[CONSTANTS.otp]),
             newPassword: values[CONSTANTS.newPassword],
@@ -157,7 +166,6 @@ const ForgetPasswordPage = () => {
 
                   <div className="p-2">
                     <Form onSubmit={validation.handleSubmit}>
-                      {/* Email */}
                       <div className="mb-4">
                         <BaseInput
                           id={CONSTANTS.email}
@@ -165,15 +173,19 @@ const ForgetPasswordPage = () => {
                           label={CONSTANTS.Email}
                           type={CONSTANTS.email}
                           placeholder={inputField(CONSTANTS.Email)}
-                          formik={validation}
                           disabled={submitted}
                           onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
                           required={true}
-                           className={submitted ? "cursor-not-allowed" : ""}
+                          className={submitted ? "cursor-not-allowed" : ""}
                         />
+                        {validation.touched.email && validation.errors.email ? (
+                          <FormFeedback className="d-block">
+                            {validation.errors.email}
+                          </FormFeedback>
+                        ) : null}
                       </div>
 
-                      
                       {submitted && (
                         <>
                           <BaseInput
@@ -182,11 +194,17 @@ const ForgetPasswordPage = () => {
                             label={CONSTANTS.OTP}
                             type={CONSTANTS.text}
                             placeholder={inputField(CONSTANTS.OTP)}
-                            formik={validation}
-                            isOtp={true}
                             onChange={handleOtpChange}
+                            onBlur={validation.handleBlur}
+                            maxLength={6}
                             required={true}
+                            value={validation.values[CONSTANTS.otp]}
                           />
+                          {validation.touched.otp && validation.errors.otp && (
+                            <FormFeedback className="d-block">
+                              {validation.errors.otp}
+                            </FormFeedback>
+                          )}
 
                           <BaseInput
                             id={CONSTANTS.newPassword}
@@ -194,13 +212,19 @@ const ForgetPasswordPage = () => {
                             label={CONSTANTS.Password}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.Password)}
-                            formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
                             required={true}
                           />
+                          {validation.touched.newPassword &&
+                            validation.errors.newPassword && (
+                              <FormFeedback className="d-block">
+                                {validation.errors.newPassword}
+                              </FormFeedback>
+                            )}
 
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
@@ -208,35 +232,36 @@ const ForgetPasswordPage = () => {
                             label={CONSTANTS.Confirmpassword}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
-                            formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
                             required={true}
                           />
+                          {validation.touched.confirmPassword &&
+                            validation.errors.confirmPassword && (
+                              <FormFeedback className="d-block">
+                                {validation.errors.confirmPassword}
+                              </FormFeedback>
+                            )}
                         </>
                       )}
 
                       <div className="text-center mt-4">
-                        <button
-                          disabled={!!error || loading}
-                          className="btn btn-success w-100"
+                        <BaseButton
                           type="submit"
+                          color="success"
+                          block={true}
+                          loading={loading}
+                          disabled={!!error || loading}
                         >
-                          {loading && (
-                            <span
-                              className="spinner-border spinner-border-sm me-2"
-                              role="status"
-                              aria-hidden="true"
-                            ></span>
-                          )}
                           {!loading
                             ? submitted
                               ? "Reset Password"
                               : "Send OTP"
                             : null}
-                        </button>
+                        </BaseButton>
                       </div>
                     </Form>
                   </div>

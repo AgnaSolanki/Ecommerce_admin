@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import BaseButton from "../BASE/BaseButton";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Dropdown,
   DropdownItem,
@@ -12,30 +11,29 @@ import {
   ModalFooter,
 } from "reactstrap";
 
+import BaseButton from "../BASE/BaseButton";
+import userApi from "../../api/userApi";
 import { LoginRoutes } from "../../Routes/apiRoutes";
-
-import avatar1 from "../../assets/images/users/user-dummy-img.jpg";
+import avatarFallback from "../../assets/images/users/user-dummy-img.jpg";
 import { CONSTANTS } from "../constants/common";
+import { toast } from "react-toastify";
 
 const ProfileDropdown = () => {
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
-  const [userEmail, setUserEmail] = useState("");
-  const [userRole, setUserRole] = useState("");
-
   useEffect(() => {
-    const userData = sessionStorage.getItem(CONSTANTS.user);
-    if (userData) {
+    const fetchProfile = async () => {
       try {
-        const parsedUser = JSON.parse(userData);
-        setUserEmail(parsedUser.email || "");
-        setUserRole(parsedUser.role || "");
+        const res = await userApi.viewProfile();
+        setUserProfile(res.data?.data || {});
       } catch (err) {
-        console.error(err);
+        toast.error(err.message);
       }
-    }
+    };
+    fetchProfile();
   }, []);
 
   const handleLogout = () => {
@@ -43,6 +41,15 @@ const ProfileDropdown = () => {
     setShowLogoutModal(false);
     navigate(LoginRoutes.LOGIN, { replace: true });
   };
+
+  const profileImage = userProfile?.profile_image;
+
+  const avatarSrc = profileImage
+    ? `${import.meta.env.VITE_BASE_IMAGE}${profileImage}`
+    : avatarFallback;
+
+  const email = userProfile?.email || "";
+  const role = userProfile?.role || "";
 
   return (
     <>
@@ -54,22 +61,32 @@ const ProfileDropdown = () => {
         <DropdownToggle tag="button" type={CONSTANTS.Button} className="btn">
           <span className="d-flex align-items-center">
             <img
+              src={avatarSrc}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = avatarFallback;
+              }}
               className="rounded-circle header-profile-user"
-              src={avatar1}
-              alt="Header Avatar"
+              alt="user-avatar"
             />
             <span className="text-start ms-xl-2">
               <span className="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
-                {userEmail}
+                {email}
               </span>
               <span className="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">
-                {userRole}
+                {role}
               </span>
             </span>
           </span>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <h6 className="dropdown-header">Welcome {userEmail}!</h6>
+          <h6 className="dropdown-header">Welcome {email}!</h6>
+          <DropdownItem className="p-0">
+            <Link to={LoginRoutes.PROFILE} className="dropdown-item">
+              <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+              <span className="align-middle">Profile</span>
+            </Link>
+          </DropdownItem>
           <DropdownItem onClick={() => setShowLogoutModal(true)}>
             <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
             <span className="align-middle" data-key="t-logout">
@@ -79,7 +96,6 @@ const ProfileDropdown = () => {
         </DropdownMenu>
       </Dropdown>
 
-      {/* Logout Confirmation Modal */}
       <Modal
         isOpen={showLogoutModal}
         toggle={() => setShowLogoutModal(false)}
