@@ -34,32 +34,18 @@ const UserProfile = () => {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [userRole, setUserRole] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(avatar);
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
-  useEffect(() => {
-    const userData = sessionStorage.getItem(CONSTANTS.user);
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUserEmail(parsedUser.email || "");
-        setUserRole(parsedUser.role);
-      } catch (err) {
-        toast.error(err.message);
-      }
-    }
-  }, [userRole]);
-
   const [userProfile, setUserProfile] = useState({
     first_name: "",
     phone: "",
     gender: "",
-    role: userRole,
+    role: "",
+    email: "",
     country: "",
     state: "",
     city: "",
@@ -88,7 +74,6 @@ const UserProfile = () => {
       country: Yup.string().required(countryValidation.required),
       state: Yup.string().required(stateValidation.required),
       city: Yup.string().required(cityValidation.required),
-
       address_line1: Yup.string().required(addressValidation.required),
       address_line2: Yup.string(),
       postal_code: Yup.string()
@@ -107,8 +92,9 @@ const UserProfile = () => {
 
         const payload = {
           name: values.first_name,
-          email: userEmail,
+          email: values.email,
           phone_number: values.phone,
+          role: values.role,
           gender: values.gender,
           profile_image: imagePath,
           address: {
@@ -177,12 +163,7 @@ const UserProfile = () => {
     };
     fetchCities();
   }, [formik.values.state]);
-  useEffect(() => {
-    setUserProfile((prev) => ({
-      ...prev,
-      role: userRole || "",
-    }));
-  }, [userRole]);
+
   const fetchProfile = async () => {
     try {
       const res = await userApi.viewProfile();
@@ -192,7 +173,7 @@ const UserProfile = () => {
         first_name: profile.name || "",
         phone: profile.phone_number || "",
         gender: profile.gender || "",
-        role: profile.role || "",
+        email: profile.email,
         country: profile.address?.country_id?.toString() || "",
         state: profile.address?.state_id?.toString() || "",
         city: profile.address?.city_id?.toString() || "",
@@ -324,9 +305,8 @@ const UserProfile = () => {
                   </div>
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
-                      <h5>{name}</h5>
-                      <p className="mb-1">Email Id: {userEmail}</p>
-                      <p className="mb-0">Id No: {idx}</p>
+                      <p className="mb-1">Email Id: {userProfile.email}</p>
+                      <p className="mb-0">Id No: {userProfile.idx}</p>
                     </div>
                   </div>
                 </div>
@@ -419,7 +399,7 @@ const UserProfile = () => {
                     name={CONSTANTS.country}
                     label={CONSTANTS.Country}
                     type={CONSTANTS.select}
-                     onChange={formik.handleChange}
+                    onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     options={[
                       { label: selectLabel(CONSTANTS.Country), value: "" },
@@ -444,7 +424,7 @@ const UserProfile = () => {
                     name={CONSTANTS.state}
                     label={CONSTANTS.state}
                     type={CONSTANTS.select}
-                     onChange={formik.handleChange}
+                    onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     options={[
                       { label: selectLabel(CONSTANTS.State), value: "" },
@@ -469,7 +449,7 @@ const UserProfile = () => {
                     name={CONSTANTS.city}
                     label={CONSTANTS.City}
                     type={CONSTANTS.select}
-                     onChange={formik.handleChange}
+                    onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     options={[
                       { label: selectLabel(CONSTANTS.City), value: "" },
