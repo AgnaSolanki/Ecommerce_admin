@@ -19,6 +19,7 @@ import {
   addCategory,
   updateCategory,
   deleteCategory,
+  DashboardStatistics,
 } from "./apiRoutes";
 
 const userApi = {
@@ -53,7 +54,8 @@ const userApi = {
   updateCategory: (categoryId, data) =>
     authApi.put(updateCategory.replace("{id}", categoryId), data),
   deleteCategory: (categoryId) => 
-    authApi.delete(deleteCategory.replace("{id}", categoryId))
+    authApi.delete(deleteCategory.replace("{id}", categoryId)),
+  dashboardStatistics: ()=> authApi.get(DashboardStatistics),
 
 };
 

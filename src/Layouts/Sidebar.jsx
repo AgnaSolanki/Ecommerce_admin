@@ -78,6 +78,11 @@ const Sidebar = ({ layoutType }) => {
               <ul className="navbar-nav" id="navbar-nav">
                 <VerticalLayout layoutType={layoutType} />
                 <li className="nav-item">
+                  <Link className="nav-link" to={LoginRoutes.MAIN_DASHBOARD}>
+                    <i className="ri-list-check-2"></i> Dashboard
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to={LoginRoutes.PRODUCT_LIST}>
                     <i className="ri-list-check-2"></i> Product List
                   </Link>

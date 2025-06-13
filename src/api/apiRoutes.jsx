@@ -18,3 +18,4 @@ export const listOfCategory = "category/listOfCategories"
 export const addCategory = "category/addCategory";
 export const deleteCategory = "category/deleteCategory/{id}";
 export const updateCategory = "category/updateCategory/{id}";
+export const DashboardStatistics = "dashboard/dashboard-statistic"
