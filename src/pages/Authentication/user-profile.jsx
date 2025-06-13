@@ -39,6 +39,7 @@ const UserProfile = () => {
   const [error, setError] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [role, setRole] = useState("");
 
   const [userProfile, setUserProfile] = useState({
     first_name: "",
@@ -168,8 +169,9 @@ const UserProfile = () => {
     try {
       const res = await userApi.viewProfile();
       const profile = res.data?.data;
+      setRole(profile.role);
 
-      setUserProfile({
+      const userProfileData = {
         first_name: profile.name || "",
         phone: profile.phone_number || "",
         gender: profile.gender || "",
@@ -181,7 +183,10 @@ const UserProfile = () => {
         address_line2: profile.address?.address_line2 || "",
         postal_code: profile.address?.postal_code?.toString() || "",
         idx: idx,
-      });
+        profile_image: profile.profile_image,
+      };
+      setUserProfile(userProfileData);
+      formik.setValues(userProfileData);
 
       const fileName = profile.profile_image || "";
       const imagePath = fileName
@@ -194,6 +199,9 @@ const UserProfile = () => {
       toast.error(error.message);
     }
   };
+  useEffect(() => {
+    formik.setValues(userProfile);
+  }, [userProfile]);
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -330,6 +338,7 @@ const UserProfile = () => {
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
                     required={true}
+                    value={formik.values.first_name}
                   />
                   {formik.touched.first_name && formik.errors.first_name ? (
                     <FormFeedback className="d-block">
@@ -349,6 +358,7 @@ const UserProfile = () => {
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
                     required={true}
+                    value={formik.values.phone}
                   />
                   {formik.touched.phone && formik.errors.phone ? (
                     <FormFeedback className="d-block">
@@ -362,6 +372,7 @@ const UserProfile = () => {
                     id={CONSTANTS.gender}
                     name={CONSTANTS.gender}
                     label={CONSTANTS.Gender}
+                    value={formik.values.gender}
                     type={CONSTANTS.radio}
                     options={[
                       { value: CONSTANTS.male, label: CONSTANTS.Male },
@@ -385,7 +396,7 @@ const UserProfile = () => {
                     id={CONSTANTS.role}
                     name={CONSTANTS.role}
                     label={CONSTANTS.Role}
-                    value={formik.values.role}
+                    value={role}
                     type={CONSTANTS.text}
                     onChange={formik.handleChange}
                     disabled={true}
@@ -398,6 +409,7 @@ const UserProfile = () => {
                     id={CONSTANTS.country}
                     name={CONSTANTS.country}
                     label={CONSTANTS.Country}
+                    value={formik.values.country}
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -422,6 +434,7 @@ const UserProfile = () => {
                   <BaseSelectInput
                     id={CONSTANTS.state}
                     name={CONSTANTS.state}
+                    value={formik.values.state}
                     label={CONSTANTS.state}
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
@@ -447,6 +460,7 @@ const UserProfile = () => {
                   <BaseSelectInput
                     id={CONSTANTS.city}
                     name={CONSTANTS.city}
+                    value={formik.values.city}
                     label={CONSTANTS.City}
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
@@ -511,6 +525,7 @@ const UserProfile = () => {
                     id={CONSTANTS.postal_code}
                     name={CONSTANTS.postal_code}
                     label={CONSTANTS.Postal_code}
+                    value={formik.values.postal_code}
                     onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.Postal_code)}

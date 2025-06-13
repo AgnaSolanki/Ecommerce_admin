@@ -6,6 +6,7 @@ const BaseRadioInput = ({
   required = false,
   onChange = ()=> {},
   onBlur = ()=> {}, 
+  value
 }) => {
   return (
     <div className="mb-3">
@@ -22,6 +23,7 @@ const BaseRadioInput = ({
               name={name}
               id={`${name}-${opt.value}`}
               value={opt.value}
+              checked={value === opt.value}
               onChange={onChange}
               onBlur={onBlur}
               disabled={disabled}
