@@ -18,4 +18,6 @@ export const listOfCategory = "category/listOfCategories"
 export const addCategory = "category/addCategory";
 export const deleteCategory = "category/deleteCategory/{id}";
 export const updateCategory = "category/updateCategory/{id}";
-export const DashboardStatistics = "dashboard/dashboard-statistic"
+export const DashboardStatistics = "dashboard/dashboard-statistic";
+export const orderPieChart = "order/piechart-data";
+export const highestPurchaseOrder = "dashboard/highest-purchase-order"

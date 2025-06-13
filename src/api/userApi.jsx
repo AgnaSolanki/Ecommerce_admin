@@ -20,6 +20,8 @@ import {
   updateCategory,
   deleteCategory,
   DashboardStatistics,
+  orderPieChart,
+  highestPurchaseOrder,
 } from "./apiRoutes";
 
 const userApi = {
@@ -45,18 +47,18 @@ const userApi = {
     authApi.get(viewProduct.replace("{product_id}", productId)),
   editProduct: (productId, data) =>
     authApi.put(editProduct.replace("{product_id}", productId), data),
-
   deleteProduct: (productId) =>
     authApi.delete(deleteProduct.replace("{product_id}", productId)),
-    getCategories:() => authApi.get(getCategories),
-    categoryList: (data) => authApi.post(listOfCategory, data),
+  getCategories: () => authApi.get(getCategories),
+  categoryList: (data) => authApi.post(listOfCategory, data),
   addCategory: (data) => authApi.post(addCategory, data),
   updateCategory: (categoryId, data) =>
     authApi.put(updateCategory.replace("{id}", categoryId), data),
-  deleteCategory: (categoryId) => 
+  deleteCategory: (categoryId) =>
     authApi.delete(deleteCategory.replace("{id}", categoryId)),
-  dashboardStatistics: ()=> authApi.get(DashboardStatistics),
-
+  dashboardStatistics: () => authApi.get(DashboardStatistics),
+  orderPieChart: (data) => authApi.post(orderPieChart, data),
+  highestPurchaseOrder: () => authApi.get(highestPurchaseOrder),
 };
 
 export default userApi;
