@@ -169,7 +169,7 @@ const UserProfile = () => {
     try {
       const res = await userApi.viewProfile();
       const profile = res.data?.data;
-      setRole(profile.role)
+      setRole(profile.role);
 
       const userProfileData = {
         first_name: profile.name || "",
@@ -185,10 +185,6 @@ const UserProfile = () => {
         idx: idx,
         profile_image: profile.profile_image,
       };
-      
-      console.log("profile_image", profile.profile_image);
-      console.log("API GENDER: ", profile.gender);
-      console.log("userProfileData", userProfileData);
       setUserProfile(userProfileData);
       formik.setValues(userProfileData);
 
@@ -199,8 +195,6 @@ const UserProfile = () => {
 
       setSelectedImage(fileName);
       setAvatarPreview(imagePath);
-      console.log("image", imagePath);
-      
     } catch (error) {
       toast.error(error.message);
     }
