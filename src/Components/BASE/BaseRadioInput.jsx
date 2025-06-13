@@ -1,19 +1,12 @@
-import React from "react";
-import { Label, FormFeedback } from "reactstrap";
-
 const BaseRadioInput = ({
   name,
   label,
-  formik = {},
   disabled = false,
   options = [],
   required = false,
+  onChange = ()=> {},
+  onBlur = ()=> {}, 
 }) => {
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const value = formik?.values?.[name] || "";
-  const isInvalid = touched && error;
-
   return (
     <div className="mb-3">
       <label className="form-label">
@@ -29,8 +22,8 @@ const BaseRadioInput = ({
               name={name}
               id={`${name}-${opt.value}`}
               value={opt.value}
-              checked={value === opt.value}
-              onChange={formik.handleChange}
+              onChange={onChange}
+              onBlur={onBlur}
               disabled={disabled}
             />
             <label
@@ -42,8 +35,6 @@ const BaseRadioInput = ({
           </div>
         ))}
       </div>
-
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };

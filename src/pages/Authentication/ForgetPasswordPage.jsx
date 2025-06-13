@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
+import { useState } from "react";
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Container,
+  Form,
+  FormFeedback,
+} from "reactstrap";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
@@ -112,12 +120,15 @@ const ForgetPasswordPage = () => {
     },
   });
 
-  const handleOtpChange = (e) => {
-    const { value } = e.target;
-    if (otpRegex.test(value)) {
-      validation.handleChange(e);
-    }
-  };
+const handleOtpChange = (e) => {
+  let { value } = e.target;
+  value = value.replace(/\D/g, "");
+
+  if (value.length <= 6) {
+    validation.setFieldValue(CONSTANTS.otp, value);
+  }
+};
+
 
   document.title = "forgot-password";
 
@@ -159,7 +170,6 @@ const ForgetPasswordPage = () => {
 
                   <div className="p-2">
                     <Form onSubmit={validation.handleSubmit}>
-                      {/* Email */}
                       <div className="mb-4">
                         <BaseInput
                           id={CONSTANTS.email}
@@ -167,16 +177,19 @@ const ForgetPasswordPage = () => {
                           label={CONSTANTS.Email}
                           type={CONSTANTS.email}
                           placeholder={inputField(CONSTANTS.Email)}
-                          formik={validation}
                           disabled={submitted}
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
                           required={true}
-                           className={submitted ? "cursor-not-allowed" : ""}
+                          className={submitted ? "cursor-not-allowed" : ""}
                         />
+                        {validation.touched.email && validation.errors.email ? (
+                          <FormFeedback className="d-block">
+                            {validation.errors.email}
+                          </FormFeedback>
+                        ) : null}
                       </div>
 
-                      {/* Step 2 fields */}
                       {submitted && (
                         <>
                           <BaseInput
@@ -185,12 +198,17 @@ const ForgetPasswordPage = () => {
                             label={CONSTANTS.OTP}
                             type={CONSTANTS.text}
                             placeholder={inputField(CONSTANTS.OTP)}
-                            formik={validation}
-                            isOtp={true}
                             onChange={handleOtpChange}
                             onBlur={validation.handleBlur}
+                            maxLength={6}
                             required={true}
+                              value={validation.values[CONSTANTS.otp]}
                           />
+                          {validation.touched.otp && validation.errors.otp && (
+                            <FormFeedback className="d-block">
+                              {validation.errors.otp}
+                            </FormFeedback>
+                          )}
 
                           <BaseInput
                             id={CONSTANTS.newPassword}
@@ -198,7 +216,6 @@ const ForgetPasswordPage = () => {
                             label={CONSTANTS.Password}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.Password)}
-                            formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
@@ -206,6 +223,12 @@ const ForgetPasswordPage = () => {
                             onBlur={validation.handleBlur}
                             required={true}
                           />
+                          {validation.touched.newPassword &&
+                            validation.errors.newPassword && (
+                              <FormFeedback className="d-block">
+                                {validation.errors.newPassword}
+                              </FormFeedback>
+                            )}
 
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
@@ -213,7 +236,6 @@ const ForgetPasswordPage = () => {
                             label={CONSTANTS.Confirmpassword}
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
-                            formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
@@ -221,6 +243,12 @@ const ForgetPasswordPage = () => {
                             onBlur={validation.handleBlur}
                             required={true}
                           />
+                          {validation.touched.confirmPassword &&
+                            validation.errors.confirmPassword && (
+                              <FormFeedback className="d-block">
+                                {validation.errors.confirmPassword}
+                              </FormFeedback>
+                            )}
                         </>
                       )}
 

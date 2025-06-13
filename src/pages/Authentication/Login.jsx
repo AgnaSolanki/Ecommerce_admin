@@ -33,7 +33,6 @@ const Login = () => {
 
   document.title = "Login";
 
-  const [submitted, setSubmitted] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,7 +57,6 @@ const Login = () => {
     },
     validationSchema: validateLogin,
     onSubmit: async (values) => {
-      setSubmitted(true);
       setLoading(true);
       setError("");
       try {
@@ -134,6 +132,7 @@ const Login = () => {
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
                           placeholder={inputField(CONSTANTS.Email)}
+                          value={validation.values[CONSTANTS.email]}
                           type={CONSTANTS.email}
                           formik={validation}
                           onChange={validation.handleChange}
@@ -142,7 +141,7 @@ const Login = () => {
                         />
 
                         {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">
+                          <FormFeedback className="d-block">
                             {validation.errors.email}
                           </FormFeedback>
                         ) : null}
@@ -170,6 +169,13 @@ const Login = () => {
                             required={true}
                             className="cursor"
                           />
+                      {validation.touched.password &&
+                          validation.errors.password ? (
+                            <FormFeedback className="d-block">
+                              {validation.errors.password}
+                            </FormFeedback>
+                          ) : null}
+                          
                         </div>
                       </div>
 

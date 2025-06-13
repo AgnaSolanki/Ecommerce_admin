@@ -1,25 +1,22 @@
-import { Input, FormFeedback, InputGroup, InputGroupText } from "reactstrap";
+import { Input,  InputGroup, InputGroupText } from "reactstrap";
 
 const BaseInput = ({
   id,
   name,
   label,
   placeholder,
-  formik = {},
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
-  onChange= {},
+  onChange= ()=>{},
   type,
-  onBlur={},
+  value,
+  maxLength,
+  onBlur= ()=> {},
   required = false,
   setPasswordShown = () => {},
 }) => {
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const value = formik?.values?.[name] || "";
-  const isInvalid = touched && error;
-
+ 
   const inputType = showPasswordToggle
     ? passwordShown
       ? "text"
@@ -33,7 +30,7 @@ const BaseInput = ({
         {label} {required && <span className="color">*</span>}
       </label>
 
-      <InputGroup className={isInvalid ? "is-invalid" : ""}>
+      <InputGroup >
         <Input
           id={id}
           name={name}
@@ -44,7 +41,7 @@ const BaseInput = ({
           onChange={onChange}
           onBlur={onBlur}
           value={value}
-          invalid={!!isInvalid}
+          maxLength = {maxLength}
         />
         {showPasswordToggle && (
           <InputGroupText
@@ -56,8 +53,6 @@ const BaseInput = ({
           </InputGroupText>
         )}
       </InputGroup>
-
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };

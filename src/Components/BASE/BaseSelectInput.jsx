@@ -5,23 +5,19 @@ const BaseSelectInput = ({
   id,
   name,
   label,
-  formik = {},
+  onChange = () => {},
+  onBlur = () => {},
   disabled = false,
   options = [],
   required = false,
+  value,
 }) => {
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const value = formik?.values?.[name] || "";
-  const isInvalid = touched && error;
-
   return (
     <div className="mb-3">
       {label && (
-           <label className="form-label">
-        {label} {required && <span className="color">*</span>}
-      </label>
-      
+        <label className="form-label">
+          {label} {required && <span className="color">*</span>}
+        </label>
       )}
       <Input
         id={id}
@@ -30,9 +26,8 @@ const BaseSelectInput = ({
         disabled={disabled}
         className="form-select"
         value={value}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        invalid={!!isInvalid}
+        onChange={onChange}
+        onBlur={onBlur}
       >
         {options.map((opt, index) => (
           <option key={index} value={opt.value}>
@@ -40,7 +35,6 @@ const BaseSelectInput = ({
           </option>
         ))}
       </Input>
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };
