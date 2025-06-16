@@ -8,6 +8,7 @@ import {
   COUNTRY,
   STATE,
   VIEW_PROFILE,
+  CHANGE_PASSWORD,
   UPLOAD_FILE,
 } from "./apiRoutes";
 
@@ -27,6 +28,7 @@ const userApi = {
 
     return authApi.post(UPLOAD_FILE, formData);
   },
+  changePassword: (data) => authApi.put(CHANGE_PASSWORD, data),
 };
 
 export default userApi;

@@ -6,4 +6,5 @@ export const STATE = "listOfState/{country_id}";
 export const CITY = "listOfCity/{state_id}";
 export const UPDATE_PROFILE = "updateProfile";
 export const VIEW_PROFILE = "viewProfile";
-export const UPLOAD_FILE = "fileUpload"
+export const UPLOAD_FILE = "fileUpload";
+export const CHANGE_PASSWORD = "user/changePassword";

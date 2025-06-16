@@ -4,10 +4,12 @@ import { LoginRoutes } from "./apiRoutes";
 import Login from "../pages/Authentication/Login";
 import ForgetPasswordPage from "../pages/Authentication/ForgetPasswordPage";
 import UserProfile from "../pages/Authentication/user-profile";
+import ChangePassword from "../pages/DashboardEcommerce/ChangePassword"
 
 const authProtectedRoutes = [
   { path: LoginRoutes.DASHBOARD_ROUTE, element: DashboardEcommerce },
   { path: LoginRoutes.PROFILE, element: UserProfile },
+  { path: LoginRoutes.CHANGE_PASSWORD, element: ChangePassword  },
   {
     path: LoginRoutes.HOME,
     exact: true,

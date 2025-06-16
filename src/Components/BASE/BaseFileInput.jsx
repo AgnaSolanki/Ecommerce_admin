@@ -1,4 +1,4 @@
-import { Input, FormFeedback } from "reactstrap";
+import { Input } from "reactstrap";
 
 const BaseFileInput = ({
   id,

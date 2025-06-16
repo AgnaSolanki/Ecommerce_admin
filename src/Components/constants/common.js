@@ -46,5 +46,10 @@ export const CONSTANTS = {
   addressLabel2: "Address Line 2",
   userName: "User Name",
   submit: "submit",
+  currentPassword: "currentPassword",
+  CurrentPassword: "Current Password",
+  Current_password: "Current password",
+  New_password: "New password",
+  Confirm_password: "Confirm password",
   file: "file",
 };

@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 :root {
   font-family: system-ui, "Poppins", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-    background-color: var(--vz-body-bg) !important;
+  background-color: var(--vz-body-bg) !important;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87) !important;
   font-synthesis: none;
@@ -149,6 +149,9 @@ button:focus-visible {
   justify-content: center;
   cursor: pointer;
 }
-.color{
+.color {
   color: red;
+}
+.form-control:disabled {
+  cursor: not-allowed !important;
 }
