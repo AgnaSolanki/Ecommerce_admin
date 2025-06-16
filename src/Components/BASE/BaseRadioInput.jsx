@@ -9,7 +9,7 @@ const BaseRadioInput = ({
   value
 }) => {
   return (
-    <div className="mb-3">
+    <div>
       <label className="form-label">
         {label} {required && <span className="color">*</span>}
       </label>

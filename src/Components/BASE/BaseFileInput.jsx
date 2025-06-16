@@ -12,7 +12,7 @@ const BaseFileInput = ({
   onFileChange = ()=>{}
 }) => {
   return (
-    <div className="mb-3">
+    <div >
       {label && (
         <label htmlFor={id} className="form-label">
           {label} {required && <span className="color">*</span>}

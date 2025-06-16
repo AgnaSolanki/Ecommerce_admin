@@ -13,7 +13,7 @@ const BaseSelectInput = ({
   value,
 }) => {
   return (
-    <div className="mb-3">
+    <div>
       {label && (
         <label className="form-label">
           {label} {required && <span className="color">*</span>}
