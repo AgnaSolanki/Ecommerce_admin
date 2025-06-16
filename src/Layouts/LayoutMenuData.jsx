@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 const Navdata = () => {
   const history = useNavigate();
-  //state data
   const [isDashboard, setIsDashboard] = useState(false);
   const [isApps, setIsApps] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
@@ -17,8 +16,7 @@ const Navdata = () => {
   const [isMaps, setIsMaps] = useState(false);
   const [isMultiLevel, setIsMultiLevel] = useState(false);
 
-  //Calender
-  const [isCalender, setCalender] = useState(false);
+
 
   // Apps
   const [isEmail, setEmail] = useState(false);

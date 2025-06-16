@@ -79,7 +79,7 @@ const Sidebar = ({ layoutType }) => {
                 <VerticalLayout layoutType={layoutType} />
                 <li className="nav-item">
                   <Link className="nav-link" to={LoginRoutes.MAIN_DASHBOARD}>
-                    <i className="ri-list-check-2"></i> Dashboard
+                    <i className="ri-dashboard-2-line"></i> Dashboard
                   </Link>
                 </li>
                 <li className="nav-item">
@@ -91,6 +91,11 @@ const Sidebar = ({ layoutType }) => {
                   <Link className="nav-link" to={LoginRoutes.CATEGORY_LIST}>
                     <i className="ri-grid-fill"></i>
                     Category
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to={LoginRoutes.REPORT}>
+                    <i className="ri-file-chart-line"></i> Report
                   </Link>
                 </li>
               </ul>
