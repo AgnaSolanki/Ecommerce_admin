@@ -5,13 +5,14 @@ import SimpleBar from "simplebar-react";
 import logoSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
 import logoLight from "../assets/images/logo-light.png";
-
+ 
 //Import Components
-import VerticalLayout from "./VerticalLayouts";
-
+// import VerticalLayout from "./VerticalLayouts";
+// import TwoColumnLayout from "./TwoColumnLayout";
 import { Container } from "reactstrap";
-
-
+import VerticalLayouts from "./VerticalLayouts";
+// import HorizontalLayout from "./HorizontalLayout";
+ 
 const Sidebar = ({ layoutType }) => {
   useEffect(() => {
     var verticalOverlay = document.getElementsByClassName("vertical-overlay");
@@ -21,7 +22,7 @@ const Sidebar = ({ layoutType }) => {
       });
     }
   });
-
+ 
   const addEventListenerOnSmHoverMenu = () => {
     // add listener Sidebar Hover icon on change layout from setting
     if (
@@ -40,7 +41,7 @@ const Sidebar = ({ layoutType }) => {
       document.documentElement.setAttribute("data-sidebar-size", "sm-hover");
     }
   };
-
+ 
   return (
     <React.Fragment>
       <div className="app-menu navbar-menu">
@@ -53,7 +54,7 @@ const Sidebar = ({ layoutType }) => {
               <img src={logoDark} alt="" height="17" />
             </span>
           </Link>
-
+ 
           <Link to="/" className="logo logo-light">
             <span className="logo-sm">
               <img src={logoSm} alt="" height="22" />
@@ -71,22 +72,38 @@ const Sidebar = ({ layoutType }) => {
             <i className="ri-record-circle-line"></i>
           </button>
         </div>
-
-        <React.Fragment>
-          <SimpleBar id="scrollbar" className="h-100">
+        {layoutType === "horizontal" ? (
+          <div id="scrollbar">
             <Container fluid>
               <div id="two-column-menu"></div>
               <ul className="navbar-nav" id="navbar-nav">
-                <VerticalLayout layoutType={layoutType} />
+                <HorizontalLayout />
               </ul>
             </Container>
-          </SimpleBar>
-          <div className="sidebar-background"></div>
-        </React.Fragment>
+          </div>
+        ) : layoutType === "twocolumn" ? (
+          <React.Fragment>
+            <TwoColumnLayout layoutType={layoutType} />
+            <div className="sidebar-background"></div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <SimpleBar id="scrollbar" className="h-100">
+              <Container fluid>
+                <div id="two-column-menu"></div>
+                <ul className="navbar-nav" id="navbar-nav">
+                  <VerticalLayouts layoutType={layoutType} />
+                </ul>
+              </Container>
+            </SimpleBar>
+            <div className="sidebar-background"></div>
+          </React.Fragment>
+        )}
       </div>
       <div className="vertical-overlay"></div>
     </React.Fragment>
   );
 };
-
+ 
 export default Sidebar;
+ 

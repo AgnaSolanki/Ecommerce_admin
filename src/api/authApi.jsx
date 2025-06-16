@@ -1,22 +1,27 @@
-// src/api/apiService.js
 import axios from "axios";
+import apiService from "./apiServices";
 
-const apiService = axios.create({
-  baseURL: import.meta.env.VITE_BASE_API,
+const authApi = axios.create({
+  baseURL: apiService.baseURL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-apiService.interceptors.request.use(
+authApi.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("token");
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
+
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-export default apiService;
+export default authApi;

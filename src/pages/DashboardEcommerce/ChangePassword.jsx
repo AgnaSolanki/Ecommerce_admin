@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, CardBody, Container, Form } from "reactstrap";
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Container,
+  Form,
+  FormFeedback,
+} from "reactstrap";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import authService from "../../api/apiServices";
 import { CONSTANTS } from "../../Components/constants/common";
 import { LoginRoutes } from "../../Routes/apiRoutes";
 import BaseInput from "../../Components/BASE/BaseInput";
@@ -13,11 +20,15 @@ import {
   passwordRegex,
   validationField,
 } from "../../Components/constants/validation";
+import userApi from "../../api/userApi";
+import BaseButton from "../../Components/BASE/BaseButton";
 
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +36,6 @@ const ForgetPasswordPage = () => {
     if (sessionEmail) {
       setEmail(sessionEmail);
     } else {
-      toast.error("Email not found in session. Please login again.");
       navigate(LoginRoutes.LOGIN);
     }
   }, [navigate]);
@@ -67,8 +77,10 @@ const ForgetPasswordPage = () => {
 
     onSubmit: async (values) => {
       setLoading(true);
+      setError("");
+
       try {
-        const response = await authService.changePassword({
+        const response = await userApi.changePassword({
           email,
           currentPassword: values[CONSTANTS.currentPassword],
           newPassword: values[CONSTANTS.newPassword],
@@ -113,64 +125,84 @@ const ForgetPasswordPage = () => {
                         name={CONSTANTS.email}
                         label={CONSTANTS.Email}
                         type={CONSTANTS.email}
-                        formik={validation}
                         placeholder={inputField(CONSTANTS.Email)}
                         value={email}
                         disabled={true}
+                        onChange={validation.handleChange}
+                        onBlur={validation.handleBlur}
+                        className="cursor-not-allowed"
                       />
                     </div>
 
                     <BaseInput
                       id={CONSTANTS.currentPassword}
                       name={CONSTANTS.currentPassword}
-                      label={CONSTANTS.CurrentPassword}
+                      label={CONSTANTS.Current_password}
                       type={CONSTANTS.password}
                       placeholder={inputField(CONSTANTS.CurrentPassword)}
-                      formik={validation}
                       showPasswordToggle={true}
                       passwordShown={passwordShow}
                       setPasswordShown={setPasswordShow}
+                      onChange={validation.handleChange}
+                      onBlur={validation.handleBlur}
+                      required={true}
                     />
+                    {validation.touched.currentPassword &&
+                    validation.errors.currentPassword ? (
+                      <FormFeedback className="d-block">
+                        {validation.errors.currentPassword}
+                      </FormFeedback>
+                    ) : null}
 
                     <BaseInput
                       id={CONSTANTS.newPassword}
                       name={CONSTANTS.newPassword}
-                      label={CONSTANTS.NewPassword}
+                      label={CONSTANTS.New_password}
                       type={CONSTANTS.password}
                       placeholder={inputField(CONSTANTS.NewPassword)}
-                      formik={validation}
                       showPasswordToggle={true}
                       passwordShown={passwordShow}
                       setPasswordShown={setPasswordShow}
+                      onChange={validation.handleChange}
+                      onBlur={validation.handleBlur}
+                      required={true}
                     />
-
+                    {validation.touched.newPassword &&
+                    validation.errors.newPassword ? (
+                      <FormFeedback className="d-block">
+                        {validation.errors.newPassword}
+                      </FormFeedback>
+                    ) : null}
                     <BaseInput
                       id={CONSTANTS.confirmPassword}
                       name={CONSTANTS.confirmPassword}
-                      label={CONSTANTS.ConfirmPassword}
+                      label={CONSTANTS.Confirm_password}
                       type={CONSTANTS.password}
                       placeholder={inputField(CONSTANTS.ConfirmPassword)}
-                      formik={validation}
                       showPasswordToggle={true}
                       passwordShown={passwordShow}
                       setPasswordShown={setPasswordShow}
+                      onChange={validation.handleChange}
+                      onBlur={validation.handleBlur}
+                      required={true}
                     />
+                    {validation.touched.confirmPassword &&
+                    validation.errors.confirmPassword ? (
+                      <FormFeedback className="d-block">
+                        {validation.errors.confirmPassword}
+                      </FormFeedback>
+                    ) : null}
 
                     <div className="text-center mt-4">
-                      <button
-                        disabled={loading}
-                        className="btn btn-success w-100"
+                      <BaseButton
                         type="submit"
+                        color="success"
+                        block={true}
+                        loading={loading}
+                        disabled={!!error}
                       >
-                        {loading && (
-                          <span
-                            className="spinner-border spinner-border-sm me-2"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        )}
                         {!loading ? "Change Password" : null}
-                      </button>
+                      </BaseButton>
                     </div>
                   </Form>
                 </div>
