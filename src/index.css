@@ -155,15 +155,20 @@ button:focus-visible {
 .form-control:disabled {
   cursor: not-allowed !important;
 }
-.welcome-text{
+.welcome-text {
   font-size: 16px;
   font-weight: bold;
   line-height: 20px;
 }
 input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0px 1000px rgb(232, 240, 254) inset !important; 
-  -webkit-text-fill-color: #000 !important; 
+  -webkit-box-shadow: 0 0 0px 1000px rgb(232, 240, 254) inset !important;
+  -webkit-text-fill-color: #000 !important;
 }
+.email-lord-icon {
+  width: 120px;
+  height: 120px;
+}
+
 .variant_img {
   object-fit: cover;
   width: 120px;

@@ -95,11 +95,6 @@ const Login = () => {
       }
     },
   });
-  const blockSpace = (e) => {
-    if (e.key === " ") {
-      e.preventDefault();
-    }
-  };
 
   return (
     <ParticlesAuth>
@@ -143,7 +138,6 @@ const Login = () => {
                           placeholder={inputField(CONSTANTS.Email)}
                           value={validation.values[CONSTANTS.email]}
                           type={CONSTANTS.email}
-                          onKeyDown={blockSpace}
                           onChange={validation.handleChange}
                           onBlur={validation.handleBlur}
                           required={true}
@@ -173,7 +167,6 @@ const Login = () => {
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
-                            onKeyDown={blockSpace}
                             onBlur={validation.handleBlur}
                             required={true}
                             className="cursor"

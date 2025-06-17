@@ -31,8 +31,8 @@ import BaseButton from "../../Components/BASE/BaseButton";
 import Footer from "../../Layouts/Footer";
 
 const ForgetPasswordPage = () => {
-const [passwordShow, setPasswordShow] = useState(false);
-const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
+  const [passwordShow, setPasswordShow] = useState(false);
+  const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error] = useState("");
@@ -129,12 +129,6 @@ const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
       validation.handleChange(e);
     }
   };
-  const blockSpace = (e) => {
-    if (e.key === " ") {
-      e.preventDefault();
-    }
-  };
-
   document.title = "forgot-password";
 
   return (
@@ -172,8 +166,7 @@ const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
                       src="https://cdn.lordicon.com/rhvddzym.json"
                       trigger="loop"
                       colors="primary:#0ab39c"
-                      className="avatar-xl"
-                      style={{ width: "120px", height: "120px" }}
+                      className="avatar-xl email-lord-icon"
                     ></lord-icon>
                   </div>
 
@@ -192,7 +185,6 @@ const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
                           type={CONSTANTS.email}
-                          onKeyDown={blockSpace}
                           placeholder={inputField(CONSTANTS.Email)}
                           disabled={submitted}
                           onChange={validation.handleChange}
@@ -240,7 +232,6 @@ const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
                               placeholder={inputField(CONSTANTS.Password)}
                               showPasswordToggle={true}
                               passwordShown={passwordShow}
-                              onKeyDown={blockSpace}
                               setPasswordShown={setPasswordShow}
                               onChange={validation.handleChange}
                               onBlur={validation.handleBlur}
@@ -261,7 +252,6 @@ const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
                             showPasswordToggle={true}
                             passwordShown={confirmPasswordShow}
-                            onKeyDown={blockSpace}
                             setPasswordShown={setConfirmPasswordShow}
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
