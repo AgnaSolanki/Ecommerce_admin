@@ -1,39 +1,33 @@
+import React from "react";
 import { Input, Label, FormFeedback } from "reactstrap";
 
 const BaseSelectInput = ({
   id,
   name,
   label,
-  formik,
+  onChange = () => {},
+  onBlur = () => {},
   disabled = false,
   options = [],
+  required = false,
   value,
-  onChange,
 }) => {
-  const inputId = id || `input-${name}`;
-  const isFormik = !!formik;
-
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const isInvalid = touched && error;
-
   return (
-    <div className="mb-3">
+    <div>
       {label && (
-        <Label htmlFor={inputId} className="form-label d-block">
-          {label}
-        </Label>
+        <label className="form-label">
+          {label} {required && <span className="color">*</span>}
+        </label>
       )}
       <Input
-        id={inputId}
+        id={id}
         name={name}
         type="select"
         disabled={disabled}
         className="form-select"
-        value={isFormik ? formik.values?.[name] : value}
-        onChange={isFormik ? formik.handleChange : onChange}
-        onBlur={isFormik ? formik.handleBlur : undefined}
-        invalid={!!isInvalid}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
       >
         {options.map((opt, index) => (
           <option key={index} value={opt.value}>
@@ -41,10 +35,8 @@ const BaseSelectInput = ({
           </option>
         ))}
       </Input>
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };
-
 
 export default BaseSelectInput;

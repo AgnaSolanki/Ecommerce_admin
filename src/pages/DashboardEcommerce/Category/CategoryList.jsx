@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Card,
@@ -297,16 +297,28 @@ const CategoryList = () => {
               name="category_name"
               type="text"
               placeholder="Enter category name"
-              formik={formik}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.category_name && formik.errors.category_name && (
+              <FormFeedback className="d-block">
+                {formik.errors.category_name}
+              </FormFeedback>
+            )}
 
             <BaseInput
               label="Description"
               name="description"
               type="textarea"
               placeholder="Enter description"
-              formik={formik}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
             />
+            {formik.touched.description && formik.errors.description && (
+              <FormFeedback className="d-block">
+                {formik.errors.description}
+              </FormFeedback>
+            )}
 
             <BaseFileInput
               label="Category Image"
@@ -316,11 +328,7 @@ const CategoryList = () => {
             />
 
             {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="imgPreview"
-              />
+              <img src={imagePreview} alt="Preview" className="imgPreview" />
             )}
           </ModalBody>
           <ModalFooter>

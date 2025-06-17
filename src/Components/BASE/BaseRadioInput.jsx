@@ -1,24 +1,19 @@
-import { Label, FormFeedback } from "reactstrap";
-
 const BaseRadioInput = ({
-  id,
   name,
   label,
-  formik = {},
   disabled = false,
   options = [],
+  required = false,
+  onChange = ()=> {},
+  onBlur = ()=> {}, 
+  value
 }) => {
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const isInvalid = touched && error;
-
   return (
-    <div className="mb-3">
-      {label && (
-        <Label htmlFor={id} className="form-label d-block">
-          {label}
-        </Label>
-      )}
+    <div>
+      <label className="form-label">
+        {label} {required && <span className="color">*</span>}
+      </label>
+
       <div className="d-flex gap-3">
         {options.map((opt, idx) => (
           <div key={idx} className="form-check">
@@ -28,17 +23,20 @@ const BaseRadioInput = ({
               name={name}
               id={`${name}-${opt.value}`}
               value={opt.value}
-              checked={formik.values?.[name] === opt.value}
-              onChange={formik.handleChange}
+              checked={value === opt.value}
+              onChange={onChange}
+              onBlur={onBlur}
               disabled={disabled}
             />
-            <label className="form-check-label" htmlFor={`${name}-${opt.value}`}>
+            <label
+              className="form-check-label"
+              htmlFor={`${name}-${opt.value}`}
+            >
               {opt.label}
             </label>
           </div>
         ))}
       </div>
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };

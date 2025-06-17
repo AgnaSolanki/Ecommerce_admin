@@ -9,6 +9,7 @@ import {
   STATE,
   VIEW_PROFILE,
   CHANGE_PASSWORD,
+  UPLOAD_FILE,
   listOfProduct,
   addProduct,
   viewProduct,
@@ -35,10 +36,10 @@ const userApi = {
     const formData = new FormData();
     formData.append("files", file);
 
-    return authApi.post("/fileUpload", formData);
+    return authApi.post(UPLOAD_FILE, formData);
   },
   changePassword: (data) => authApi.put(CHANGE_PASSWORD, data),
-  productList: (data) => authApi.post(listOfProduct, data),
+   productList: (data) => authApi.post(listOfProduct, data),
   addProduct: (data) => authApi.post(addProduct, data),
   viewProduct: (productId) =>
     authApi.get(viewProduct.replace("{product_id}", productId)),
