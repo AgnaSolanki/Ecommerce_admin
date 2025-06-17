@@ -187,9 +187,7 @@ const ForgetPasswordPage = () => {
                           type={CONSTANTS.email}
                           placeholder={inputField(CONSTANTS.Email)}
                           disabled={submitted}
-                          onChange={validation.handleChange}
-                          disabled={submitted}
-                     
+                          onChange={validation.handleChange}                     
                           onBlur={validation.handleBlur}
                           required={true}
                           className={submitted ? "cursor-not-allowed" : ""}

@@ -35,17 +35,13 @@ const userApi = {
     return authApi.post(UPLOAD_FILE, formData);
   },
   changePassword: (data) => authApi.put(CHANGE_PASSWORD, data),
-   productList: (data) => authApi.post(listOfProduct, data),
+  productList: (data) => authApi.post(listOfProduct, data),
   addProduct: (data) => authApi.post(addProduct, data),
-  viewProduct: (productId) =>
-    authApi.get(viewProduct.replace("{product_id}", productId)),
+  viewProduct: (productId) => authApi.get(`${viewProduct}${productId}`),
   editProduct: (productId, data) =>
-    authApi.put(editProduct.replace("{product_id}", productId), data),
-
-  deleteProduct: (productId) =>
-    authApi.delete(deleteProduct.replace("{product_id}", productId)),
-    getCategories:() => authApi.get(getCategories)
-
+    authApi.put(`${editProduct}${productId}`, data),
+  deleteProduct: (productId) => authApi.delete(`${deleteProduct}${productId}`),
+  getCategories: () => authApi.get(getCategories),
 };
 
 export default userApi;
