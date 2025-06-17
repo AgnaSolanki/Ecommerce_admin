@@ -16,6 +16,8 @@ import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import ReactApexChart from "react-apexcharts";
 import userApi from "../../../api/userApi";
+import { toast } from "react-toastify";
+import { BigBaseLoader } from "../../../Components/BASE/BaseLoader";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -39,7 +41,7 @@ const Dashboard = () => {
         setStats(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching dashboard statistics:", error);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -57,7 +59,7 @@ const Dashboard = () => {
         setPieLabels(apiData.map((item) => item.label));
       }
     } catch (error) {
-      console.error("Error fetching pie chart data:", error);
+      toast.error(error.message);
     } finally {
       setPieLoading(false);
     }
@@ -70,7 +72,7 @@ const Dashboard = () => {
         setOrders(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching highest purchase orders:", error);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -117,7 +119,7 @@ const Dashboard = () => {
         <Container fluid>
           <Row>
             <Col xs={12} className="text-center">
-              <h4>Loading dashboard...</h4>
+              <BigBaseLoader />
             </Col>
           </Row>
         </Container>
@@ -131,7 +133,7 @@ const Dashboard = () => {
         <Container fluid>
           <Row>
             <Col xs={12} className="text-center">
-              <h4>No data available.</h4>
+              <BigBaseLoader />
             </Col>
           </Row>
         </Container>
@@ -300,7 +302,7 @@ const Dashboard = () => {
               <CardBody>
                 {orders.length === 0 ? (
                   <div className="text-center my-4">
-                    <h5>No data available</h5>
+                    <BigBaseLoader />
                   </div>
                 ) : (
                   <div className="table-responsive table-card">
