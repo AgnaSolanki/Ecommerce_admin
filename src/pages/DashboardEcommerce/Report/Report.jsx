@@ -14,6 +14,7 @@ import {
 import userApi from "../../../api/userApi";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import { Search } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Report = () => {
   const [orderReportData, setOrderReportData] = useState([]);
@@ -82,7 +83,7 @@ const Report = () => {
         setUserTotalRecords(userResponse.data.data.totalItems || 0);
       }
     } catch (error) {
-      console.error("Error fetching reports:", error);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
