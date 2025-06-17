@@ -166,7 +166,7 @@ const ForgetPasswordPage = () => {
                       src="https://cdn.lordicon.com/rhvddzym.json"
                       trigger="loop"
                       colors="primary:#0ab39c"
-                      className="avatar-xl lord-icon-"
+                      className="avatar-xl email-lord-icon"
                     ></lord-icon>
                   </div>
 
