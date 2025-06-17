@@ -8,11 +8,16 @@ const Footer = () => {
                 <Container fluid>
                     <Row>
                         <Col sm={6}>
-                            {new Date().getFullYear()} © Velzon.
+                        <p className="mb-0 text-muted">
+                            © {new Date().getFullYear()} Shivinfotech.
+                            </p>
                         </Col>
                         <Col sm={6}>
                             <div className="text-sm-end d-none d-sm-block">
-                                Design & Develop by Themesbrand
+                                                      <p className="mb-0 text-muted">
+
+                              Design & Develop by Shiv Infotech.
+                              </p>
                             </div>
                         </Col>
                     </Row>

@@ -1,45 +1,35 @@
-import {
-  Input,
-  Label,
-  FormFeedback,
-  InputGroup,
-  InputGroupText,
-} from "reactstrap";
+import { Input, InputGroup, InputGroupText } from "reactstrap";
 
 const BaseInput = ({
   id,
   name,
   label,
   placeholder,
-  formik = {},
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
- onChange = () => {},
-   type,
+  onChange = () => {},
+  type,
   value,
-  onBlur=() => {},
+  maxLength,
+  onBlur = () => {},
   required = false,
+  onKeyDown = () => {},
   setPasswordShown = () => {},
 }) => {
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const isInvalid = touched && error;
-
   const inputType = showPasswordToggle
     ? passwordShown
       ? "text"
       : "password"
     : type;
 
-
   return (
-    <div className="mb-3">
-    <label htmlFor={id} className="form-label">
+    <div>
+      <label htmlFor={id} className="form-label">
         {label} {required && <span className="color">*</span>}
       </label>
 
-      <InputGroup className={isInvalid ? "is-invalid" : ""}>
+      <InputGroup>
         <Input
           id={id}
           name={name}
@@ -50,20 +40,21 @@ const BaseInput = ({
           onChange={onChange}
           onBlur={onBlur}
           value={value}
-          invalid={!!isInvalid}
+          maxLength={maxLength}
+          onKeyDown={onKeyDown}
         />
         {showPasswordToggle && (
-          <InputGroupText
-            onClick={() => setPasswordShown(!passwordShown)}
-          >
+          <InputGroupText onClick={() => setPasswordShown(!passwordShown)}>
             <i
-              className={passwordShown ? "ri-eye-off-fill align-middle" : "ri-eye-fill align-middle"}
+              className={
+                passwordShown
+                  ? "ri-eye-off-fill align-middle"
+                  : "ri-eye-fill align-middle"
+              }
             />
           </InputGroupText>
         )}
       </InputGroup>
-
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };

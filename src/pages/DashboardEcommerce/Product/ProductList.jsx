@@ -55,7 +55,6 @@ const ProductList = () => {
     fetchProducts();
   }, [page, limit]);
 
-
   const goToPage = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
@@ -78,8 +77,6 @@ const ProductList = () => {
   const handleDelete = async () => {
     try {
       const response = await userApi.deleteProduct(selectedProductId);
-      console.log("res", response);
-      
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
         fetchProducts();

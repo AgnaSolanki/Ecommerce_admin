@@ -1,5 +1,3 @@
-// Complete Updated EditProduct Component
-
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, CardBody, Form } from "reactstrap";
 import { useFormik, FieldArray, FormikProvider } from "formik";
@@ -33,67 +31,60 @@ const EditProduct = () => {
     name: "",
     category_id: "",
     id: "",
-    product_variants: [
-      {
-        product_title_name: "",
-        description: "",
-        color: "",
-        size: "",
-        price: "",
-        quantity: "",
-        variant_image: "",
-      },
-    ],
+    product_variants: [],
   });
 
+  const fetchProduct = async () => {
+    try {
+      const res = await userApi.viewProduct(id);
+      const product = res.data?.data;
+
+      if (product && Array.isArray(product.variants)) {
+        const mappedVariants = product.variants.map((v) => ({
+          product_title_name: v.product_title_name || "",
+          description: v.description || "",
+          color: v.color || "",
+          size: v.size || "",
+          price: String(v.price || ""),
+          quantity: String(v.quantity || ""),
+          variant_image: v.image?.image_path || "",
+        }));
+
+        const newValues = {
+          name: product.name || "",
+          category_id: product.category?.id?.toString() || "",
+          id: String(product.id || ""),
+          product_variants: mappedVariants,
+        };
+
+        setInitialValues(newValues);
+        formik.setValues(newValues);
+
+        const previews = {};
+        product.variants.forEach((v, idx) => {
+          if (v.image?.image_path) {
+            previews[`variant_image_preview_${idx}`] = `${
+              import.meta.env.VITE_BASE_IMAGE
+            }/${v.image.image_path}`;
+          }
+        });
+        setImagePreviews(previews);
+      }
+    } catch (error) {
+      toast.error(error?.message);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await userApi.getCategories();
+      setCategories(res.data?.data || []);
+    } catch (err) {
+      toast.error(err?.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await userApi.getCategories();
-        setCategories(res.data?.data || []);
-      } catch (err) {
-        toast.error(err?.message);
-      }
-    };
-
-    const fetchProduct = async () => {
-      try {
-        const res = await userApi.viewProduct(id);
-        const product = res.data?.data;
-
-        if (product && Array.isArray(product.variants)) {
-          const mappedVariants = product.variants.map((v) => ({
-            product_title_name: v.product_title_name || "",
-            description: v.description || "",
-            color: v.color || "",
-            size: v.size || "",
-            price: String(v.price || ""),
-            quantity: String(v.quantity || ""),
-            variant_image: v.image?.image_path || "",
-          }));
-
-          setInitialValues({
-            name: product.name || "",
-            category_id: product.category?.id || "",
-            id: String(product.id || ""),
-            product_variants: mappedVariants,
-          });
-
-          const previews = {};
-          product.variants.forEach((v, idx) => {
-            if (v.image?.image_path) {
-              previews[`variant_image_preview_${idx}`] = `${
-                import.meta.env.VITE_BASE_IMAGE
-              }/${v.image.image_path}`;
-            }
-          });
-          setImagePreviews(previews);
-        }
-      } catch (error) {
-        toast.error(error?.message);
-      }
-    };
-
     fetchCategories();
     fetchProduct();
   }, [id]);
@@ -108,7 +99,7 @@ const EditProduct = () => {
   const quantityValidation = validationField(CONSTANTS.Quantity);
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     enableReinitialize: true,
     validationSchema: Yup.object({
       name: Yup.string().required(productValidation.required),
@@ -211,8 +202,10 @@ const EditProduct = () => {
                 <Col md={6}>
                   <BaseInput
                     name="name"
+                    value={formik.values[CONSTANTS.name]}
                     label="Product Name"
-                    formik={formik}
+                    onBlur={formik.handleBlur}
+                    required={true}
                     onChange={formik.handleChange}
                   />
                 </Col>
@@ -221,6 +214,7 @@ const EditProduct = () => {
                     name={CONSTANTS.category_id}
                     label={CONSTANTS.Category}
                     type={CONSTANTS.select}
+                    value={formik.values[CONSTANTS.category_id]}
                     options={[
                       { label: selectLabel(CONSTANTS.Category), value: "" },
                       ...categories.map((cat) => ({
@@ -228,8 +222,9 @@ const EditProduct = () => {
                         value: cat.id,
                       })),
                     ]}
-                    formik={formik}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
                 </Col>
               </Row>
@@ -246,32 +241,44 @@ const EditProduct = () => {
                             <BaseInput
                               type={CONSTANTS.text}
                               name={`product_variants[${index}].product_title_name`}
+                              value={variant.product_title_name}
                               label={CONSTANTS.VariantTitle}
-                              formik={formik}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              required={true}
                             />
                           </Col>
                           <Col md={6}>
                             <BaseInput
                               type={CONSTANTS.text}
                               name={`product_variants[${index}].description`}
+                              value={variant.description}
                               label={CONSTANTS.Description}
-                              formik={formik}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              required={true}
                             />
                           </Col>
                           <Col md={4}>
                             <BaseInput
                               type={CONSTANTS.text}
                               name={`product_variants[${index}].color`}
+                              value={variant.color}
                               label={CONSTANTS.Color}
-                              formik={formik}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              required={true}
                             />
                           </Col>
                           <Col md={4}>
                             <BaseInput
                               type={CONSTANTS.text}
                               name={`product_variants[${index}].size`}
+                              value={variant.size}
                               label={CONSTANTS.Size}
-                              formik={formik}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              required={true}
                             />
                           </Col>
                           <Col md={2}>
@@ -279,7 +286,9 @@ const EditProduct = () => {
                               label={CONSTANTS.Price}
                               type={CONSTANTS.text}
                               name={`product_variants[${index}].price`}
-                              formik={formik}
+                              value={variant.price}
+                              onBlur={formik.handleBlur}
+                              required={true}
                               onChange={handleOtpChange}
                             />
                           </Col>
@@ -287,8 +296,10 @@ const EditProduct = () => {
                             <BaseInput
                               label={CONSTANTS.Qty}
                               name={`product_variants[${index}].quantity`}
+                              value={variant.quantity}
                               type={CONSTANTS.text}
-                              formik={formik}
+                              onBlur={formik.handleBlur}
+                              required={true}
                               onChange={handleOtpChange}
                             />
                           </Col>
@@ -297,7 +308,9 @@ const EditProduct = () => {
                               name={`product_variants[${index}].variant_image`}
                               type={CONSTANTS.file}
                               isAvatarUpload={false}
-                              formik={formik}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              required={true}
                               onFileChange={async (file) => {
                                 if (file) {
                                   try {
@@ -359,7 +372,7 @@ const EditProduct = () => {
                     loading={saveLoading}
                     color="primary"
                   >
-                    Save
+                    {!saveLoading ? "Save" : null}{" "}
                   </BaseButton>
                   <BaseButton
                     type={CONSTANTS.Button}
@@ -368,7 +381,7 @@ const EditProduct = () => {
                     className="ms-3"
                     onClick={handleCancel}
                   >
-                    Cancel
+                    {!cancelLoading ? "Cancel" : null}
                   </BaseButton>
                 </Col>
               </Row>
