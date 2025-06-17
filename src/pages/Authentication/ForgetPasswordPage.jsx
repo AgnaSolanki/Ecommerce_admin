@@ -7,6 +7,7 @@ import {
   Container,
   Form,
   FormFeedback,
+  Alert,
 } from "reactstrap";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
@@ -27,9 +28,11 @@ import {
 } from "../../Components/constants/validation";
 import userApi from "../../api/userApi";
 import BaseButton from "../../Components/BASE/BaseButton";
+import Footer from "../../Layouts/Footer";
 
 const ForgetPasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
+  const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error] = useState("");
@@ -59,8 +62,9 @@ const ForgetPasswordPage = () => {
         .required(otpValidation.required),
 
       [CONSTANTS.newPassword]: Yup.string()
-        .matches(passwordRegex, passwordValidation.passwordPattern)
-        .required(passwordValidation.required),
+        .required(passwordValidation.required)
+        .min(8, passwordValidation.passwordMinLength)
+        .matches(passwordRegex, passwordValidation.passwordComplexity),
 
       [CONSTANTS.confirmPassword]: Yup.string()
         .oneOf(
@@ -125,12 +129,11 @@ const ForgetPasswordPage = () => {
       validation.handleChange(e);
     }
   };
-
   document.title = "forgot-password";
 
   return (
     <ParticlesAuth>
-      <div className="auth-page-content mt-lg-5">
+      <div className="auth-page-content">
         <Container>
           <Row>
             <Col lg={12}>
@@ -155,14 +158,24 @@ const ForgetPasswordPage = () => {
               <Card className="mt-4">
                 <CardBody className="p-4">
                   <div className="text-center mt-2">
-                    <h5 className="text-primary">Forgot Password?</h5>
+                    <h5 className="text-primary welcome-text">
+                      Forgot Password?
+                    </h5>
+
                     <lord-icon
                       src="https://cdn.lordicon.com/rhvddzym.json"
                       trigger="loop"
                       colors="primary:#0ab39c"
-                      className="avatar-xl lord-icon"
+                      className="avatar-xl email-lord-icon"
                     ></lord-icon>
                   </div>
+
+                  <Alert
+                    className="border-0 alert-warning text-center mb-2 mx-2"
+                    role="alert"
+                  >
+                    Enter your email and instructions will be sent to you!
+                  </Alert>
 
                   <div className="p-2">
                     <Form onSubmit={validation.handleSubmit}>
@@ -188,44 +201,47 @@ const ForgetPasswordPage = () => {
 
                       {submitted && (
                         <>
-                          <BaseInput
-                            id={CONSTANTS.otp}
-                            name={CONSTANTS.otp}
-                            label={CONSTANTS.OTP}
-                            type={CONSTANTS.text}
-                            placeholder={inputField(CONSTANTS.OTP)}
-                            onChange={handleOtpChange}
-                            onBlur={validation.handleBlur}
-                            maxLength={6}
-                            required={true}
-                            value={validation.values[CONSTANTS.otp]}
-                          />
-                          {validation.touched.otp && validation.errors.otp && (
-                            <FormFeedback className="d-block">
-                              {validation.errors.otp}
-                            </FormFeedback>
-                          )}
-
-                          <BaseInput
-                            id={CONSTANTS.newPassword}
-                            name={CONSTANTS.newPassword}
-                            label={CONSTANTS.Password}
-                            type={CONSTANTS.password}
-                            placeholder={inputField(CONSTANTS.Password)}
-                            showPasswordToggle={true}
-                            passwordShown={passwordShow}
-                            setPasswordShown={setPasswordShow}
-                            onChange={validation.handleChange}
-                            onBlur={validation.handleBlur}
-                            required={true}
-                          />
-                          {validation.touched.newPassword &&
-                            validation.errors.newPassword && (
-                              <FormFeedback className="d-block">
-                                {validation.errors.newPassword}
-                              </FormFeedback>
-                            )}
-
+                          <div className="mb-3">
+                            <BaseInput
+                              id={CONSTANTS.otp}
+                              name={CONSTANTS.otp}
+                              label={CONSTANTS.OTP}
+                              type={CONSTANTS.text}
+                              placeholder={inputField(CONSTANTS.OTP)}
+                              onChange={handleOtpChange}
+                              onBlur={validation.handleBlur}
+                              maxLength={6}
+                              required={true}
+                              value={validation.values[CONSTANTS.otp]}
+                            />
+                            {validation.touched.otp &&
+                              validation.errors.otp && (
+                                <FormFeedback className="d-block">
+                                  {validation.errors.otp}
+                                </FormFeedback>
+                              )}
+                          </div>
+                          <div className="mb-3">
+                            <BaseInput
+                              id={CONSTANTS.newPassword}
+                              name={CONSTANTS.newPassword}
+                              label={CONSTANTS.Password}
+                              type={CONSTANTS.password}
+                              placeholder={inputField(CONSTANTS.Password)}
+                              showPasswordToggle={true}
+                              passwordShown={passwordShow}
+                              setPasswordShown={setPasswordShow}
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              required={true}
+                            />
+                            {validation.touched.newPassword &&
+                              validation.errors.newPassword && (
+                                <FormFeedback className="d-block">
+                                  {validation.errors.newPassword}
+                                </FormFeedback>
+                              )}
+                          </div>
                           <BaseInput
                             id={CONSTANTS.confirmPassword}
                             name={CONSTANTS.confirmPassword}
@@ -233,8 +249,8 @@ const ForgetPasswordPage = () => {
                             type={CONSTANTS.password}
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
                             showPasswordToggle={true}
-                            passwordShown={passwordShow}
-                            setPasswordShown={setPasswordShow}
+                            passwordShown={confirmPasswordShow}
+                            setPasswordShown={setConfirmPasswordShow}
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
                             required={true}
@@ -282,6 +298,9 @@ const ForgetPasswordPage = () => {
             </Col>
           </Row>
         </Container>
+        <div className="main-content mb-0 mt-5">
+          <Footer />
+        </div>
       </div>
     </ParticlesAuth>
   );

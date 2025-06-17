@@ -1,4 +1,4 @@
-import { Input,  InputGroup, InputGroupText } from "reactstrap";
+import { Input, InputGroup, InputGroupText } from "reactstrap";
 
 const BaseInput = ({
   id,
@@ -8,29 +8,33 @@ const BaseInput = ({
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
-  onChange= ()=>{},
+  onChange = () => {},
   type,
   value,
   maxLength,
-  onBlur= ()=> {},
+  onBlur = () => {},
   required = false,
   setPasswordShown = () => {},
 }) => {
- 
   const inputType = showPasswordToggle
     ? passwordShown
       ? "text"
       : "password"
     : type;
-
+  const handleKeyDown = (event) => {
+    const preventTypes = ["email", "password"];
+    if (preventTypes.includes(inputType) && event.code === "Space") {
+      event.preventDefault();
+    }
+  };
 
   return (
-    <div className="mb-3">
-    <label htmlFor={id} className="form-label">
+    <div>
+      <label htmlFor={id} className="form-label">
         {label} {required && <span className="color">*</span>}
       </label>
 
-      <InputGroup >
+      <InputGroup>
         <Input
           id={id}
           name={name}
@@ -41,14 +45,17 @@ const BaseInput = ({
           onChange={onChange}
           onBlur={onBlur}
           value={value}
-          maxLength = {maxLength}
+          maxLength={maxLength}
+          onKeyDown={handleKeyDown}
         />
         {showPasswordToggle && (
-          <InputGroupText
-            onClick={() => setPasswordShown(!passwordShown)}
-          >
+          <InputGroupText onClick={() => setPasswordShown(!passwordShown)}>
             <i
-              className={passwordShown ? "ri-eye-off-fill align-middle" : "ri-eye-fill align-middle"}
+              className={
+                passwordShown
+                  ? "ri-eye-fill align-middle"
+                  : "ri-eye-off-fill align-middle"
+              }
             />
           </InputGroupText>
         )}

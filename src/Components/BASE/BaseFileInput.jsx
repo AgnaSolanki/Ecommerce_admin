@@ -7,12 +7,12 @@ const BaseFileInput = ({
   disabled = false,
   isAvatarUpload = false,
   required = false,
-  onChange = ()=>{},
-  onBlur = ()=>{},
-  onFileChange = ()=>{}
+  onChange = () => {},
+  onBlur = () => {},
+  onFileChange = () => {},
 }) => {
   return (
-    <div className="mb-3">
+    <div>
       {label && (
         <label htmlFor={id} className="form-label">
           {label} {required && <span className="color">*</span>}
@@ -27,7 +27,7 @@ const BaseFileInput = ({
         onBlur={onBlur}
         accept="image/*"
         disabled={disabled}
-        onFileChange = {onFileChange}
+        onFileChange={onFileChange}
       />
     </div>
   );
