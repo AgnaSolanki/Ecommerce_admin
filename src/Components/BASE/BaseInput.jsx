@@ -14,7 +14,6 @@ const BaseInput = ({
   maxLength,
   onBlur = () => {},
   required = false,
-  onKeyDown = () => {},
   setPasswordShown = () => {},
 }) => {
   const inputType = showPasswordToggle
@@ -22,6 +21,12 @@ const BaseInput = ({
       ? "text"
       : "password"
     : type;
+  const handleKeyDown = (event) => {
+    const preventTypes = ["email", "password"];
+    if (preventTypes.includes(inputType) && event.code === "Space") {
+      event.preventDefault();
+    }
+  };
 
   return (
     <div>
@@ -41,7 +46,7 @@ const BaseInput = ({
           onBlur={onBlur}
           value={value}
           maxLength={maxLength}
-          onKeyDown={onKeyDown}
+          onKeyDown={handleKeyDown}
         />
         {showPasswordToggle && (
           <InputGroupText onClick={() => setPasswordShown(!passwordShown)}>
