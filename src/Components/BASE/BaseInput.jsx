@@ -53,8 +53,8 @@ const BaseInput = ({
             <i
               className={
                 passwordShown
-                  ? "ri-eye-off-fill align-middle"
-                  : "ri-eye-fill align-middle"
+                  ? "ri-eye-fill align-middle"
+                  : "ri-eye-off-fill align-middle"
               }
             />
           </InputGroupText>
