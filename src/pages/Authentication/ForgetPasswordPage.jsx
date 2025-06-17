@@ -31,8 +31,8 @@ import BaseButton from "../../Components/BASE/BaseButton";
 import Footer from "../../Layouts/Footer";
 
 const ForgetPasswordPage = () => {
-const [passwordShow, setPasswordShow] = useState(false);
-const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
+  const [passwordShow, setPasswordShow] = useState(false);
+  const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error] = useState("");
@@ -196,8 +196,6 @@ const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
                           placeholder={inputField(CONSTANTS.Email)}
                           disabled={submitted}
                           onChange={validation.handleChange}
-                          disabled={submitted}
-                     
                           onBlur={validation.handleBlur}
                           required={true}
                           className={submitted ? "cursor-not-allowed" : ""}

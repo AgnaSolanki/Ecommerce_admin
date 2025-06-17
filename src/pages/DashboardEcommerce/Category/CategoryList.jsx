@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalFooter,
   Form,
+  FormFeedback,
 } from "reactstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -19,7 +20,10 @@ import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
-import { validationField } from "../../../Components/constants/validation";
+import {
+  inputField,
+  validationField,
+} from "../../../Components/constants/validation";
 import { CONSTANTS } from "../../../Components/constants/common";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseFileInput from "../../../Components/BASE/BaseFileInput";
@@ -36,6 +40,7 @@ const CategoryList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
@@ -56,7 +61,6 @@ const CategoryList = () => {
       setTotalRecords(data?.totalItems || 0);
     } catch (err) {
       toast.error(err?.message);
-      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -94,7 +98,6 @@ const CategoryList = () => {
         imageValue = imageUploadResponse?.data?.data?.file_name;
       } catch (err) {
         toast.error(err.message);
-        console.log(err);
         return;
       }
     }
@@ -125,7 +128,6 @@ const CategoryList = () => {
       } else {
         toast.error(err?.message);
       }
-      console.log(err);
     } finally {
       setModalLoading(false);
     }
@@ -137,6 +139,7 @@ const CategoryList = () => {
   };
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
     try {
       const response = await userApi.deleteCategory(selectedCategoryId);
 
@@ -148,10 +151,10 @@ const CategoryList = () => {
       }
     } catch (err) {
       toast.error(err?.message);
-      console.log(err);
     } finally {
       setDeleteModal(false);
       setSelectedCategoryId(null);
+      setDeleteLoading(true);
     }
   };
 
@@ -295,8 +298,9 @@ const CategoryList = () => {
             <BaseInput
               label="Category Name"
               name="category_name"
-              type="text"
-              placeholder="Enter category name"
+              type={CONSTANTS.text}
+              value={formik.values.category_name}
+              placeholder={inputField(CONSTANTS.categoryName)}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             />
@@ -308,9 +312,10 @@ const CategoryList = () => {
 
             <BaseInput
               label="Description"
-              name="description"
+              name={CONSTANTS.description}
               type="textarea"
-              placeholder="Enter description"
+              placeholder={inputField(CONSTANTS.description)}
+              value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
             />
@@ -323,17 +328,24 @@ const CategoryList = () => {
             <BaseFileInput
               label="Category Image"
               name="category_image"
-              formik={formik}
-              onFileChange={handleImageUpload}
+              onChange={(e) => handleImageUpload(e.target.files[0])}
             />
 
             {imagePreview && (
-              <img src={imagePreview} alt="Preview" className="imgPreview" />
+              <img
+                src={imagePreview}
+                alt="Preview"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = avatar;
+                }}
+                className="imgPreview"
+              />
             )}
           </ModalBody>
           <ModalFooter>
             <BaseButton type="submit" color="primary" loading={loading}>
-              {title}
+              {!loading ? title : null}
             </BaseButton>
             <BaseButton type="button" color="secondary" onClick={handleClose}>
               Cancel
@@ -415,6 +427,10 @@ const CategoryList = () => {
                               width="50"
                               height="50"
                               className="image-category"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = avatar;
+                              }}
                             />
                           </td>
                           <td>
@@ -473,8 +489,12 @@ const CategoryList = () => {
         </ModalHeader>
         <ModalBody>Are you sure you want to delete this category?</ModalBody>
         <ModalFooter>
-          <BaseButton color="danger" onClick={handleDelete}>
-            Delete
+          <BaseButton
+            color="danger"
+            onClick={handleDelete}
+            loading={deleteLoading}
+          >
+            {!deleteLoading ? "Delete" : null}
           </BaseButton>
           <BaseButton color="secondary" onClick={() => setDeleteModal(false)}>
             Cancel
