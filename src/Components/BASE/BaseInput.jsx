@@ -1,4 +1,4 @@
-import { Input, InputGroup, InputGroupText, FormFeedback, Label } from "reactstrap";
+import { Input, InputGroup, InputGroupText } from "reactstrap";
 
 const BaseInput = ({
   id,
@@ -6,46 +6,60 @@ const BaseInput = ({
   type,
   label,
   placeholder,
-  formik = {},
   disabled = false,
   showPasswordToggle = false,
   passwordShown = false,
+  onChange = () => {},
+  value,
+  maxLength,
+  onBlur = () => {},
+  required = false,
   setPasswordShown = () => {},
 }) => {
-  const touched = formik?.touched?.[name];
-  const error = formik?.errors?.[name];
-  const isInvalid = touched && error;
-
-  const inputType = showPasswordToggle ? (passwordShown ? "text" : "password") : type;
-  const fieldProps = formik && name ? formik.getFieldProps(name) : {};
-  const inputId = id || `input-${name}`;
+  const inputType = showPasswordToggle
+    ? passwordShown
+      ? "text"
+      : "password"
+    : type;
+  const handleKeyDown = (event) => {
+    const preventTypes = ["email", "password"];
+    if (preventTypes.includes(inputType) && event.code === "Space") {
+      event.preventDefault();
+    }
+  };
 
   return (
-    <div className="mb-3">
-      {label && (
-        <Label htmlFor={inputId} className="form-label d-block">
-          {label}
-        </Label>
-      )}
-      <InputGroup className={isInvalid ? "is-invalid" : ""}>
+    <div>
+      <label htmlFor={id} className="form-label">
+        {label} {required && <span className="color">*</span>}
+      </label>
+
+      <InputGroup>
         <Input
-          id={inputId}
+          id={id}
           name={name}
           type={inputType}
           placeholder={placeholder}
           disabled={disabled}
           className="form-control"
-          {...fieldProps}
-          invalid={!!isInvalid}
-          autoComplete="off"
+          onChange={onChange}
+          onBlur={onBlur}
+          value={value}
+          maxLength={maxLength}
+          onKeyDown={handleKeyDown}
         />
         {showPasswordToggle && (
-          <InputGroupText onClick={() => setPasswordShown(!passwordShown)} style={{ cursor: "pointer" }}>
-            <i className={passwordShown ? "ri-eye-off-fill align-middle" : "ri-eye-fill align-middle"} />
+          <InputGroupText onClick={() => setPasswordShown(!passwordShown)}>
+            <i
+              className={
+                passwordShown
+                  ? "ri-eye-fill align-middle"
+                  : "ri-eye-off-fill align-middle"
+              }
+            />
           </InputGroupText>
         )}
       </InputGroup>
-      {isInvalid && <FormFeedback className="d-block">{error}</FormFeedback>}
     </div>
   );
 };

@@ -1,16 +1,12 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import SimpleBar from "simplebar-react";
-//import logo
 import logoSm from "../assets/images/logo-sm.png";
 import logoDark from "../assets/images/logo-dark.png";
 import logoLight from "../assets/images/logo-light.png";
 
-//Import Components
 import VerticalLayout from "./VerticalLayouts";
-
 import { Container } from "reactstrap";
-import { LoginRoutes } from "../Routes/apiRoutes";
 
 const Sidebar = ({ layoutType }) => {
   useEffect(() => {
@@ -77,22 +73,6 @@ const Sidebar = ({ layoutType }) => {
               <div id="two-column-menu"></div>
               <ul className="navbar-nav" id="navbar-nav">
                 <VerticalLayout layoutType={layoutType} />
-                <li className="nav-item">
-                  <Link className="nav-link" to={LoginRoutes.MAIN_DASHBOARD}>
-                    <i className="ri-list-check-2"></i> Dashboard
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to={LoginRoutes.PRODUCT_LIST}>
-                    <i className="ri-list-check-2"></i> Product List
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to={LoginRoutes.CATEGORY_LIST}>
-                    <i className="ri-grid-fill"></i>
-                    Category
-                  </Link>
-                </li>
               </ul>
             </Container>
           </SimpleBar>

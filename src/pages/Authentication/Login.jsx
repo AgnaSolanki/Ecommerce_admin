@@ -27,13 +27,13 @@ import {
   inputField,
 } from "../../Components/constants/validation";
 import userApi from "../../api/userApi";
+import Footer from "../../Layouts/Footer";
 
 const Login = () => {
   const navigate = useNavigate();
 
   document.title = "Login";
 
-  const [submitted, setSubmitted] = useState(false);
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,8 +47,9 @@ const Login = () => {
       .required(emailValidation.required),
 
     [CONSTANTS.password]: Yup.string()
-      .matches(passwordRegex, passwordValidation.passwordPattern)
-      .required(passwordValidation.required),
+      .required(passwordValidation.required)
+      .min(8, passwordValidation.passwordMinLength)
+      .matches(passwordRegex, passwordValidation.passwordComplexity),
   });
 
   const validation = useFormik({
@@ -58,7 +59,6 @@ const Login = () => {
     },
     validationSchema: validateLogin,
     onSubmit: async (values) => {
-      setSubmitted(true);
       setLoading(true);
       setError("");
       try {
@@ -98,8 +98,8 @@ const Login = () => {
 
   return (
     <ParticlesAuth>
-      <div className="auth-page-content mt-lg-5">
-        <Container>
+      <div className="auth-page-content mt-xs-5 mb-0">
+        <Container mb={0}>
           <Row>
             <Col lg={12}>
               <div className="text-center mt-sm-5 mb-4 text-white-50">
@@ -123,7 +123,9 @@ const Login = () => {
               <Card className="mt-4">
                 <CardBody className="p-4">
                   <div className="text-center mt-2">
-                    <h5 className="text-primary">Welcome Back !</h5>
+                    <h5 className="text-primary welcome-text">
+                      Welcome Back !
+                    </h5>
                   </div>
 
                   <div className="p-2 mt-4">
@@ -134,13 +136,15 @@ const Login = () => {
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
                           placeholder={inputField(CONSTANTS.Email)}
+                          value={validation.values[CONSTANTS.email]}
                           type={CONSTANTS.email}
-                          formik={validation}
                           onChange={validation.handleChange}
+                          onBlur={validation.handleBlur}
+                          required={true}
                         />
 
                         {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">
+                          <FormFeedback className="d-block">
                             {validation.errors.email}
                           </FormFeedback>
                         ) : null}
@@ -159,12 +163,20 @@ const Login = () => {
                             name={CONSTANTS.password}
                             label={CONSTANTS.Password}
                             placeholder={inputField(CONSTANTS.Password)}
-                            formik={validation}
                             showPasswordToggle={true}
                             passwordShown={passwordShow}
                             setPasswordShown={setPasswordShow}
                             onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            required={true}
+                            className="cursor"
                           />
+                          {validation.touched.password &&
+                          validation.errors.password ? (
+                            <FormFeedback className="d-block">
+                              {validation.errors.password}
+                            </FormFeedback>
+                          ) : null}
                         </div>
                       </div>
 
@@ -186,6 +198,9 @@ const Login = () => {
             </Col>
           </Row>
         </Container>
+        <div className="main-content mb-0 pt-5 mt-3">
+          <Footer />
+        </div>
       </div>
     </ParticlesAuth>
   );

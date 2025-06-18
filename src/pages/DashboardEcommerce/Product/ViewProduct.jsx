@@ -74,7 +74,7 @@ const ViewProduct = () => {
           <Col md={4} className="mb-3 d-flex align-items-center">
             <span className="fw-semibold me-2">Category:</span>
             <Badge color="info" pill className="me-1">
-              {product.category?.category_name }
+              {product.category?.category_name}
             </Badge>
             <small className="text-muted">
               (ID: {product.category?.id || "N/A"})
@@ -100,14 +100,12 @@ const ViewProduct = () => {
                       }`}
                       alt="Variant"
                       className="rounded-circle border variant_img"
-                   
                     />
                   ) : (
                     <img
                       src={avatar}
                       alt="No Image"
                       className="rounded-circle border variant_img"
-                   
                     />
                   )}
                 </Col>
@@ -120,13 +118,10 @@ const ViewProduct = () => {
                       Price ${variant.price}
                     </span>
                     <span className="fw-semibold me-1">Color:</span>{" "}
-                    {variant.color }
-                 
+                    {variant.color}
                   </p>
 
-                  <p className="mb-2">
-                    {variant.description }
-                  </p>
+                  <p className="mb-2">{variant.description}</p>
 
                   <Row>
                     <Col md={2} className="mb-2">
@@ -137,7 +132,7 @@ const ViewProduct = () => {
                     </Col>
                     <Col md={2} className="mb-2">
                       <span className="fw-semibold me-2">Size:</span>
-                      {variant.size }
+                      {variant.size}
                     </Col>
                     <Col md={2} className="mb-2">
                       <span className="fw-semibold me-2">Quantity:</span>

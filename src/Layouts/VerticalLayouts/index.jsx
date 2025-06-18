@@ -323,7 +323,8 @@ const VerticalLayout = (props) => {
                   className="nav-link menu-link"
                   to={item.link ? item.link : "/#"}
                 >
-                  <i className={item.icon}></i>{" "}
+                  <item.icon size={20} />
+                  <span>{item.label}</span> 
                   {item.badgeName ? (
                     <span
                       className={"badge badge-pill bg-" + item.badgeColor}
