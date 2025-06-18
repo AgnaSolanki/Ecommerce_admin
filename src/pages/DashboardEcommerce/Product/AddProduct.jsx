@@ -15,8 +15,8 @@ import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import { useNavigate } from "react-router-dom";
+import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import {
-  isNumber,
   onlyNum,
   selectLabel,
   validationField,
@@ -46,6 +46,7 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
+  const nameValidation = validationField(CONSTANTS.name);
   const categoryValidation = validationField(CONSTANTS.Category);
   const titleValidation = validationField(CONSTANTS.Title);
   const descriptionValidation = validationField(CONSTANTS.Description);
@@ -72,34 +73,16 @@ const AddProduct = () => {
       ],
     },
     validationSchema: Yup.object({
-      name: Yup.string().required(priceValidation.required),
-      category_id: Yup.string()
-        .required(categoryValidation.required)
-        .test(
-          "is-num",
-          isNumber(CONSTANTS.Category),
-          (val) => !isNaN(Number(val))
-        ),
+      name: Yup.string().required(nameValidation.required),
+      category_id: Yup.string().required(categoryValidation.required),
       product_variants: Yup.array().of(
         Yup.object().shape({
           product_title_name: Yup.string().required(titleValidation.required),
           description: Yup.string().required(descriptionValidation.required),
           color: Yup.string().required(colorValidation.required),
           size: Yup.string().required(sizeValidation.required),
-          price: Yup.string()
-            .required(priceValidation.required)
-            .test(
-              "is-num",
-              isNumber(CONSTANTS.Price),
-              (val) => !isNaN(Number(val))
-            ),
-          quantity: Yup.string()
-            .required(quantityValidation.required)
-            .test(
-              "is-num",
-              isNumber(CONSTANTS.Quantity),
-              (val) => !isNaN(Number(val))
-            ),
+          price: Yup.string().required(priceValidation.required),
+          quantity: Yup.string().required(quantityValidation.required),
           variant_image: Yup.mixed().required(imageValidation.required),
         })
       ),
@@ -108,7 +91,6 @@ const AddProduct = () => {
       try {
         setSaveLoading(true);
         const payload = JSON.parse(JSON.stringify(values));
-
         payload.category_id = Number(payload.category_id);
         payload.product_variants = payload.product_variants.map((v) => ({
           ...v,
@@ -124,6 +106,7 @@ const AddProduct = () => {
             const filePath = Array.isArray(res.data?.data)
               ? res.data.data[0]
               : res.data?.data;
+            toast.success(res?.data?.message);
 
             if (!filePath) {
               setSaveLoading(false);
@@ -140,7 +123,9 @@ const AddProduct = () => {
           }
         }
 
-        await userApi.addProduct(payload);
+        const res = await userApi.addProduct(payload);
+        toast.success(res?.data?.message);
+
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
         toast.error(err?.message);
@@ -150,10 +135,10 @@ const AddProduct = () => {
     },
   });
 
-  const handleOtpChange = (e) => {
-    const { value } = e.target;
-    if (onlyNum.test(value)) {
-      formik.handleChange(e);
+  const handleNumChange = (e) => {
+    const { name, value } = e.target;
+    if (value === "" || onlyNum.test(value)) {
+      formik.setFieldValue(name, value);
     }
   };
 
@@ -207,6 +192,7 @@ const AddProduct = () => {
                     label={CONSTANTS.ProductName}
                     formik={formik}
                     onChange={formik.handleChange}
+                    required={true}
                   />
                   {formik.touched.name && formik.errors.name && (
                     <FormFeedback className="d-block">
@@ -220,6 +206,7 @@ const AddProduct = () => {
                     label={CONSTANTS.Category}
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
+                    required={true}
                     options={[
                       { label: selectLabel(CONSTANTS.Category), value: "" },
                       ...categories.map((cat) => ({
@@ -258,6 +245,7 @@ const AddProduct = () => {
                                 label={CONSTANTS.VariantTitle}
                                 formik={formik}
                                 onChange={formik.handleChange}
+                                required={true}
                               />
                               {formik.touched.product_variants?.[index]
                                 ?.product_title_name &&
@@ -279,6 +267,7 @@ const AddProduct = () => {
                                 label={CONSTANTS.Description}
                                 formik={formik}
                                 onChange={formik.handleChange}
+                                required={true}
                               />
                               {formik.touched.product_variants?.[index]
                                 ?.description &&
@@ -300,6 +289,7 @@ const AddProduct = () => {
                                 label={CONSTANTS.Color}
                                 formik={formik}
                                 onChange={formik.handleChange}
+                                required={true}
                               />
                               {formik.touched.product_variants?.[index]
                                 ?.color &&
@@ -321,6 +311,7 @@ const AddProduct = () => {
                                 label={CONSTANTS.Size}
                                 formik={formik}
                                 onChange={formik.handleChange}
+                                required={true}
                               />
                               {formik.touched.product_variants?.[index]?.size &&
                                 formik.errors.product_variants?.[index]
@@ -334,10 +325,11 @@ const AddProduct = () => {
                             <Col md={2}>
                               <BaseInput
                                 label={CONSTANTS.Price}
+                                value={variant.price}
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].price`}
-                                formik={formik}
-                                onChange={handleOtpChange}
+                                onChange={handleNumChange}
+                                required={true}
                               />
                               {formik.touched.product_variants?.[index]
                                 ?.price &&
@@ -355,10 +347,11 @@ const AddProduct = () => {
                             <Col md={2}>
                               <BaseInput
                                 label={CONSTANTS.Qty}
+                                value={variant.quantity}
                                 name={`product_variants[${index}].quantity`}
                                 type={CONSTANTS.text}
-                                formik={formik}
-                                onChange={handleOtpChange}
+                                onChange={handleNumChange}
+                                required={true}
                               />
                               {formik.touched.product_variants?.[index]
                                 ?.quantity &&
@@ -376,6 +369,7 @@ const AddProduct = () => {
                             <Col md={6}>
                               <BaseFileInput
                                 name={`product_variants[${index}].variant_image`}
+                                label={CONSTANTS.Image}
                                 type={CONSTANTS.file}
                                 isAvatarUpload={false}
                                 onChange={(e) =>
@@ -406,6 +400,10 @@ const AddProduct = () => {
                                         `variant_image_preview_${index}`
                                       ]
                                     }
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = avatar;
+                                    }}
                                     className="rounded avatar-lg img-thumbnail variant_img"
                                     alt="variant preview"
                                   />

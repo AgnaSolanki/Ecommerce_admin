@@ -27,6 +27,8 @@ const EditProduct = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
+  const [loading, setLoading] = useState(false);
+
   const [initialValues, setInitialValues] = useState({
     name: "",
     category_id: "",
@@ -35,6 +37,7 @@ const EditProduct = () => {
   });
 
   const fetchProduct = async () => {
+     setLoading(true);
     try {
       const res = await userApi.viewProduct(id);
       const product = res.data?.data;
@@ -69,9 +72,12 @@ const EditProduct = () => {
           }
         });
         setImagePreviews(previews);
+         
       }
     } catch (error) {
       toast.error(error?.message);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -165,7 +171,8 @@ const EditProduct = () => {
           }
         }
 
-        await userApi.editProduct(id, payload);
+        const res = await userApi.editProduct(id, payload);
+        toast.success(res?.data?.message);
 
         navigate(LoginRoutes.PRODUCT_LIST);
       } catch (err) {
@@ -195,198 +202,208 @@ const EditProduct = () => {
     <Container fluid className="page-content mt-lg-5 w-100">
       <Card className="p-4">
         <CardBody>
-          <FormikProvider value={formik}>
-            <Form onSubmit={formik.handleSubmit}>
-              <h4 className="mb-4">Edit Product</h4>
-              <Row className="mb-3">
-                <Col md={6}>
-                  <BaseInput
-                    name="name"
-                    value={formik.values[CONSTANTS.name]}
-                    label="Product Name"
-                    onBlur={formik.handleBlur}
-                    required={true}
-                    onChange={formik.handleChange}
-                  />
-                </Col>
-                <Col md={6}>
-                  <BaseSelectInput
-                    name={CONSTANTS.category_id}
-                    label={CONSTANTS.Category}
-                    type={CONSTANTS.select}
-                    value={formik.values[CONSTANTS.category_id]}
-                    options={[
-                      { label: selectLabel(CONSTANTS.Category), value: "" },
-                      ...categories.map((cat) => ({
-                        label: cat.category_name,
-                        value: cat.id,
-                      })),
-                    ]}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    required={true}
-                  />
-                </Col>
-              </Row>
+          {loading ? (
+            <div className="text-center">
+              <BaseLoader size={20} />
+            </div>
+          ) : (
+            <FormikProvider value={formik}>
+              <Form onSubmit={formik.handleSubmit}>
+                <h4 className="mb-4">Edit Product</h4>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <BaseInput
+                      name="name"
+                      value={formik.values[CONSTANTS.name]}
+                      label="Product Name"
+                      onBlur={formik.handleBlur}
+                      required={true}
+                      onChange={formik.handleChange}
+                    />
+                  </Col>
+                  <Col md={6}>
+                    <BaseSelectInput
+                      name={CONSTANTS.category_id}
+                      label={CONSTANTS.Category}
+                      type={CONSTANTS.select}
+                      value={formik.values[CONSTANTS.category_id]}
+                      options={[
+                        { label: selectLabel(CONSTANTS.Category), value: "" },
+                        ...categories.map((cat) => ({
+                          label: cat.category_name,
+                          value: cat.id,
+                        })),
+                      ]}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      required={true}
+                    />
+                  </Col>
+                </Row>
 
-              <FieldArray
-                name={CONSTANTS.product_variants}
-                render={() => (
-                  <>
-                    {formik.values.product_variants.map((variant, index) => (
-                      <Card key={index} className="my-4 shadow-sm p-3">
-                        <h5 className="mb-3">Variant {index + 1}</h5>
-                        <Row className="g-3">
-                          <Col md={6}>
-                            <BaseInput
-                              type={CONSTANTS.text}
-                              name={`product_variants[${index}].product_title_name`}
-                              value={variant.product_title_name}
-                              label={CONSTANTS.VariantTitle}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                            />
-                          </Col>
-                          <Col md={6}>
-                            <BaseInput
-                              type={CONSTANTS.text}
-                              name={`product_variants[${index}].description`}
-                              value={variant.description}
-                              label={CONSTANTS.Description}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                            />
-                          </Col>
-                          <Col md={4}>
-                            <BaseInput
-                              type={CONSTANTS.text}
-                              name={`product_variants[${index}].color`}
-                              value={variant.color}
-                              label={CONSTANTS.Color}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                            />
-                          </Col>
-                          <Col md={4}>
-                            <BaseInput
-                              type={CONSTANTS.text}
-                              name={`product_variants[${index}].size`}
-                              value={variant.size}
-                              label={CONSTANTS.Size}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                            />
-                          </Col>
-                          <Col md={2}>
-                            <BaseInput
-                              label={CONSTANTS.Price}
-                              type={CONSTANTS.text}
-                              name={`product_variants[${index}].price`}
-                              value={variant.price}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                              onChange={handleOtpChange}
-                            />
-                          </Col>
-                          <Col md={2}>
-                            <BaseInput
-                              label={CONSTANTS.Qty}
-                              name={`product_variants[${index}].quantity`}
-                              value={variant.quantity}
-                              type={CONSTANTS.text}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                              onChange={handleOtpChange}
-                            />
-                          </Col>
-                          <Col md={6}>
-                            <BaseFileInput
-                              name={`product_variants[${index}].variant_image`}
-                              type={CONSTANTS.file}
-                              isAvatarUpload={false}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              required={true}
-                              onFileChange={async (file) => {
-                                if (file) {
-                                  try {
-                                    const uploadRes = await userApi.fileUpload(
-                                      file
-                                    );
-                                    const fileData = uploadRes.data?.data;
-                                    const fileName = Array.isArray(fileData)
-                                      ? fileData[0]
-                                      : fileData;
-
-                                    if (fileName) {
-                                      formik.setFieldValue(
-                                        `product_variants[${index}].variant_image`,
-                                        fileName
-                                      );
-                                      const imageURL = `${
-                                        import.meta.env.VITE_BASE_IMAGE
-                                      }${fileName}`;
-                                      const previewKey = `variant_image_preview_${index}`;
-                                      setImagePreviews((prev) => ({
-                                        ...prev,
-                                        [previewKey]: imageURL,
-                                      }));
-                                    } else {
-                                      toast.error("Failed to upload image.");
-                                    }
-                                  } catch (err) {
-                                    toast.error(
-                                      err.message || "Image upload failed."
-                                    );
-                                  }
-                                }
-                              }}
-                            />
-                            <div className="mt-2">
-                              <img
-                                src={
-                                  imagePreviews[
-                                    `variant_image_preview_${index}`
-                                  ] || avatar
-                                }
-                                alt="Variant Preview"
-                                height="80"
+                <FieldArray
+                  name={CONSTANTS.product_variants}
+                  render={() => (
+                    <>
+                      {formik.values.product_variants.map((variant, index) => (
+                        <Card key={index} className="my-4 shadow-sm p-3">
+                          <h5 className="mb-3">Variant {index + 1}</h5>
+                          <Row className="g-3">
+                            <Col md={6}>
+                              <BaseInput
+                                type={CONSTANTS.text}
+                                name={`product_variants[${index}].product_title_name`}
+                                value={variant.product_title_name}
+                                label={CONSTANTS.VariantTitle}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required={true}
                               />
-                            </div>
-                          </Col>
-                        </Row>
-                      </Card>
-                    ))}
-                  </>
-                )}
-              />
+                            </Col>
+                            <Col md={6}>
+                              <BaseInput
+                                type={CONSTANTS.text}
+                                name={`product_variants[${index}].description`}
+                                value={variant.description}
+                                label={CONSTANTS.Description}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required={true}
+                              />
+                            </Col>
+                            <Col md={4}>
+                              <BaseInput
+                                type={CONSTANTS.text}
+                                name={`product_variants[${index}].color`}
+                                value={variant.color}
+                                label={CONSTANTS.Color}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required={true}
+                              />
+                            </Col>
+                            <Col md={4}>
+                              <BaseInput
+                                type={CONSTANTS.text}
+                                name={`product_variants[${index}].size`}
+                                value={variant.size}
+                                label={CONSTANTS.Size}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required={true}
+                              />
+                            </Col>
+                            <Col md={2}>
+                              <BaseInput
+                                label={CONSTANTS.Price}
+                                type={CONSTANTS.text}
+                                name={`product_variants[${index}].price`}
+                                value={variant.price}
+                                onBlur={formik.handleBlur}
+                                required={true}
+                                onChange={handleOtpChange}
+                              />
+                            </Col>
+                            <Col md={2}>
+                              <BaseInput
+                                label={CONSTANTS.Qty}
+                                name={`product_variants[${index}].quantity`}
+                                value={variant.quantity}
+                                type={CONSTANTS.text}
+                                onBlur={formik.handleBlur}
+                                required={true}
+                                onChange={handleOtpChange}
+                              />
+                            </Col>
+                            <Col md={6}>
+                              <BaseFileInput
+                                name={`product_variants[${index}].variant_image`}
+                                type={CONSTANTS.file}
+                                label={CONSTANTS.Image}
+                                isAvatarUpload={false}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                required={true}
+                                onFileChange={async (file) => {
+                                  if (file) {
+                                    try {
+                                      const uploadRes =
+                                        await userApi.fileUpload(file);
+                                      const fileData = uploadRes.data?.data;
+                                      const fileName = Array.isArray(fileData)
+                                        ? fileData[0]
+                                        : fileData;
 
-              <Row className="mt-4">
-                <Col>
-                  <BaseButton
-                    type={CONSTANTS.submit}
-                    loading={saveLoading}
-                    color="primary"
-                  >
-                    {!saveLoading ? "Save" : null}{" "}
-                  </BaseButton>
-                  <BaseButton
-                    type={CONSTANTS.Button}
-                    loading={cancelLoading}
-                    color="secondary"
-                    className="ms-3"
-                    onClick={handleCancel}
-                  >
-                    {!cancelLoading ? "Cancel" : null}
-                  </BaseButton>
-                </Col>
-              </Row>
-            </Form>
-          </FormikProvider>
+                                      if (fileName) {
+                                        formik.setFieldValue(
+                                          `product_variants[${index}].variant_image`,
+                                          fileName
+                                        );
+                                        const imageURL = `${
+                                          import.meta.env.VITE_BASE_IMAGE
+                                        }${fileName}`;
+                                        const previewKey = `variant_image_preview_${index}`;
+                                        setImagePreviews((prev) => ({
+                                          ...prev,
+                                          [previewKey]: imageURL,
+                                        }));
+                                      } else {
+                                        toast.error("Failed to upload image.");
+                                      }
+                                    } catch (err) {
+                                      toast.error(
+                                        err.message || "Image upload failed."
+                                      );
+                                    }
+                                  }
+                                }}
+                              />
+                              <div className="mt-2">
+                                <img
+                                  src={
+                                    imagePreviews[
+                                      `variant_image_preview_${index}`
+                                    ] || avatar
+                                  }
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = avatar;
+                                  }}
+                                  alt="Variant Preview"
+                                  height="80"
+                                />
+                              </div>
+                            </Col>
+                          </Row>
+                        </Card>
+                      ))}
+                    </>
+                  )}
+                />
+
+                <Row className="mt-4">
+                  <Col>
+                    <BaseButton
+                      type={CONSTANTS.submit}
+                      loading={saveLoading}
+                      color="primary"
+                    >
+                      {!saveLoading ? "Save" : null}{" "}
+                    </BaseButton>
+                    <BaseButton
+                      type={CONSTANTS.Button}
+                      loading={cancelLoading}
+                      color="secondary"
+                      className="ms-3"
+                      onClick={handleCancel}
+                    >
+                      {!cancelLoading ? "Cancel" : null}
+                    </BaseButton>
+                  </Col>
+                </Row>
+              </Form>
+            </FormikProvider>
+          )}
         </CardBody>
       </Card>
     </Container>

@@ -14,6 +14,7 @@ import BaseButton from "../../../Components/BASE/BaseButton";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
 import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import userApi from "../../../api/userApi";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -57,7 +58,16 @@ const ViewProduct = () => {
   }
 
   return (
-    <Container fluid className="page-content mt-4">
+    <Container fluid className="page-content">
+      <div className="d-flex justify-content-start">
+        <BaseButton
+          size="md"
+          className=" mb-1"
+          onClick={() => navigate(LoginRoutes.PRODUCT_LIST)}
+        >
+          <IoMdArrowRoundBack size={17} />
+        </BaseButton>
+      </div>
       <Card className="shadow-sm p-4 bg-light mb-4">
         <h4 className="mb-3 fw-bold">Basic Information</h4>
         <Row className="mb-2">
@@ -98,6 +108,10 @@ const ViewProduct = () => {
                       src={`${import.meta.env.VITE_BASE_IMAGE}/${
                         variant.image.image_path
                       }`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = avatar;
+                      }}
                       alt="Variant"
                       className="rounded-circle border variant_img"
                     />
@@ -155,14 +169,6 @@ const ViewProduct = () => {
           onClick={() => handleEdit(product.id)}
         >
           Edit Product
-        </BaseButton>
-        <BaseButton
-          color="secondary"
-          size="md"
-          className="ms-3"
-          onClick={() => navigate(LoginRoutes.PRODUCT_LIST)}
-        >
-          Back to List
         </BaseButton>
       </div>
     </Container>

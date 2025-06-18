@@ -18,6 +18,7 @@ import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
+import BaseLoader from "../../../Components/BASE/BaseLoader";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -181,10 +182,11 @@ const ProductList = () => {
               }}
               options={[
                 { label: "5", value: 5 },
-                { label: "15", value: 15 },
-                { label: "25", value: 25 },
+                { label: "10", value: 10 },
+                { label: "20", value: 20 },
+                { label: "50", value: 50 },
+                { label: "100", value: 100 },
               ]}
-              style={{ width: "100px" }}
             />
           </Col>
           <Col md="8" xs="12" className="text-md-end">
@@ -198,15 +200,12 @@ const ProductList = () => {
           </Col>
         </Row>
 
-        <h4 className="mb-3">
-          Showing {(page - 1) * limit + 1} to{" "}
-          {Math.min(page * limit, totalRecords)} of {totalRecords} Results
-        </h4>
-
         <Card className="mb-4">
           <CardBody>
             {loading ? (
-              <p className="text-center">Loading...</p>
+              <div className="text-center">
+                <BaseLoader size={20} />
+              </div>
             ) : (
               <Table responsive bordered hover>
                 <thead className="table-light">
@@ -235,6 +234,10 @@ const ProductList = () => {
                           <td>
                             <img
                               src={imageUrl}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = avatar;
+                              }}
                               alt="Product"
                               width="50"
                               height="50"
@@ -282,6 +285,10 @@ const ProductList = () => {
             {renderPagination()}
           </CardBody>
         </Card>
+        <h6 className="mb-3">
+          Showing {(page - 1) * limit + 1} to{" "}
+          {Math.min(page * limit, totalRecords)} of {totalRecords} Results
+        </h6>
       </Container>
 
       {/* Delete Confirmation Modal */}
