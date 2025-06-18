@@ -310,12 +310,7 @@ const UserProfile = () => {
                     />
                     {imageUploading && (
                       <div className="profile-loader-overlay">
-                        <div
-                          className="spinner-border text-light"
-                          role="status"
-                        >
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
+                       <BaseLoader size="15" />
                       </div>
                     )}
 
