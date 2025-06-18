@@ -24,7 +24,6 @@ const ProfileDropdown = () => {
   const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -33,10 +32,9 @@ const ProfileDropdown = () => {
       } catch (err) {
         toast.error(err.message);
       }
-    }; 
-      fetchProfile();
-    }, []);
-  
+    };
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -44,7 +42,12 @@ const ProfileDropdown = () => {
     navigate(LoginRoutes.LOGIN, { replace: true });
   };
 
-  const avatarSrc = userProfile?.profile_image || avatarFallback;
+  const profileImage = userProfile?.profile_image;
+
+  const avatarSrc = profileImage
+    ? `${import.meta.env.VITE_BASE_IMAGE}${profileImage}`
+    : avatarFallback;
+
   const email = userProfile?.email || "";
   const role = userProfile?.role || "";
 
@@ -82,6 +85,12 @@ const ProfileDropdown = () => {
             <Link to={LoginRoutes.PROFILE} className="dropdown-item">
               <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
               <span className="align-middle">Profile</span>
+            </Link>
+          </DropdownItem>
+              <DropdownItem className="p-0">
+            <Link to={LoginRoutes.CHANGE_PASSWORD} className="dropdown-item">
+              <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+              <span className="align-middle">Change Password</span>
             </Link>
           </DropdownItem>
           <DropdownItem onClick={() => setShowLogoutModal(true)}>

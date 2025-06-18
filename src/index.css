@@ -1,12 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, "Poppins", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
+  background-color: var(--vz-body-bg) !important;
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  color: rgba(255, 255, 255, 0.87) !important;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -100,6 +99,9 @@ button:focus-visible {
 .float-en {
   display: flex;
   justify-content: flex-end;
+  position: absolute;
+  padding-left: 60%;
+  z-index: 1000;
 }
 .lord-icon {
   width: 120px;
@@ -147,18 +149,30 @@ button:focus-visible {
   justify-content: center;
   cursor: pointer;
 }
+.color {
+  color: red;
+}
+.form-control:disabled {
+  cursor: not-allowed !important;
+}
+.welcome-text {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 20px;
+}
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px rgb(232, 240, 254) inset !important;
+  -webkit-text-fill-color: #000 !important;
+}
+.email-lord-icon {
+  width: 120px;
+  height: 120px;
+}
+
 .variant_img {
   object-fit: cover;
   width: 120px;
   height: 120px;
-}
-.span {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-left: 8px;
-  border: 1px solid #000;
 }
 .imgPreview {
   width: 100px;

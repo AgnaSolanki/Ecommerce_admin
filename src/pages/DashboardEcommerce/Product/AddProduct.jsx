@@ -7,6 +7,7 @@ import {
   CardBody,
   Form,
   CardHeader,
+  FormFeedback,
 } from "reactstrap";
 import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
@@ -44,6 +45,7 @@ const AddProduct = () => {
     };
     fetchCategories();
   }, []);
+
   const categoryValidation = validationField(CONSTANTS.Category);
   const titleValidation = validationField(CONSTANTS.Title);
   const descriptionValidation = validationField(CONSTANTS.Description);
@@ -51,11 +53,12 @@ const AddProduct = () => {
   const sizeValidation = validationField(CONSTANTS.Size);
   const priceValidation = validationField(CONSTANTS.Price);
   const quantityValidation = validationField(CONSTANTS.Quantity);
+  const imageValidation = validationField(CONSTANTS.image);
 
   const formik = useFormik({
     initialValues: {
       name: "",
-      category_id: +"",
+      category_id: "",
       product_variants: [
         {
           product_title_name: "",
@@ -68,7 +71,6 @@ const AddProduct = () => {
         },
       ],
     },
-
     validationSchema: Yup.object({
       name: Yup.string().required(priceValidation.required),
       category_id: Yup.string()
@@ -95,17 +97,18 @@ const AddProduct = () => {
             .required(quantityValidation.required)
             .test(
               "is-num",
-             isNumber(CONSTANTS.Quantity),
+              isNumber(CONSTANTS.Quantity),
               (val) => !isNaN(Number(val))
             ),
+          variant_image: Yup.mixed().required(imageValidation.required),
         })
       ),
     }),
     onSubmit: async (values) => {
       try {
         setSaveLoading(true);
-
         const payload = JSON.parse(JSON.stringify(values));
+
         payload.category_id = Number(payload.category_id);
         payload.product_variants = payload.product_variants.map((v) => ({
           ...v,
@@ -117,14 +120,16 @@ const AddProduct = () => {
           const imageFile = values.product_variants[i].variant_image;
 
           if (imageFile instanceof File) {
-            const formData = new FormData();
-            formData.append("files", imageFile);
-            const res = await userApi.fileUpload(formData);
-            const filePath = res.data?.data?.[0];
+            const res = await userApi.fileUpload(imageFile);
+            const filePath = Array.isArray(res.data?.data)
+              ? res.data.data[0]
+              : res.data?.data;
+
             if (!filePath) {
               setSaveLoading(false);
               return;
             }
+
             payload.product_variants[i].variant_image = {
               image_path: filePath,
             };
@@ -160,6 +165,31 @@ const AddProduct = () => {
     }, 500);
   };
 
+  const handleFileChange = async (file, index) => {
+    if (file) {
+      try {
+        const res = await userApi.fileUpload(file);
+        const fileData = res.data?.data;
+        const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+        if (fileName) {
+          const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+          setImagePreviews((prev) => ({
+            ...prev,
+            [`variant_image_preview_${index}`]: imageURL,
+          }));
+
+          formik.setFieldValue(
+            `product_variants[${index}].variant_image`,
+            fileName
+          );
+        }
+      } catch (err) {
+        toast.error(err.message);
+      }
+    }
+  };
+
   return (
     <Container fluid className="page-content mt-lg-5 w-100">
       <Card>
@@ -178,12 +208,18 @@ const AddProduct = () => {
                     formik={formik}
                     onChange={formik.handleChange}
                   />
+                  {formik.touched.name && formik.errors.name && (
+                    <FormFeedback className="d-block">
+                      {formik.errors.name}
+                    </FormFeedback>
+                  )}
                 </Col>
                 <Col md={6} className="mb-3">
                   <BaseSelectInput
                     name={CONSTANTS.category_id}
                     label={CONSTANTS.Category}
                     type={CONSTANTS.select}
+                    onChange={formik.handleChange}
                     options={[
                       { label: selectLabel(CONSTANTS.Category), value: "" },
                       ...categories.map((cat) => ({
@@ -193,6 +229,11 @@ const AddProduct = () => {
                     ]}
                     formik={formik}
                   />
+                  {formik.touched.category_id && formik.errors.category_id && (
+                    <FormFeedback className="d-block">
+                      {formik.errors.category_id}
+                    </FormFeedback>
+                  )}
                 </Col>
               </Row>
 
@@ -216,32 +257,80 @@ const AddProduct = () => {
                                 name={`product_variants[${index}].product_title_name`}
                                 label={CONSTANTS.VariantTitle}
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
+                              {formik.touched.product_variants?.[index]
+                                ?.product_title_name &&
+                                formik.errors.product_variants?.[index]
+                                  ?.product_title_name && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .product_title_name
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
+
                             <Col md={6}>
                               <BaseInput
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].description`}
                                 label={CONSTANTS.Description}
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
+                              {formik.touched.product_variants?.[index]
+                                ?.description &&
+                                formik.errors.product_variants?.[index]
+                                  ?.description && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .description
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
+
                             <Col md={4}>
                               <BaseInput
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].color`}
                                 label={CONSTANTS.Color}
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
+                              {formik.touched.product_variants?.[index]
+                                ?.color &&
+                                formik.errors.product_variants?.[index]
+                                  ?.color && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .color
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
+
                             <Col md={4}>
                               <BaseInput
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].size`}
                                 label={CONSTANTS.Size}
                                 formik={formik}
+                                onChange={formik.handleChange}
                               />
+                              {formik.touched.product_variants?.[index]?.size &&
+                                formik.errors.product_variants?.[index]
+                                  ?.size && (
+                                  <FormFeedback className="d-block">
+                                    {formik.errors.product_variants[index].size}
+                                  </FormFeedback>
+                                )}
                             </Col>
+
                             <Col md={2}>
                               <BaseInput
                                 label={CONSTANTS.Price}
@@ -250,7 +339,19 @@ const AddProduct = () => {
                                 formik={formik}
                                 onChange={handleOtpChange}
                               />
+                              {formik.touched.product_variants?.[index]
+                                ?.price &&
+                                formik.errors.product_variants?.[index]
+                                  ?.price && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .price
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
+
                             <Col md={2}>
                               <BaseInput
                                 label={CONSTANTS.Qty}
@@ -259,6 +360,17 @@ const AddProduct = () => {
                                 formik={formik}
                                 onChange={handleOtpChange}
                               />
+                              {formik.touched.product_variants?.[index]
+                                ?.quantity &&
+                                formik.errors.product_variants?.[index]
+                                  ?.quantity && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .quantity
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={6}>
@@ -266,34 +378,38 @@ const AddProduct = () => {
                                 name={`product_variants[${index}].variant_image`}
                                 type={CONSTANTS.file}
                                 isAvatarUpload={false}
-                                formik={formik}
-                                onFileChange={(file) => {
-                                  const fileUrl = URL.createObjectURL(file);
-                                  formik.setFieldValue(
-                                    `product_variants[${index}].variant_image`,
-                                    file
-                                  );
-                                  const previewKey = `variant_image_preview_${index}`;
-                                  setImagePreviews((prev) => ({
-                                    ...prev,
-                                    [previewKey]: fileUrl,
-                                  }));
-                                }}
+                                onChange={(e) =>
+                                  handleFileChange(e.target.files[0], index)
+                                }
+                                onBlur={formik.handleBlur}
+                                required={true}
                               />
+                              {formik.touched.product_variants?.[index]
+                                ?.variant_image &&
+                                formik.errors.product_variants?.[index]
+                                  ?.variant_image && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .variant_image
+                                    }
+                                  </FormFeedback>
+                                )}
 
-                              <div className="mt-3 text-center">
-                                <img
-                                  src={
-                                    imagePreviews[
-                                      `variant_image_preview_${index}`
-                                    ] ||
-                                    (typeof variant.variant_image === "string"
-                                      ? variant.variant_image
-                                      : "")
-                                  }
-                                  className="rounded avatar-lg img-thumbnail variant_img"
-                                  alt="variant preview"
-                                />
+                              <div className="mt-3 text-center position-relative d-inline-block">
+                                {imagePreviews[
+                                  `variant_image_preview_${index}`
+                                ] && (
+                                  <img
+                                    src={
+                                      imagePreviews[
+                                        `variant_image_preview_${index}`
+                                      ]
+                                    }
+                                    className="rounded avatar-lg img-thumbnail variant_img"
+                                    alt="variant preview"
+                                  />
+                                )}
                               </div>
                             </Col>
                           </Row>

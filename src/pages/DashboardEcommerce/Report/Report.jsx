@@ -6,7 +6,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Spinner,
   InputGroup,
   Input,
   InputGroupText,
@@ -15,8 +14,12 @@ import userApi from "../../../api/userApi";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import { Search } from "lucide-react";
 import { toast } from "react-toastify";
+import BaseLoader from "../../../Components/BASE/BaseLoader";
+import BaseInput from "../../../Components/BASE/BaseInput";
 
 const Report = () => {
+  document.title = "Report";
+
   const [orderReportData, setOrderReportData] = useState([]);
   const [userReportData, setUserReportData] = useState([]);
   const [orderSearch, setOrderSearch] = useState("");
@@ -34,12 +37,38 @@ const Report = () => {
   const [userLimit] = useState(10);
   const [userTotalPages, setUserTotalPages] = useState(1);
   const [userTotalRecords, setUserTotalRecords] = useState(0);
+  const [tempStartDate, setTempStartDate] = useState("");
+  const [tempEndDate, setTempEndDate] = useState("");
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchReports();
-  }, [orderPage, userPage, orderSearch, userSearch]);
+  }, [
+    orderPage,
+    userPage,
+    orderSearch,
+    userSearch,
+    orderStartDate,
+    orderEndDate,
+  ]);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const isValidStart = dateRegex?.test(tempStartDate);
+      const isValidEnd = dateRegex?.test(tempEndDate);
+
+      if (isValidStart) {
+        setOrderStartDate(tempStartDate);
+        setOrderPage(1);
+      }
+      if (isValidEnd) {
+        setOrderEndDate(tempEndDate);
+        setOrderPage(1);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [tempStartDate, tempEndDate]);
 
   const fetchReports = async () => {
     setLoading(true);
@@ -162,8 +191,7 @@ const Report = () => {
         <Container fluid>
           <Row>
             <Col xs={12} className="text-center mt-5">
-              <h4>Loading Reports...</h4>
-              <Spinner color="primary" />
+              <BaseLoader size={20} />
             </Col>
           </Row>
         </Container>
@@ -179,68 +207,24 @@ const Report = () => {
             <Card className="shadow-sm ">
               <CardHeader className="d-flex justify-content-between align-items-center rounded-top-4 flex-wrap gap-3">
                 <h4 className="card-title mb-0">Customer Activity Report</h4>
-                <div
-                  className="d-flex align-items-center"
-                  style={{ minWidth: "300px" }}
-                >
-                  <InputGroup>
-                    <Input
-                      type="text"
-                      placeholder="Search Users..."
-                      className="form-control"
-                      value={userSearchInput}
-                      onChange={(e) => setUserSearchInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          setUserSearch(userSearchInput);
-                          setUserPage(1);
-                        }
-                      }}
-                    />
-                    <InputGroupText style={{ cursor: "pointer" }}>
-                      <Search size={16} />
-                    </InputGroupText>
-                  </InputGroup>
+                <div className="d-flex align-items-center">
+                  <BaseInput
+                    id="user-search"
+                    name="userSearch"
+                    type="text"
+                    placeholder="Search Users..."
+                    value={userSearchInput}
+                    onChange={(e) => setUserSearchInput(e.target.value)}
+                    onIconClick={() => {
+                      setUserSearch(userSearchInput);
+                      setUserPage(1);
+                    }}
+                    icon={<Search size={16} />}
+                  />
                 </div>
               </CardHeader>
 
               <CardBody>
-                <Row>
-                  <Col md="3">
-                    <label>Start Date</label>
-                    <Input
-                      type="date"
-                      value={orderStartDate}
-                      onChange={(e) => {
-                        setOrderStartDate(e.target.value);
-                        setOrderPage(1);
-                      }}
-                    />
-                  </Col>
-
-                  <Col md="3">
-                    <label>End Date</label>
-                    <Input
-                      type="date"
-                      value={orderEndDate}
-                      onChange={(e) => {
-                        setOrderEndDate(e.target.value);
-                        setOrderPage(1);
-                      }}
-                    />
-                  </Col>
-                </Row>
-
-                <Row className="mb-3">
-                  <Col md="12" className="text-end">
-                    <h6>
-                      Showing {(userPage - 1) * userLimit + 1} to{" "}
-                      {Math.min(userPage * userLimit, userTotalRecords)} of{" "}
-                      {userTotalRecords} Results
-                    </h6>
-                  </Col>
-                </Row>
-
                 {userReportData.length === 0 ? (
                   <div className="text-center my-4">
                     <h5>No data available</h5>
@@ -273,6 +257,15 @@ const Report = () => {
                 )}
 
                 {renderPagination(userPage, userTotalPages, setUserPage)}
+                <Row>
+                  <Col md="12" className="text-start">
+                    <h6>
+                      Showing {(userPage - 1) * userLimit + 1} to{" "}
+                      {Math.min(userPage * userLimit, userTotalRecords)} of{" "}
+                      {userTotalRecords} Results
+                    </h6>
+                  </Col>
+                </Row>
               </CardBody>
             </Card>
           </Col>
@@ -287,36 +280,43 @@ const Report = () => {
                   className="d-flex align-items-center"
                   style={{ minWidth: "300px" }}
                 >
-                  <InputGroup>
-                    <Input
-                      type="text"
-                      placeholder="Search Orders..."
-                      className="form-control"
-                      value={orderSearchInput}
-                      onChange={(e) => setOrderSearchInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          setOrderSearch(orderSearchInput);
-                          setOrderPage(1);
-                        }
-                      }}
-                    />
-                    <InputGroupText style={{ cursor: "pointer" }}>
-                      <Search size={16} />
-                    </InputGroupText>
-                  </InputGroup>
+                  <BaseInput
+                    id="order-search"
+                    name="orderSearch"
+                    type="text"
+                    placeholder="Search Orders..."
+                    value={orderSearchInput}
+                    onChange={(e) => setOrderSearchInput(e.target.value)}
+                    onIconClick={() => {
+                      setOrderSearch(orderSearchInput);
+                      setOrderPage(1);
+                    }}
+                    icon={<Search size={16} />}
+                  />
                 </div>
               </CardHeader>
 
               <CardBody>
                 <Row className="mb-3">
-                  <Col md="12" className="text-end">
-                    <h6>
-                      Showing {(orderPage - 1) * orderLimit + 1} to{" "}
-                      {Math.min(orderPage * orderLimit, orderTotalRecords)} of{" "}
-                      {orderTotalRecords} Results
-                    </h6>
-                  </Col>
+                  <Row className="mb-3">
+                    <Col md="3">
+                      <label>Start Date</label>
+                      <Input
+                        type="date"
+                        value={tempStartDate}
+                        onChange={(e) => setTempStartDate(e.target.value)}
+                      />
+                    </Col>
+
+                    <Col md="3">
+                      <label>End Date</label>
+                      <Input
+                        type="date"
+                        value={tempEndDate}
+                        onChange={(e) => setTempEndDate(e.target.value)}
+                      />
+                    </Col>
+                  </Row>
                 </Row>
 
                 {orderReportData.length === 0 ? (
@@ -353,6 +353,13 @@ const Report = () => {
                 )}
 
                 {renderPagination(orderPage, orderTotalPages, setOrderPage)}
+                <Col md="12" className="text-start">
+                  <h6>
+                    Showing {(orderPage - 1) * orderLimit + 1} to{" "}
+                    {Math.min(orderPage * orderLimit, orderTotalRecords)} of{" "}
+                    {orderTotalRecords} Results
+                  </h6>
+                </Col>
               </CardBody>
             </Card>
           </Col>

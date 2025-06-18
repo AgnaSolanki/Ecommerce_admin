@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, CardBody, Input, Form } from "reactstrap";
+import { useEffect, useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Input,
+  Form,
+  FormFeedback,
+} from "reactstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import avatar from "../../assets/images/users/user-dummy-img.jpg";
@@ -25,32 +34,19 @@ const UserProfile = () => {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [userRole, setUserRole] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(avatar);
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
-
-  useEffect(() => {
-    const userData = sessionStorage.getItem(CONSTANTS.user);
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUserEmail(parsedUser.email || "");
-        setUserRole(parsedUser.role);
-      } catch (err) {
-        toast.error(err.message);
-      }
-    }
-  }, [userRole]);
+  const [role, setRole] = useState("");
 
   const [userProfile, setUserProfile] = useState({
     first_name: "",
     phone: "",
     gender: "",
-    role: userRole,
+    role: "",
+    email: "",
     country: "",
     state: "",
     city: "",
@@ -64,8 +60,10 @@ const UserProfile = () => {
   const countryValidation = validationField(CONSTANTS.country);
   const cityValidation = validationField(CONSTANTS.city);
   const stateValidation = validationField(CONSTANTS.state);
+  const genderValidation = validationField(CONSTANTS.gender);
   const postalCodeValidation = validationField(CONSTANTS.postalCode);
   const phoneValidation = validationField(CONSTANTS.phone);
+  const addressValidation = validationField(CONSTANTS.address_line1);
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -73,9 +71,12 @@ const UserProfile = () => {
     validationSchema: Yup.object({
       first_name: Yup.string().required(firstNameValidation.required),
       phone: Yup.string().required(phoneValidation.required),
+      gender: Yup.string().required(genderValidation.required),
       country: Yup.string().required(countryValidation.required),
       state: Yup.string().required(stateValidation.required),
       city: Yup.string().required(cityValidation.required),
+      address_line1: Yup.string().required(addressValidation.required),
+      address_line2: Yup.string(),
       postal_code: Yup.string()
         .matches(
           postalCodeRegex,
@@ -87,16 +88,14 @@ const UserProfile = () => {
     onSubmit: async (values) => {
       try {
         setSaveLoading(true);
-        let imagePath = avatarPreview;
-        if (selectedImage) {
-          const uploadRes = await userApi.fileUpload(selectedImage);
-          imagePath = uploadRes.data?.file_path || avatarPreview;
-        }
+
+        const imagePath = selectedImage || avatarPreview;
 
         const payload = {
           name: values.first_name,
-          email: userEmail,
+          email: values.email,
           phone_number: values.phone,
+          role: values.role,
           gender: values.gender,
           profile_image: imagePath,
           address: {
@@ -167,22 +166,18 @@ const UserProfile = () => {
     };
     fetchCities();
   }, [formik.values.state]);
-  useEffect(() => {
-    setUserProfile((prev) => ({
-      ...prev,
-      role: userRole || "",
-    }));
-  }, [userRole]);
+
   const fetchProfile = async () => {
     try {
       const res = await userApi.viewProfile();
       const profile = res.data?.data;
+      setRole(profile.role);
 
-      setUserProfile({
+      const userProfileData = {
         first_name: profile.name || "",
         phone: profile.phone_number || "",
         gender: profile.gender || "",
-        role: profile.role || "",
+        email: profile.email,
         country: profile.address?.country_id?.toString() || "",
         state: profile.address?.state_id?.toString() || "",
         city: profile.address?.city_id?.toString() || "",
@@ -190,16 +185,63 @@ const UserProfile = () => {
         address_line2: profile.address?.address_line2 || "",
         postal_code: profile.address?.postal_code?.toString() || "",
         idx: idx,
-      });
+        profile_image: profile.profile_image,
+      };
+      setUserProfile(userProfileData);
+      formik.setValues(userProfileData);
 
-      setAvatarPreview(profile.profile_image || avatar);
+      const fileName = profile.profile_image || "";
+      const imagePath = fileName
+        ? `${import.meta.env.VITE_BASE_IMAGE}${fileName}`
+        : avatar;
+
+      setSelectedImage(fileName);
+      setAvatarPreview(imagePath);
     } catch (error) {
       toast.error(error.message);
     }
   };
   useEffect(() => {
+    formik.setValues(userProfile);
+  }, [userProfile]);
+  useEffect(() => {
     fetchProfile();
   }, []);
+  const onFileChange = async (file) => {
+    if (file) {
+      try {
+        const uploadRes = await userApi.fileUpload(file);
+        const fileData = uploadRes.data?.data;
+        const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+        if (fileName) {
+          setSelectedImage(fileName);
+          const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+          setAvatarPreview(imageURL);
+        }
+      } catch (err) {
+        toast.error(err.message);
+      }
+    }
+  };
+  const handleFileInputChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const uploadRes = await userApi.fileUpload(file);
+        const fileData = uploadRes.data?.data;
+        const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+        if (fileName) {
+          setSelectedImage(fileName);
+          const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+          setAvatarPreview(imageURL);
+        }
+      } catch (err) {
+        toast.error(err.message);
+      }
+    }
+  };
 
   document.title = "Profile";
 
@@ -241,16 +283,19 @@ const UserProfile = () => {
                           <BaseFileInput
                             id="avatar-upload"
                             name="avatar"
+                            value={formik.values[CONSTANTS.file]}
                             type={CONSTANTS.file}
+                            onChange={handleFileInputChange}
+                            onBlur={formik.handleBlur}
                             isAvatarUpload={true}
-                            formik={formik}
-                            onFileChange={(file) => {
-                              if (file) {
-                                setSelectedImage(file);
-                                setAvatarPreview(URL.createObjectURL(file));
-                              }
-                            }}
+                            onFileChange={onFileChange}
+                            required={true}
                           />
+                          {formik.touched.file && formik.errors.file ? (
+                            <FormFeedback className="d-block">
+                              {formik.errors.file}
+                            </FormFeedback>
+                          ) : null}
                         </label>
 
                         {selectedImage && (
@@ -270,9 +315,8 @@ const UserProfile = () => {
                   </div>
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
-                      <h5>{name}</h5>
-                      <p className="mb-1">Email Id: {userEmail}</p>
-                      <p className="mb-0">Id No: {idx}</p>
+                      <p className="mb-1">Email Id: {userProfile.email}</p>
+                      <p className="mb-0">Id No: {userProfile.idx}</p>
                     </div>
                   </div>
                 </div>
@@ -293,9 +337,16 @@ const UserProfile = () => {
                     type={CONSTANTS.text}
                     onChange={formik.handleChange}
                     placeholder={inputField(CONSTANTS.firstName)}
-                    formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
+                    required={true}
+                    value={formik.values.first_name}
                   />
+                  {formik.touched.first_name && formik.errors.first_name ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.first_name}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={6}>
@@ -306,9 +357,16 @@ const UserProfile = () => {
                     type={CONSTANTS.text}
                     onChange={formik.handleChange}
                     placeholder={inputField(CONSTANTS.phone_number)}
-                    formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
+                    required={true}
+                    value={formik.values.phone}
                   />
+                  {formik.touched.phone && formik.errors.phone ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.phone}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={6}>
@@ -316,15 +374,23 @@ const UserProfile = () => {
                     id={CONSTANTS.gender}
                     name={CONSTANTS.gender}
                     label={CONSTANTS.Gender}
+                    value={formik.values.gender}
                     type={CONSTANTS.radio}
                     options={[
                       { value: CONSTANTS.male, label: CONSTANTS.Male },
                       { value: CONSTANTS.female, label: CONSTANTS.Female },
                       { value: CONSTANTS.other, label: CONSTANTS.Other },
                     ]}
-                    formik={formik}
                     disabled={!isEditing}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
+                  {formik.touched.gender && formik.errors.gender ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.gender}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={6}>
@@ -332,10 +398,11 @@ const UserProfile = () => {
                     id={CONSTANTS.role}
                     name={CONSTANTS.role}
                     label={CONSTANTS.Role}
+                    value={role}
                     type={CONSTANTS.text}
                     onChange={formik.handleChange}
-                    formik={formik}
                     disabled={true}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -344,7 +411,10 @@ const UserProfile = () => {
                     id={CONSTANTS.country}
                     name={CONSTANTS.country}
                     label={CONSTANTS.Country}
+                    value={formik.values.country}
                     type={CONSTANTS.select}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     options={[
                       { label: selectLabel(CONSTANTS.Country), value: "" },
                       ...countries.map((c) => ({
@@ -352,17 +422,25 @@ const UserProfile = () => {
                         value: c.id,
                       })),
                     ]}
-                    formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
+                  {formik.touched.country && formik.errors.country ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.country}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={4}>
                   <BaseSelectInput
                     id={CONSTANTS.state}
                     name={CONSTANTS.state}
+                    value={formik.values.state}
                     label={CONSTANTS.state}
                     type={CONSTANTS.select}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     options={[
                       { label: selectLabel(CONSTANTS.State), value: "" },
                       ...states.map((s) => ({
@@ -370,17 +448,25 @@ const UserProfile = () => {
                         value: s.id,
                       })),
                     ]}
-                    formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
+                  {formik.touched.state && formik.errors.state ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.state}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={4}>
                   <BaseSelectInput
                     id={CONSTANTS.city}
                     name={CONSTANTS.city}
+                    value={formik.values.city}
                     label={CONSTANTS.City}
                     type={CONSTANTS.select}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     options={[
                       { label: selectLabel(CONSTANTS.City), value: "" },
                       ...cities.map((ci) => ({
@@ -390,7 +476,13 @@ const UserProfile = () => {
                     ]}
                     formik={formik}
                     disabled={!isEditing}
+                    required={true}
                   />
+                  {formik.touched.city && formik.errors.city ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.city}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={12}>
@@ -398,12 +490,21 @@ const UserProfile = () => {
                     id={CONSTANTS.address_line1}
                     name={CONSTANTS.address_line1}
                     label={CONSTANTS.addressLabel1}
+                    value={formik.values.address_line1}
                     onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.address_line1)}
                     formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
+                  {formik.touched.address_line1 &&
+                  formik.errors.address_line1 ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.address_line1}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
 
                 <Col md={12}>
@@ -411,11 +512,13 @@ const UserProfile = () => {
                     id={CONSTANTS.address_line2}
                     name={CONSTANTS.address_line2}
                     label={CONSTANTS.addressLabel2}
+                    value={formik.values.address_line2}
                     onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.address_line2)}
                     formik={formik}
                     disabled={!isEditing}
+                    onBlur={formik.handleBlur}
                   />
                 </Col>
 
@@ -424,14 +527,20 @@ const UserProfile = () => {
                     id={CONSTANTS.postal_code}
                     name={CONSTANTS.postal_code}
                     label={CONSTANTS.Postal_code}
+                    value={formik.values.postal_code}
                     onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.Postal_code)}
                     formik={formik}
                     disabled={!isEditing}
-                    onlyNumbers={true}
-                    maxLength={6}
+                    onBlur={formik.handleBlur}
+                    required={true}
                   />
+                  {formik.touched.postal_code && formik.errors.postal_code ? (
+                    <FormFeedback className="d-block">
+                      {formik.errors.postal_code}
+                    </FormFeedback>
+                  ) : null}
                 </Col>
               </Row>
 

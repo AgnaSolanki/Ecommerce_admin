@@ -1,60 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoginRoutes } from "../Routes/apiRoutes";
+import { FiBox } from "react-icons/fi";
+import { FiGrid } from "react-icons/fi";
+import { RiDashboard2Line } from "react-icons/ri";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 
 const Navdata = () => {
   const history = useNavigate();
-  const [isDashboard, setIsDashboard] = useState(false);
-  const [isApps, setIsApps] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
-  const [isPages, setIsPages] = useState(false);
-  const [isBaseUi, setIsBaseUi] = useState(false);
-  const [isAdvanceUi, setIsAdvanceUi] = useState(false);
-  const [isForms, setIsForms] = useState(false);
-  const [isTables, setIsTables] = useState(false);
-  const [isCharts, setIsCharts] = useState(false);
-  const [isIcons, setIsIcons] = useState(false);
-  const [isMaps, setIsMaps] = useState(false);
-  const [isMultiLevel, setIsMultiLevel] = useState(false);
-
-
-
-  // Apps
-  const [isEmail, setEmail] = useState(false);
-  const [isSubEmail, setSubEmail] = useState(false);
-  const [isEcommerce, setIsEcommerce] = useState(false);
-  const [isProjects, setIsProjects] = useState(false);
-  const [isTasks, setIsTasks] = useState(false);
-  const [isCRM, setIsCRM] = useState(false);
-  const [isCrypto, setIsCrypto] = useState(false);
-  const [isInvoices, setIsInvoices] = useState(false);
-  const [isSupportTickets, setIsSupportTickets] = useState(false);
-  const [isNFTMarketplace, setIsNFTMarketplace] = useState(false);
-  const [isJobs, setIsJobs] = useState(false);
-  const [isJobList, setIsJobList] = useState(false);
-  const [isCandidateList, setIsCandidateList] = useState(false);
-
-  // Authentication
-  const [isSignIn, setIsSignIn] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [isPasswordReset, setIsPasswordReset] = useState(false);
-  const [isPasswordCreate, setIsPasswordCreate] = useState(false);
-  const [isLockScreen, setIsLockScreen] = useState(false);
-  const [isLogout, setIsLogout] = useState(false);
-  const [isSuccessMessage, setIsSuccessMessage] = useState(false);
-  const [isVerification, setIsVerification] = useState(false);
-  const [isError, setIsError] = useState(false);
-
-  // Pages
-  const [isProfile, setIsProfile] = useState(false);
-  const [isLanding, setIsLanding] = useState(false);
-
-  // Charts
-  const [isApex, setIsApex] = useState(false);
-
-  // Multi Level
-  const [isLevel1, setIsLevel1] = useState(false);
-  const [isLevel2, setIsLevel2] = useState(false);
-
+  const [isProduct, setIsProduct] = useState(false);
+  const [isCategory, setIsCategory] = useState(false);
+  const [isDashboard, setISDashboard] = useState(false);
+  const [isReport, setISReport] = useState(false);
   const [iscurrentState, setIscurrentState] = useState("Dashboard");
 
   function updateIconSidebar(e) {
@@ -73,70 +30,76 @@ const Navdata = () => {
 
   useEffect(() => {
     document.body.classList.remove("twocolumn-panel");
-    if (iscurrentState !== "Dashboard") {
-      setIsDashboard(false);
+    if (iscurrentState !== "isDashboard") {
+      setIsProduct(false);
     }
-    if (iscurrentState !== "Apps") {
-      setIsApps(false);
+    if (iscurrentState !== "isProduct") {
+      setIsProduct(false);
     }
-    if (iscurrentState !== "Auth") {
-      setIsAuth(false);
+    if (iscurrentState !== "isCategory") {
+      setIsProduct(false);
     }
-    if (iscurrentState !== "Pages") {
-      setIsPages(false);
+    if (iscurrentState !== "isReport") {
+      setIsProduct(false);
     }
-    if (iscurrentState !== "BaseUi") {
-      setIsBaseUi(false);
-    }
-    if (iscurrentState !== "AdvanceUi") {
-      setIsAdvanceUi(false);
-    }
-    if (iscurrentState !== "Forms") {
-      setIsForms(false);
-    }
-    if (iscurrentState !== "Tables") {
-      setIsTables(false);
-    }
-    if (iscurrentState !== "Charts") {
-      setIsCharts(false);
-    }
-    if (iscurrentState !== "Icons") {
-      setIsIcons(false);
-    }
-    if (iscurrentState !== "Maps") {
-      setIsMaps(false);
-    }
-    if (iscurrentState !== "MuliLevel") {
-      setIsMultiLevel(false);
-    }
-    if (iscurrentState === "Widgets") {
-      history("/widgets");
-      document.body.classList.add("twocolumn-panel");
-    }
-    if (iscurrentState !== "Landing") {
-      setIsLanding(false);
-    }
-  }, [
-    history,
-    iscurrentState,
-    isDashboard,
-    isApps,
-    isAuth,
-    isPages,
-    isBaseUi,
-    isAdvanceUi,
-    isForms,
-    isTables,
-    isCharts,
-    isIcons,
-    isMaps,
-    isMultiLevel,
-  ]);
+  }, [history, isCategory, isProduct, isDashboard]);
 
   const menuItems = [
     {
       label: "Menu",
       isHeader: true,
+    },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: RiDashboard2Line,
+      link: LoginRoutes.MAIN_DASHBOARD,
+      stateVariables: isProduct,
+      click: function (e) {
+        e.preventDefault();
+        setISDashboard(!isDashboard);
+        setIscurrentState("Dashboard");
+        updateIconSidebar(e);
+      },
+    },
+    {
+      id: "product",
+      label: "Product",
+      icon: FiBox,
+      link: LoginRoutes.PRODUCT_LIST,
+      stateVariables: isProduct,
+      click: function (e) {
+        e.preventDefault();
+        setIsProduct(!isProduct);
+        setIscurrentState("Product");
+        updateIconSidebar(e);
+      },
+    },
+    {
+      id: "category",
+      label: "Category",
+      icon: FiGrid,
+      link: LoginRoutes.CATEGORY_LIST,
+      stateVariables: isCategory,
+      click: function (e) {
+        e.preventDefault();
+        setIsCategory(!isCategory);
+        setIscurrentState("Category");
+        updateIconSidebar(e);
+      },
+    },
+    {
+      id: "report",
+      label: "Report",
+      icon: HiOutlineDocumentReport,
+      link: LoginRoutes.REPORT,
+      stateVariables: isReport,
+      click: function (e) {
+        e.preventDefault();
+        setISReport(!isReport);
+        setIscurrentState("Report");
+        updateIconSidebar(e);
+      },
     },
   ];
   return <React.Fragment>{menuItems}</React.Fragment>;
