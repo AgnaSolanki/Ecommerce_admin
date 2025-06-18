@@ -12,14 +12,14 @@ import {
   DropdownItem,
   Spinner,
 } from "reactstrap";
-import { Link } from "react-router-dom";
 import CountUp from "react-countup";
 import ReactApexChart from "react-apexcharts";
 import userApi from "../../../api/userApi";
 import { toast } from "react-toastify";
-import { BigBaseLoader } from "../../../Components/BASE/BaseLoader";
+import BaseLoader from "../../../Components/BASE/BaseLoader";
 
 const Dashboard = () => {
+  document.title = "Dashboard";
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pieData, setPieData] = useState([]);
@@ -119,7 +119,7 @@ const Dashboard = () => {
         <Container fluid>
           <Row>
             <Col xs={12} className="text-center">
-              <BigBaseLoader />
+              <BaseLoader size="20" />
             </Col>
           </Row>
         </Container>
@@ -133,7 +133,7 @@ const Dashboard = () => {
         <Container fluid>
           <Row>
             <Col xs={12} className="text-center">
-              <BigBaseLoader />
+              <BaseLoader size="20" />
             </Col>
           </Row>
         </Container>
@@ -195,47 +195,34 @@ const Dashboard = () => {
         <Row>
           {cardData.map((item, key) => (
             <Col xl={3} md={6} key={key}>
-              <Card className="card-animate">
+              <Card className="card-animate shadow-sm border-0 hover-card rounded-3">
                 <CardBody>
-                  <div className="d-flex align-items-center">
+                  <div className="d-flex align-items-center justify-content-between">
                     <div className="flex-grow-1 overflow-hidden">
-                      <p className="text-uppercase fw-medium text-muted text-truncate mb-0">
+                      <p className="text-uppercase fw-semibold text-muted text-truncate mb-1">
                         {item.label}
                       </p>
                     </div>
-                    <div className="flex-shrink-0">
-                      <h5 className={"fs-14 mb-0 text-" + item.badgeClass}>
-                        +0 %
-                      </h5>
-                    </div>
-                  </div>
-                  <div className="d-flex align-items-end justify-content-between mt-4">
-                    <div>
-                      <h4 className="fs-22 fw-semibold ff-secondary mb-4">
-                        <span className="counter-value">
-                          <CountUp
-                            start={0}
-                            end={item.counter}
-                            duration={2}
-                            separator=","
-                          />
-                        </span>
-                      </h4>
-                      <Link to="#" className="text-decoration-underline">
-                        {item.link}
-                      </Link>
-                    </div>
                     <div className="avatar-sm flex-shrink-0">
                       <span
-                        className={
-                          "avatar-title rounded fs-3 bg-" +
-                          item.bgcolor +
-                          "-subtle"
-                        }
+                        className={`avatar-title rounded-circle fs-4 bg-${item.bgcolor}-subtle text-${item.bgcolor}`}
+                        style={{ width: "42px", height: "42px" }}
                       >
-                        <i className={`text-${item.bgcolor} ${item.icon}`}></i>
+                        <i className={item.icon}></i>
                       </span>
                     </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <h4 className="fs-24 fw-bold ff-secondary mb-1 text-primary">
+                      <CountUp
+                        start={0}
+                        end={item.counter}
+                        duration={2}
+                        separator=","
+                      />
+                    </h4>
+                    <p className="text-muted small mb-0">Total Count</p>
                   </div>
                 </CardBody>
               </Card>
@@ -302,7 +289,7 @@ const Dashboard = () => {
               <CardBody>
                 {orders.length === 0 ? (
                   <div className="text-center my-4">
-                    <BigBaseLoader />
+                    <BaseLoader size="20" />
                   </div>
                 ) : (
                   <div className="table-responsive table-card">

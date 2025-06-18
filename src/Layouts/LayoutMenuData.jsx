@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { LoginRoutes } from "../Routes/apiRoutes";
 import { FiBox } from "react-icons/fi";
 import { FiGrid } from "react-icons/fi";
-
+import { RiDashboard2Line } from "react-icons/ri";
 
 const Navdata = () => {
   const history = useNavigate();
   const [isProduct, setIsProduct] = useState(false);
   const [isCategory, setIsCategory] = useState(false);
+  const [isDashboard, setISDashboard] = useState(false);
   const [iscurrentState, setIscurrentState] = useState("Dashboard");
 
   function updateIconSidebar(e) {
@@ -27,16 +28,34 @@ const Navdata = () => {
 
   useEffect(() => {
     document.body.classList.remove("twocolumn-panel");
-  
+    if (iscurrentState !== "isDashboard") {
+      setIsProduct(false);
+    }
     if (iscurrentState !== "isProduct") {
       setIsProduct(false);
     }
-  }, [history,isCategory, isProduct]);
+    if (iscurrentState !== "isCategory") {
+      setIsProduct(false);
+    }
+  }, [history, isCategory, isProduct, isDashboard]);
 
   const menuItems = [
     {
       label: "Menu",
       isHeader: true,
+    },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: RiDashboard2Line,
+      link: LoginRoutes.MAIN_DASHBOARD,
+      stateVariables: isProduct,
+      click: function (e) {
+        e.preventDefault();
+        setISDashboard(!isDashboard);
+        setIscurrentState("Product");
+        updateIconSidebar(e);
+      },
     },
     {
       id: "product",
