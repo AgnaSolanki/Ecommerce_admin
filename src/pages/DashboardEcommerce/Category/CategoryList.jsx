@@ -356,6 +356,8 @@ const CategoryList = () => {
     );
   };
 
+  document.title = "Category";
+
   return (
     <div className="page-content mt-4">
       <Container fluid>

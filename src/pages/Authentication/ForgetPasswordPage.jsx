@@ -129,12 +129,6 @@ const ForgetPasswordPage = () => {
       validation.handleChange(e);
     }
   };
-  const blockSpace = (e) => {
-    if (e.key === " ") {
-      e.preventDefault();
-    }
-  };
-
   document.title = "forgot-password";
 
   return (
@@ -172,8 +166,7 @@ const ForgetPasswordPage = () => {
                       src="https://cdn.lordicon.com/rhvddzym.json"
                       trigger="loop"
                       colors="primary:#0ab39c"
-                      className="avatar-xl"
-                      style={{ width: "120px", height: "120px" }}
+                      className="avatar-xl email-lord-icon"
                     ></lord-icon>
                   </div>
 
@@ -192,7 +185,6 @@ const ForgetPasswordPage = () => {
                           name={CONSTANTS.email}
                           label={CONSTANTS.Email}
                           type={CONSTANTS.email}
-                          onKeyDown={blockSpace}
                           placeholder={inputField(CONSTANTS.Email)}
                           disabled={submitted}
                           onChange={validation.handleChange}
@@ -238,7 +230,6 @@ const ForgetPasswordPage = () => {
                               placeholder={inputField(CONSTANTS.Password)}
                               showPasswordToggle={true}
                               passwordShown={passwordShow}
-                              onKeyDown={blockSpace}
                               setPasswordShown={setPasswordShow}
                               onChange={validation.handleChange}
                               onBlur={validation.handleBlur}
@@ -259,7 +250,6 @@ const ForgetPasswordPage = () => {
                             placeholder={inputField(CONSTANTS.ConfirmPassword)}
                             showPasswordToggle={true}
                             passwordShown={confirmPasswordShow}
-                            onKeyDown={blockSpace}
                             setPasswordShown={setConfirmPasswordShow}
                             onChange={validation.handleChange}
                             onBlur={validation.handleBlur}
