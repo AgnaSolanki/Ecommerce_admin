@@ -37,10 +37,6 @@ const ViewProduct = () => {
     fetchProduct();
   }, [id]);
 
-  const handleEdit = (productId) => {
-    navigate(`${LoginRoutes.EDIT_PRODUCT}/${productId}`);
-  };
-
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">
