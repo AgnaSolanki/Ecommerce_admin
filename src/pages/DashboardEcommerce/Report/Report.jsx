@@ -6,9 +6,7 @@ import {
   Card,
   CardBody,
   CardHeader,
-  InputGroup,
   Input,
-  InputGroupText,
 } from "reactstrap";
 import userApi from "../../../api/userApi";
 import BaseButton from "../../../Components/BASE/BaseButton";
@@ -16,6 +14,7 @@ import { Search } from "lucide-react";
 import { toast } from "react-toastify";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
 import BaseInput from "../../../Components/BASE/BaseInput";
+import { dateRegex } from "../../../Components/constants/validation";
 
 const Report = () => {
   document.title = "Report";

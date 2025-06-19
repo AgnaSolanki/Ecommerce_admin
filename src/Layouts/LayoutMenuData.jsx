@@ -42,7 +42,7 @@ const Navdata = () => {
     if (iscurrentState !== "isReport") {
       setIsProduct(false);
     }
-  }, [history, isCategory, isProduct, isDashboard]);
+  }, [history, isCategory, isProduct, isDashboard, isReport]);
 
   const menuItems = [
     {
