@@ -53,7 +53,7 @@ const Navdata = () => {
       click: function (e) {
         e.preventDefault();
         setISDashboard(!isDashboard);
-        setIscurrentState("Product");
+        setIscurrentState("Dashboard");
         updateIconSidebar(e);
       },
     },
