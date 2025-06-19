@@ -10,6 +10,12 @@ import {
   VIEW_PROFILE,
   CHANGE_PASSWORD,
   UPLOAD_FILE,
+  listOfProduct,
+  addProduct,
+  viewProduct,
+  editProduct,
+  deleteProduct,
+  getCategories,
 } from "./apiRoutes";
 
 const userApi = {
@@ -29,6 +35,13 @@ const userApi = {
     return authApi.post(UPLOAD_FILE, formData);
   },
   changePassword: (data) => authApi.put(CHANGE_PASSWORD, data),
+  productList: (data) => authApi.post(listOfProduct, data),
+  addProduct: (data) => authApi.post(addProduct, data),
+  viewProduct: (productId) => authApi.get(`${viewProduct}${productId}`),
+  editProduct: (productId, data) =>
+    authApi.put(`${editProduct}${productId}`, data),
+  deleteProduct: (productId) => authApi.delete(`${deleteProduct}${productId}`),
+  getCategories: () => authApi.get(getCategories),
 };
 
 export default userApi;

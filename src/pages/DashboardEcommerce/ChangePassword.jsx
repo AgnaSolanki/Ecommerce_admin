@@ -23,7 +23,7 @@ import {
 import userApi from "../../api/userApi";
 import BaseButton from "../../Components/BASE/BaseButton";
 
-const ForgetPasswordPage = () => {
+const ChangePasswordPage = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -215,4 +215,4 @@ const ForgetPasswordPage = () => {
   );
 };
 
-export default ForgetPasswordPage;
+export default ChangePasswordPage;

@@ -17,8 +17,15 @@ export const validationField = (field) => ({
 
 export const emailRegex = /^(?!.*\s)[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export const otpRegex = /^\d{0,6}$/;
+export const onlyNum = /^[0-9\b]+$/;
+
+export const isNumber = (fieldName) => {
+  return `${fieldName} must be is number`;
+};
+
 export const passwordRegex =
-  /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 export const otpLength = /^\d{6}$/;
 export const phoneNumberRegex = /^[0-9]{0,10}$/;
 export const postalCodeRegex = /^\d{0,6}$/;

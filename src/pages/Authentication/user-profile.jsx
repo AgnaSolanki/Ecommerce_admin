@@ -600,6 +600,7 @@ const UserProfile = () => {
                 onClick={formik.handleSubmit}
                 loading={saveLoading}
                 disabled={!!error}
+                onChange={formik.handleChange}
               >
                 {!saveLoading ? "Update Profile" : null}
               </BaseButton>

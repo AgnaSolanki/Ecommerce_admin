@@ -185,3 +185,9 @@ input:-webkit-autofill {
 .user-profile-image.loading {
   opacity: 0.5;
 }
+
+.variant_img {
+  object-fit: cover;
+  width: 120px;
+  height: 120px;
+}
