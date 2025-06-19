@@ -29,13 +29,13 @@ const Navdata = () => {
   useEffect(() => {
     document.body.classList.remove("twocolumn-panel");
     if (iscurrentState !== "isDashboard") {
-      setIsProduct(false);
+      setISDashboard(false);
     }
     if (iscurrentState !== "isProduct") {
       setIsProduct(false);
     }
     if (iscurrentState !== "isCategory") {
-      setIsProduct(false);
+      setIsCategory(false);
     }
   }, [history, isCategory, isProduct, isDashboard]);
 
@@ -49,7 +49,7 @@ const Navdata = () => {
       label: "Dashboard",
       icon: RiDashboard2Line,
       link: LoginRoutes.MAIN_DASHBOARD,
-      stateVariables: isProduct,
+      stateVariables: isDashboard,
       click: function (e) {
         e.preventDefault();
         setISDashboard(!isDashboard);
