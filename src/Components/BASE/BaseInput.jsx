@@ -9,7 +9,7 @@ const BaseInput = ({
   showPasswordToggle = false,
   passwordShown = false,
   onChange = () => {},
-   type,
+  type,
   value,
   maxLength,
   onBlur = () => {},
