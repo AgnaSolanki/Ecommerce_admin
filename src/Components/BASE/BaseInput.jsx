@@ -50,7 +50,11 @@ const BaseInput = ({
           maxLength={maxLength}
           onKeyDown={handleKeyDown}
         />
-        {icon && <InputGroupText onClick={onIconClick}>{icon}</InputGroupText>}
+        {icon && (
+          <InputGroupText onClick={onIconClick}>
+            {icon}
+          </InputGroupText>
+        )}
         {showPasswordToggle && (
           <InputGroupText onClick={() => setPasswordShown(!passwordShown)}>
             <i

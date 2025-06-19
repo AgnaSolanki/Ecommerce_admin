@@ -41,7 +41,7 @@ const ForgetPasswordPage = () => {
   const emailValidation = validationField(CONSTANTS.Email);
   const otpValidation = validationField(CONSTANTS.OTP);
   const passwordValidation = validationField(CONSTANTS.Password);
-  const confirmPasswordValidation = validationField(CONSTANTS.ConfirmPassword);
+  const confirmPasswordValidation = validationField(CONSTANTS.Confirmpassword);
 
   const getValidationSchema = () => {
     if (!submitted) {
@@ -60,7 +60,7 @@ const ForgetPasswordPage = () => {
       [CONSTANTS.otp]: Yup.string()
         .matches(otpRegex, otpValidation.minLength(CONSTANTS.OTP, 6))
         .required(otpValidation.required)
-        .length(6,otpValidation.fixLength(CONSTANTS.OTP, 6)),
+        .length(6, otpValidation.fixLength(CONSTANTS.OTP, 6)),
 
       [CONSTANTS.newPassword]: Yup.string()
         .required(passwordValidation.required)
@@ -99,7 +99,7 @@ const ForgetPasswordPage = () => {
           setSubmitted(true);
           validation.setTouched({});
         } catch (error) {
-          toast.error(error?.response?.data?.message || error?.message);
+          toast.error(error?.data?.message);
         } finally {
           setLoading(false);
         }
@@ -112,9 +112,9 @@ const ForgetPasswordPage = () => {
             confirmPassword: values[CONSTANTS.confirmPassword],
           });
           toast.success(response?.data.message);
-        
-            navigate(LoginRoutes.LOGIN);
-  
+
+          navigate(LoginRoutes.LOGIN);
+        } catch (error) {
           toast.error(error?.response?.data?.message);
         } finally {
           setLoading(false);
@@ -137,7 +137,7 @@ const ForgetPasswordPage = () => {
         <Container>
           <Row>
             <Col lg={12}>
-              <div className="text-center mt-sm-5 mb-4 text-white-50">
+              <div className="text-center mt-sm-5 text-white-50">
                 <div>
                   <Link
                     to={LoginRoutes.Home}
@@ -146,7 +146,7 @@ const ForgetPasswordPage = () => {
                     <img src={logoLight} alt="" height="20" />
                   </Link>
                 </div>
-                <p className="mt-3 fs-15 fw-medium">
+                <p className="mt-1 fs-15 fw-medium">
                   Premium Admin & Dashboard Template
                 </p>
               </div>
@@ -155,9 +155,9 @@ const ForgetPasswordPage = () => {
 
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={5}>
-              <Card className="mt-4">
+              <Card className="mt-2">
                 <CardBody className="p-4">
-                  <div className="text-center mt-2">
+                  <div className="text-center mt-1">
                     <h5 className="text-primary welcome-text">
                       Forgot Password?
                     </h5>
@@ -167,14 +167,14 @@ const ForgetPasswordPage = () => {
                         src="https://cdn.lordicon.com/rhvddzym.json"
                         trigger="loop"
                         colors="primary:#0ab39c"
-                        className="avatar-xl email-lord-icon"
+                        className="avatar-xl email-lord-icon my-0"
                       ></lord-icon>
                     )}
                   </div>
 
                   {!submitted && (
                     <Alert
-                      className="border-0 alert-warning text-center mb-2 mx-2"
+                      className="border-0 alert-warning text-center mb-1 mx-2"
                       role="alert"
                     >
                       Enter your email and instructions will be sent to you!
@@ -183,7 +183,7 @@ const ForgetPasswordPage = () => {
 
                   <div className="p-2">
                     <Form onSubmit={validation.handleSubmit}>
-                      <div className="mb-4">
+                      <div className="mb-2">
                         <BaseInput
                           id={CONSTANTS.email}
                           name={CONSTANTS.email}
@@ -288,7 +288,7 @@ const ForgetPasswordPage = () => {
                 </CardBody>
               </Card>
 
-              <div className="mt-4 text-center">
+              <div className="mt-2 text-center">
                 <p className="mb-0">
                   Wait, I remember my password...{" "}
                   <Link

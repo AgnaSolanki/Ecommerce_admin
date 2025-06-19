@@ -48,6 +48,7 @@ const UserProfile = () => {
   const [cityLoading, setCityLoading] = useState(false);
 
   const [userProfile, setUserProfile] = useState({
+    id: "",
     first_name: "",
     phone: "",
     gender: "",
@@ -62,13 +63,13 @@ const UserProfile = () => {
     idx: idx,
   });
 
-  const firstNameValidation = validationField(CONSTANTS.first_name);
+  const firstNameValidation = validationField(CONSTANTS.FirstName);
   const countryValidation = validationField(CONSTANTS.country);
   const cityValidation = validationField(CONSTANTS.city);
   const stateValidation = validationField(CONSTANTS.state);
   const genderValidation = validationField(CONSTANTS.gender);
-  const postalCodeValidation = validationField(CONSTANTS.postalCode);
-  const phoneValidation = validationField(CONSTANTS.phone);
+  const postalCodeValidation = validationField(CONSTANTS.PostalCode);
+  const phoneValidation = validationField(CONSTANTS.phone_number);
   const addressValidation = validationField(CONSTANTS.address_line1);
 
   const formik = useFormik({
@@ -78,7 +79,7 @@ const UserProfile = () => {
       first_name: Yup.string().required(firstNameValidation.required),
       phone: Yup.string()
         .required(phoneValidation.required)
-        .length(10, phoneValidation.fixLength(CONSTANTS.phone, 10)),
+        .length(10, phoneValidation.fixLength(CONSTANTS.phone_number, 10)),
       gender: Yup.string().required(genderValidation.required),
       country: Yup.string().required(countryValidation.required),
       state: Yup.string().required(stateValidation.required),
@@ -88,10 +89,10 @@ const UserProfile = () => {
       postal_code: Yup.string()
         .matches(
           postalCodeRegex,
-          postalCodeValidation.minLength(CONSTANTS.postalCode, 6)
+          postalCodeValidation.minLength(CONSTANTS.PostalCode, 6)
         )
         .required(postalCodeValidation.required)
-        .length(6, postalCodeValidation.fixLength(CONSTANTS.postalCode, 6)),
+        .length(6, postalCodeValidation.fixLength(CONSTANTS.PostalCode, 6)),
     }),
     onSubmit: async (values) => {
       try {
@@ -192,6 +193,7 @@ const UserProfile = () => {
       setRole(profile.role);
 
       const userProfileData = {
+        id: profile.id,
         first_name: profile.name || "",
         phone: profile.phone_number || "",
         gender: profile.gender || "",
@@ -279,9 +281,9 @@ const UserProfile = () => {
   document.title = "Profile";
 
   return (
-    <div className="page-content mt-lg-5 w-100 min-vh-100">
+    <div className="page-content w-100 min-vh-100">
       <Container fluid>
-        <div className="d-flex justify-content-end gap-2 m-3">
+        <div className="d-flex justify-content-end gap-2 mx-3 mb-3">
           {isEditing ? null : (
             <BaseButton
               color="primary"
@@ -355,7 +357,7 @@ const UserProfile = () => {
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
                       <p className="mb-1">Email Id: {userProfile.email}</p>
-                      <p className="mb-0">Id No: {userProfile.idx}</p>
+                      <p className="mb-0">Id No: {userProfile.id}</p>
                     </div>
                   </div>
                 </div>

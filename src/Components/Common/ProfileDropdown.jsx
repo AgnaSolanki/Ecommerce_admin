@@ -87,7 +87,7 @@ const ProfileDropdown = () => {
               <span className="align-middle">Profile</span>
             </Link>
           </DropdownItem>
-              <DropdownItem className="p-0">
+          <DropdownItem className="p-0">
             <Link to={LoginRoutes.CHANGE_PASSWORD} className="dropdown-item">
               <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
               <span className="align-middle">Change Password</span>
@@ -108,10 +108,12 @@ const ProfileDropdown = () => {
         centered
         contentClassName="custom-logout-modal"
       >
-        <ModalHeader toggle={() => setShowLogoutModal(false)}>
+        <ModalHeader
+          toggle={() => setShowLogoutModal(false)}
+        >
           Confirm Logout
         </ModalHeader>
-        <ModalBody>Are you sure you want to log out?</ModalBody>
+        <ModalBody className="mt-1">Are you sure you want to log out?</ModalBody>
         <ModalFooter className="model-footer">
           <BaseButton
             className="model-no"
