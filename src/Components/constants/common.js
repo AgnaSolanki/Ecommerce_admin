@@ -78,10 +78,11 @@ export const CONSTANTS = {
   TotalOrder: "Total Orders",
   cancelledOrder: "Cancelled Orders",
   pendingOrder: "Pending Orders",
-  totalCustomer: "Total Customers",  OrderSearch: "order-search",
+  totalCustomer: "Total Customers",
+  OrderSearch: "order-search",
   orderSearch: "orderSearch",
   order_Search: "Search Order..",
   UserSearch: "User-search",
   userSearch: "userSearch",
-  User_Search: "Search User.."
+  User_Search: "Search User..",
 };
