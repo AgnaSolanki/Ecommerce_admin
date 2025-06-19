@@ -14,7 +14,10 @@ import { Search } from "lucide-react";
 import { toast } from "react-toastify";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
 import BaseInput from "../../../Components/BASE/BaseInput";
-import { dateRegex, inputField } from "../../../Components/constants/validation";
+import {
+  dateRegex,
+  inputField,
+} from "../../../Components/constants/validation";
 import { CONSTANTS } from "../../../Components/constants/common";
 
 const Report = () => {
@@ -39,6 +42,8 @@ const Report = () => {
   const [userTotalRecords, setUserTotalRecords] = useState(0);
   const [tempStartDate, setTempStartDate] = useState("");
   const [tempEndDate, setTempEndDate] = useState("");
+  const [noUserData, setNoUserData] = useState(false);
+  const [noOrderData, setNoOrderData] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -70,55 +75,74 @@ const Report = () => {
     return () => clearTimeout(timeout);
   }, [tempStartDate, tempEndDate]);
 
-  const fetchReports = async () => {
-    setLoading(true);
-    try {
-      const orderPayload = {
-        search: orderSearch,
-        limit: orderLimit,
-        page: orderPage,
-        sortValue: "asc",
-        sortKey: "id",
-        startDate: orderStartDate
-          ? `${orderStartDate}T00:00:00.000Z`
-          : "2024-01-01T00:00:00.000Z",
-        endDate: orderEndDate
-          ? `${orderEndDate}T23:59:59.999Z`
-          : "2025-12-31T23:59:59.999Z",
-      };
+ const fetchReports = async () => {
+  setLoading(true);
+  try {
+    const orderPayload = {
+      search: orderSearch,
+      limit: orderLimit,
+      page: orderPage,
+      sortValue: "asc",
+      sortKey: "id",
+      startDate: orderStartDate
+        ? `${orderStartDate}T00:00:00.000Z`
+        : "2024-01-01T00:00:00.000Z",
+      endDate: orderEndDate
+        ? `${orderEndDate}T23:59:59.999Z`
+        : "2025-12-31T23:59:59.999Z",
+    };
 
-      const userPayload = {
-        search: userSearch,
-        limit: userLimit,
-        page: userPage,
-        sortValue: "asc",
-        sortKey: "id",
-      };
+    const userPayload = {
+      search: userSearch,
+      limit: userLimit,
+      page: userPage,
+      sortValue: "asc",
+      sortKey: "id",
+    };
 
-      const [orderResponse, userResponse] = await Promise.all([
-        userApi.orderReport(orderPayload),
-        userApi.userReport(userPayload),
-      ]);
+    const [orderResult, userResult] = await Promise.allSettled([
+      userApi.orderReport(orderPayload),
+      userApi.userReport(userPayload),
+    ]);
 
-      if (orderResponse?.status === 200 && orderResponse?.data?.data?.orders) {
-        setOrderReportData(orderResponse.data.data.orders);
-        setOrderTotalPages(orderResponse.data.data.totalPage || 1);
-        setOrderTotalRecords(orderResponse.data.data.totalOrders || 0);
-      }
-
-      if (userResponse?.status === 200 && userResponse?.data?.data?.users) {
-        setUserReportData(userResponse.data.data.users);
-        setUserTotalPages(userResponse.data.data.totalPage || 1);
-        setUserTotalRecords(userResponse.data.data.totalItems || 0);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
+    if (orderResult.status === "fulfilled") {
+      const orderRes = orderResult.value;
+      const orders = orderRes?.data?.data?.orders || [];
+      setOrderReportData(orders);
+      setOrderTotalPages(orderRes.data.data.totalPage || 1);
+      setOrderTotalRecords(orderRes.data.data.totalOrders || 0);
+      setNoOrderData(orders.length === 0);
+    } else {
+      toast.error(
+        orderResult.reason?.response?.data?.message 
+      );
+      setOrderReportData([]);
+      setNoOrderData(true);
     }
-  };
 
- const renderPagination = (page, totalPages, setPage) => {
+    if (userResult.status === "fulfilled") {
+      const userRes = userResult.value;
+      const users = userRes?.data?.data?.users || [];
+      setUserReportData(users);
+      setUserTotalPages(userRes.data.data.totalPage || 1);
+      setUserTotalRecords(userRes.data.data.totalItems || 0);
+      setNoUserData(users.length === 0);
+    } else {
+      toast.error(
+        userResult.reason?.response?.data?.message 
+      );
+      setUserReportData([]);
+      setNoUserData(true);
+    }
+  } catch (err) {
+    toast.error(err?.data?.data?.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const renderPagination = (page, totalPages, setPage) => {
     const pages = [];
 
     switch (true) {
@@ -227,12 +251,12 @@ const Report = () => {
               </CardHeader>
 
               <CardBody>
-                {userReportData.length === 0 ? (
+                {noUserData ? (
                   <div className="text-center my-4">
-                    <h5>No data available</h5>
+                    <h5>No matching customers found.</h5>
                   </div>
                 ) : (
-                  <div className="table-responsive table-card">
+                  <div className="table-responsive table-card mb-2">
                     <table className="table table-striped table-centered align-middle table-nowrap mb-0">
                       <thead className="text-muted table-light">
                         <tr>
@@ -278,9 +302,7 @@ const Report = () => {
             <Card className="shadow-sm ">
               <CardHeader className="d-flex justify-content-between align-items-center rounded-top-4 flex-wrap gap-3">
                 <h4 className="card-title mb-0">Recent Orders Report</h4>
-                <div
-                  className="d-flex align-items-center"
-                >
+                <div className="d-flex align-items-center">
                   <BaseInput
                     id={CONSTANTS.OrderSearch}
                     name={CONSTANTS.orderSearch}
@@ -320,12 +342,12 @@ const Report = () => {
                   </Row>
                 </Row>
 
-                {orderReportData.length === 0 ? (
+                {noOrderData ? (
                   <div className="text-center my-4">
-                    <h5>No data available</h5>
+                    <h5>No matching orders found.</h5>
                   </div>
                 ) : (
-                  <div className="table-responsive table-card">
+                  <div className="table-responsive table-card mb-2">
                     <table className="table table-striped table-centered align-middle table-nowrap mb-0">
                       <thead className="text-muted table-light">
                         <tr>
