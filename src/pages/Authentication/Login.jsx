@@ -98,7 +98,7 @@ const Login = () => {
 
   return (
     <ParticlesAuth>
-      <div className="auth-page-content mt-xs-5 mb-0">
+      <div className="auth-page-content mt-xs-5 mb-0 min-vh-100">
         <Container mb={0}>
           <Row>
             <Col lg={12}>
@@ -198,7 +198,7 @@ const Login = () => {
             </Col>
           </Row>
         </Container>
-        <div className="main-content mb-0 pt-5 mt-3">
+        <div className="main-content mb-0 ">
           <Footer />
         </div>
       </div>
