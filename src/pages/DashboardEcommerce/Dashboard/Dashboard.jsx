@@ -205,8 +205,7 @@ const Dashboard = () => {
                     </div>
                     <div className="avatar-sm flex-shrink-0">
                       <span
-                        className={`avatar-title rounded-circle fs-4 bg-${item.bgcolor}-subtle text-${item.bgcolor}`}
-                        style={{ width: "42px", height: "42px" }}
+                        className={`avatar-title rounded-circle fs-4 bg-${item.bgcolor}-subtle text-${item.bgcolor} `}
                       >
                         <i className={item.icon}></i>
                       </span>
@@ -268,7 +267,6 @@ const Dashboard = () => {
 
               <div
                 className="card-body d-flex justify-content-center align-items-center"
-                style={{ minHeight: "320px" }}
               >
                 {pieLoading ? (
                   <Spinner color="primary" />
