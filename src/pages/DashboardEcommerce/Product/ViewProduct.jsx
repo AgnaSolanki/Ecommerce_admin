@@ -161,16 +161,6 @@ const ViewProduct = () => {
       ) : (
         <p>No variants available.</p>
       )}
-
-      <div className="d-flex justify-content-end mt-4">
-        <BaseButton
-          color="primary"
-          size="md"
-          onClick={() => handleEdit(product.id)}
-        >
-          Edit Product
-        </BaseButton>
-      </div>
     </Container>
   );
 };
