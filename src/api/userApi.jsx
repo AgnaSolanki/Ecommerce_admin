@@ -23,6 +23,8 @@ import {
   DashboardStatistics,
   orderPieChart,
   highestPurchaseOrder,
+  orderReport,
+  userReport,
 } from "./apiRoutes";
 
 const userApi = {
@@ -58,6 +60,8 @@ const userApi = {
    dashboardStatistics: () => authApi.get(DashboardStatistics),
   orderPieChart: (data) => authApi.post(orderPieChart, data),
   highestPurchaseOrder: () => authApi.get(highestPurchaseOrder),
+  orderReport: (data) => authApi.post(orderReport, data),
+  userReport: (data) => authApi.post(userReport, data),
 };
 
 export default userApi;

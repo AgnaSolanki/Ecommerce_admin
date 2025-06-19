@@ -4,12 +4,14 @@ import { LoginRoutes } from "../Routes/apiRoutes";
 import { FiBox } from "react-icons/fi";
 import { FiGrid } from "react-icons/fi";
 import { RiDashboard2Line } from "react-icons/ri";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 
 const Navdata = () => {
   const history = useNavigate();
   const [isProduct, setIsProduct] = useState(false);
   const [isCategory, setIsCategory] = useState(false);
   const [isDashboard, setISDashboard] = useState(false);
+  const [isReport, setISReport] = useState(false);
   const [iscurrentState, setIscurrentState] = useState("Dashboard");
 
   function updateIconSidebar(e) {
@@ -37,7 +39,10 @@ const Navdata = () => {
     if (iscurrentState !== "isCategory") {
       setIsCategory(false);
     }
-  }, [history, isCategory, isProduct, isDashboard]);
+    if (iscurrentState !== "isReport") {
+      setIsProduct(false);
+    }
+  }, [history, isCategory, isProduct, isDashboard, isReport]);
 
   const menuItems = [
     {
@@ -80,6 +85,19 @@ const Navdata = () => {
         e.preventDefault();
         setIsCategory(!isCategory);
         setIscurrentState("Category");
+        updateIconSidebar(e);
+      },
+    },
+    {
+      id: "report",
+      label: "Report",
+      icon: HiOutlineDocumentReport,
+      link: LoginRoutes.REPORT,
+      stateVariables: isReport,
+      click: function (e) {
+        e.preventDefault();
+        setISReport(!isReport);
+        setIscurrentState("Report");
         updateIconSidebar(e);
       },
     },

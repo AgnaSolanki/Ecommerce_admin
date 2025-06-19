@@ -7,6 +7,7 @@ import logoLight from "../assets/images/logo-light.png";
 
 import VerticalLayout from "./VerticalLayouts";
 import { Container } from "reactstrap";
+import { LoginRoutes } from "../Routes/apiRoutes";
 
 const Sidebar = ({ layoutType }) => {
   useEffect(() => {
@@ -40,7 +41,7 @@ const Sidebar = ({ layoutType }) => {
     <React.Fragment>
       <div className="app-menu navbar-menu">
         <div className="navbar-brand-box">
-          <Link to="/" className="logo logo-dark">
+          <Link to={LoginRoutes.MAIN_DASHBOARD} className="logo logo-dark">
             <span className="logo-sm">
               <img src={logoSm} alt="" height="22" />
             </span>
@@ -49,7 +50,7 @@ const Sidebar = ({ layoutType }) => {
             </span>
           </Link>
 
-          <Link to="/" className="logo logo-light">
+          <Link to={LoginRoutes.MAIN_DASHBOARD} className="logo logo-light">
             <span className="logo-sm">
               <img src={logoSm} alt="" height="22" />
             </span>

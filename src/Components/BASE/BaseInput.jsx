@@ -15,6 +15,8 @@ const BaseInput = ({
   onBlur = () => {},
   required = false,
   setPasswordShown = () => {},
+  onIconClick = null,
+  icon = null,
 }) => {
   const inputType = showPasswordToggle
     ? passwordShown
@@ -48,6 +50,11 @@ const BaseInput = ({
           maxLength={maxLength}
           onKeyDown={handleKeyDown}
         />
+        {icon && (
+          <InputGroupText onClick={onIconClick}>
+            {icon}
+          </InputGroupText>
+        )}
         {showPasswordToggle && (
           <InputGroupText onClick={() => setPasswordShown(!passwordShown)}>
             <i

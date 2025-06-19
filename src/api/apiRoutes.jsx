@@ -20,4 +20,6 @@ export const deleteCategory = "category/deleteCategory/";
 export const updateCategory = "category/updateCategory/";
 export const DashboardStatistics = "dashboard/dashboard-statistic";
 export const orderPieChart = "order/piechart-data";
-export const highestPurchaseOrder = "dashboard/highest-purchase-order"
+export const highestPurchaseOrder = "dashboard/highest-purchase-order";
+export const orderReport = "order/orders-report";
+export const userReport = "order/users-report";
