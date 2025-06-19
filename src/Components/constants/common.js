@@ -75,4 +75,8 @@ export const CONSTANTS = {
   category_name: "category_name",
   categoryName: "category name",
   CategoryImage: "Category Image",
+  TotalOrder: "Total Orders",
+  cancelledOrder: "Cancelled Orders",
+  pendingOrder: "Pending Orders",
+  totalCustomer: "Total Customers",
 };
