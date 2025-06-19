@@ -9,6 +9,7 @@ import ProductList from "../pages/DashboardEcommerce/Product/ProductList";
 import AddProduct from "../pages/DashboardEcommerce/Product/AddProduct";
 import ViewProduct from "../pages/DashboardEcommerce/Product/ViewProduct"
 import EditProduct from "../pages/DashboardEcommerce/Product/EditProduct"
+import CategoryList from "../pages/DashboardEcommerce/Category/CategoryList"
 
 const authProtectedRoutes = [
   { path: LoginRoutes.DASHBOARD_ROUTE, element: DashboardEcommerce },
@@ -18,6 +19,8 @@ const authProtectedRoutes = [
   { path: LoginRoutes.ADD_PRODUCT, element: AddProduct  },
   { path: `${LoginRoutes.VIEW_PRODUCT}/:id`, element: ViewProduct  },
   { path: `${LoginRoutes.EDIT_PRODUCT}/:id`, element: EditProduct  },
+  { path: LoginRoutes.CATEGORY_LIST, element: CategoryList  },
+
 
   {
     path: LoginRoutes.HOME,

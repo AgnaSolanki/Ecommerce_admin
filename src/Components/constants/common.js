@@ -70,4 +70,9 @@ export const CONSTANTS = {
   category_id: "category_id",
   VariantTitle: "Variant Title",
   product_variants: "product_variants",
+  category_image: "category image",
+  description: "description",
+  category_name: "category_name",
+  categoryName: "category name",
+  CategoryImage: "Category Image",
 };

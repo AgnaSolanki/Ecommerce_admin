@@ -31,6 +31,8 @@ const ProductList = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
 
+  const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -163,11 +165,7 @@ const ProductList = () => {
     <div className="page-content mt-lg-5 w-100">
       <Container fluid>
         <Row className="mb-3 align-items-center">
-          <Col
-            md="4"
-            xs="12"
-            className="mb-2 mb-md-0 d-flex align-items-center"
-          >
+          <Col md="4" xs="12" className="mb-2 mb-md-0 d-flex align-items-center">
             <label htmlFor="limitSelect" className="me-2 mb-0">
               Items per page:
             </label>
@@ -221,11 +219,13 @@ const ProductList = () => {
                     productList.map((product, index) => {
                       const variant = product.variants?.[0] || {};
                       const imagePath = variant?.image?.image_path;
-                      const IMAGE_BASE_URL =
-                        import.meta.env.VITE_BASE_IMAGE || "";
-                      const imageUrl = imagePath
-                        ? `${IMAGE_BASE_URL}/${imagePath}`
-                        : avatar;
+
+                      let imageUrl = avatar;
+                      if (imagePath && !imagePath.startsWith('http')) {
+                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                      } else if (imagePath) {
+                        imageUrl = imagePath;
+                      }
 
                       return (
                         <tr key={product.id}>

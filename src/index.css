@@ -191,3 +191,14 @@ input:-webkit-autofill {
   width: 120px;
   height: 120px;
 }
+.imgPreview {
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.image-category {
+  object-fit: cover;
+  border-radius: 8px;
+}

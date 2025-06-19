@@ -120,7 +120,9 @@ const UserProfile = () => {
         const res = await userApi.updateProfile(payload);
         toast.success(res?.data.message);
         setUserProfile({ ...formik.values });
+        setAvatarPreview(imagePath); 
         setIsEditing(false);
+
         setError("");
       } catch (error) {
         toast.error(error.message);
@@ -600,7 +602,6 @@ const UserProfile = () => {
                 onClick={formik.handleSubmit}
                 loading={saveLoading}
                 disabled={!!error}
-                onChange={formik.handleChange}
               >
                 {!saveLoading ? "Update Profile" : null}
               </BaseButton>
