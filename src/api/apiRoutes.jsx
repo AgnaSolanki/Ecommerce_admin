@@ -16,5 +16,5 @@ export const deleteProduct = "/products/deleteProduct/";
 export const getCategories = "category/categoryDropdown";
 export const listOfCategory = "category/listOfCategories"
 export const addCategory = "category/addCategory";
-export const deleteCategory = "category/deleteCategory";
-export const updateCategory = "category/updateCategory";
+export const deleteCategory = "category/deleteCategory/";
+export const updateCategory = "category/updateCategory/";
