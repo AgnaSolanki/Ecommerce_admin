@@ -82,32 +82,12 @@ const CategoryList = () => {
     setEditCategory(category);
     setModalOpen(true);
   };
-  const uploadImageFile = async (image) => {
-    if (!image) return null;
-    if (typeof image === "string") return image;
-
-    const formData = new FormData();
-    formData.append("image", image);
-
-    try {
-      const response = await userApi.uploadImage(formData);
-      return response?.data?.data?.file_name;
-    } catch (err) {
-      toast.error(err?.message);
-      throw new Error(err);
-    }
-  };
 
   const handleSaveCategory = async (form) => {
     const trimmedName = String(form.category_name || "").trim();
     const trimmedDesc = String(form.description || "").trim();
 
-    let imageValue;
-    try {
-      imageValue = await uploadImageFile(form.category_image);
-    } catch {
-      return;
-    }
+    let imageValue = form.category_image;
 
     setModalLoading(true);
     try {
@@ -270,9 +250,7 @@ const CategoryList = () => {
     });
 
     useEffect(() => {
-      setImagePreview(
-        `${import.meta.env.VITE_BASE_IMAGE}${formik.values.category_image}`
-      );
+      setImagePreview(`${IMAGE_BASE_URL}${formik.values.category_image}`);
     }, [formik.values.category_image]);
 
     const handleImageUpload = async (file) => {
@@ -284,7 +262,7 @@ const CategoryList = () => {
 
           if (fileName) {
             formik.setFieldValue("category_image", fileName);
-            const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+            const imageURL = `${IMAGE_BASE_URL}${fileName}`;
             setImagePreview(imageURL);
           }
         } catch (err) {
@@ -423,7 +401,7 @@ const CategoryList = () => {
 
                       let imageUrl = avatar;
                       if (imagePath && !imagePath.startsWith("http")) {
-                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                        imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
                       } else if (imagePath) {
                         imageUrl = imagePath;
                       }
