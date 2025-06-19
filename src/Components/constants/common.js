@@ -74,5 +74,5 @@ export const CONSTANTS = {
   description: "description",
   category_name: "category_name",
   categoryName: "category name",
-
+  CategoryImage: "Category Image",
 };
