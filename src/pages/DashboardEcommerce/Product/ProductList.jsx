@@ -30,6 +30,8 @@ const ProductList = () => {
   const [loading, setLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
 
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
@@ -41,7 +43,7 @@ const ProductList = () => {
         pageSize: limit,
         sortKey: "id",
         sortValue: "desc",
-        search: "",
+        search,
       });
 
       setProductList(response?.data?.data?.products || []);
@@ -165,7 +167,11 @@ const ProductList = () => {
     <div className="page-content mt-lg-5 w-100">
       <Container fluid>
         <Row className="mb-3 align-items-center">
-          <Col md="4" xs="12" className="mb-2 mb-md-0 d-flex align-items-center">
+          <Col
+            md="4"
+            xs="12"
+            className="mb-2 mb-md-0 d-flex align-items-center"
+          >
             <label htmlFor="limitSelect" className="me-2 mb-0">
               Items per page:
             </label>
@@ -196,7 +202,26 @@ const ProductList = () => {
               Add Product
             </BaseButton>
           </Col>
+
         </Row>
+        <Row>
+        <Col md="6" className="mb-2">
+  <input
+    type="text"
+    className="form-control"
+    placeholder="Search products..."
+    value={searchInput}
+    onChange={(e) => setSearchInput(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        setSearch(searchInput); // set actual search when user hits Enter
+        setPage(1);
+      }
+    }}
+  />
+</Col>
+</Row>
+
 
         <Card className="mb-4">
           <CardBody>
@@ -221,7 +246,7 @@ const ProductList = () => {
                       const imagePath = variant?.image?.image_path;
 
                       let imageUrl = avatar;
-                      if (imagePath && !imagePath.startsWith('http')) {
+                      if (imagePath && !imagePath.startsWith("http")) {
                         imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
                       } else if (imagePath) {
                         imageUrl = imagePath;

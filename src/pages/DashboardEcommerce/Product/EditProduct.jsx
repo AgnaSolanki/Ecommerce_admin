@@ -18,6 +18,7 @@ import { CONSTANTS } from "../../../Components/constants/common";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import BaseFileInput from "../../../Components/BASE/BaseFileInput";
 import userApi from "../../../api/userApi";
+import BaseLoader from "../../../Components/BASE/BaseLoader";
 
 const EditProduct = () => {
   const { id } = useParams();
