@@ -19,6 +19,7 @@ import { CONSTANTS } from "../../Components/constants/common";
 import { AiOutlineEdit } from "react-icons/ai";
 import {
   inputField,
+  phoneNumberRegex,
   postalCodeRegex,
   selectLabel,
   validationField,
@@ -27,6 +28,7 @@ import BaseFileInput from "../../Components/BASE/BaseFileInput";
 import BaseRadioInput from "../../Components/BASE/BaseRadioInput";
 import BaseSelectInput from "../../Components/BASE/BaseSelectInput";
 import { toast } from "react-toastify";
+import BaseLoader from "../../Components/BASE/BaseLoader";
 
 const UserProfile = () => {
   const [idx] = useState("1");
@@ -40,6 +42,10 @@ const UserProfile = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [role, setRole] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
+  const [countryLoading, setCountryLoading] = useState(false);
+  const [stateLoading, setStateLoading] = useState(false);
+  const [cityLoading, setCityLoading] = useState(false);
 
   const [userProfile, setUserProfile] = useState({
     first_name: "",
@@ -70,7 +76,9 @@ const UserProfile = () => {
     initialValues: userProfile,
     validationSchema: Yup.object({
       first_name: Yup.string().required(firstNameValidation.required),
-      phone: Yup.string().required(phoneValidation.required),
+      phone: Yup.string()
+        .required(phoneValidation.required)
+        .length(10, phoneValidation.fixLength(CONSTANTS.phone, 10)),
       gender: Yup.string().required(genderValidation.required),
       country: Yup.string().required(countryValidation.required),
       state: Yup.string().required(stateValidation.required),
@@ -83,7 +91,7 @@ const UserProfile = () => {
           postalCodeValidation.minLength(CONSTANTS.postalCode, 6)
         )
         .required(postalCodeValidation.required)
-        .max(6, postalCodeValidation.maxLength(CONSTANTS.postalCode, 6)),
+        .length(6, postalCodeValidation.fixLength(CONSTANTS.postalCode, 6)),
     }),
     onSubmit: async (values) => {
       try {
@@ -109,7 +117,8 @@ const UserProfile = () => {
           },
         };
 
-        await userApi.updateProfile(payload);
+        const res = await userApi.updateProfile(payload);
+        toast.success(res?.data.message);
         setUserProfile({ ...formik.values });
         setAvatarPreview(imagePath); 
         setIsEditing(false);
@@ -125,11 +134,14 @@ const UserProfile = () => {
 
   useEffect(() => {
     const fetchCountries = async () => {
+      setCountryLoading(true);
       try {
         const res = await userApi.getCountries();
         setCountries(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
         toast.error(err.message);
+      } finally {
+        setCountryLoading(false);
       }
     };
     fetchCountries();
@@ -142,11 +154,14 @@ const UserProfile = () => {
         setCities([]);
         return;
       }
+      setStateLoading(true);
       try {
         const res = await userApi.getStates(formik.values.country);
         setStates(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
         toast.error(err.message);
+      } finally {
+        setStateLoading(false);
       }
     };
     fetchStates();
@@ -157,11 +172,14 @@ const UserProfile = () => {
         setCities([]);
         return;
       }
+      setCityLoading(true);
       try {
         const res = await userApi.getCities(formik.values.state);
         setCities(Array.isArray(res.data?.data) ? res.data.data : []);
       } catch (err) {
         toast.error(err.message);
+      } finally {
+        setCityLoading(false);
       }
     };
     fetchCities();
@@ -225,6 +243,7 @@ const UserProfile = () => {
     }
   };
   const handleFileInputChange = async (e) => {
+    setImageUploading(true);
     const file = e.target.files[0];
     if (file) {
       try {
@@ -239,14 +258,28 @@ const UserProfile = () => {
         }
       } catch (err) {
         toast.error(err.message);
+      } finally {
+        setImageUploading(false);
       }
+    }
+  };
+  const handlePostalCodeChange = (e) => {
+    const { value } = e.target;
+    if (postalCodeRegex.test(value)) {
+      formik.handleChange(e);
+    }
+  };
+  const handlePhoneNumberChange = (e) => {
+    const { value } = e.target;
+    if (phoneNumberRegex.test(value)) {
+      formik.handleChange(e);
     }
   };
 
   document.title = "Profile";
 
   return (
-    <div className="page-content mt-lg-5 w-100">
+    <div className="page-content mt-lg-5 w-100 min-vh-100">
       <Container fluid>
         <div className="d-flex justify-content-end gap-2 m-3">
           {isEditing ? null : (
@@ -272,9 +305,16 @@ const UserProfile = () => {
                         e.target.onerror = null;
                         e.target.src = avatar;
                       }}
-                      className="rounded-circle avatar-md img-thumbnail user-profile-image "
+                      className={`rounded-circle avatar-md img-thumbnail user-profile-image ${
+                        imageUploading ? "loading" : ""
+                      }`}
                       alt="user-avatar"
                     />
+                    {imageUploading && (
+                      <div className="profile-loader-overlay">
+                       <BaseLoader size="15" />
+                      </div>
+                    )}
 
                     {isEditing && (
                       <>
@@ -289,7 +329,6 @@ const UserProfile = () => {
                             onBlur={formik.handleBlur}
                             isAvatarUpload={true}
                             onFileChange={onFileChange}
-                            required={true}
                           />
                           {formik.touched.file && formik.errors.file ? (
                             <FormFeedback className="d-block">
@@ -329,7 +368,7 @@ const UserProfile = () => {
           <CardBody>
             <Form onSubmit={formik.handleSubmit}>
               <Row>
-                <Col md={6}>
+                <Col md={6} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.first_name}
                     name={CONSTANTS.first_name}
@@ -339,7 +378,6 @@ const UserProfile = () => {
                     placeholder={inputField(CONSTANTS.firstName)}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
-                    required={true}
                     value={formik.values.first_name}
                   />
                   {formik.touched.first_name && formik.errors.first_name ? (
@@ -349,17 +387,16 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={6}>
+                <Col md={6} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.phone}
                     name={CONSTANTS.phone}
                     label={CONSTANTS.phone_number}
                     type={CONSTANTS.text}
-                    onChange={formik.handleChange}
+                    onChange={handlePhoneNumberChange}
                     placeholder={inputField(CONSTANTS.phone_number)}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
-                    required={true}
                     value={formik.values.phone}
                   />
                   {formik.touched.phone && formik.errors.phone ? (
@@ -369,7 +406,7 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={6}>
+                <Col md={6} className="mb-3">
                   <BaseRadioInput
                     id={CONSTANTS.gender}
                     name={CONSTANTS.gender}
@@ -384,7 +421,6 @@ const UserProfile = () => {
                     disabled={!isEditing}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    required={true}
                   />
                   {formik.touched.gender && formik.errors.gender ? (
                     <FormFeedback className="d-block">
@@ -393,7 +429,7 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={6}>
+                <Col md={6} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.role}
                     name={CONSTANTS.role}
@@ -406,7 +442,7 @@ const UserProfile = () => {
                   />
                 </Col>
 
-                <Col md={4}>
+                <Col md={4} className="mb-3">
                   <BaseSelectInput
                     id={CONSTANTS.country}
                     name={CONSTANTS.country}
@@ -415,15 +451,21 @@ const UserProfile = () => {
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    options={[
-                      { label: selectLabel(CONSTANTS.Country), value: "" },
-                      ...countries.map((c) => ({
-                        label: c.country_name,
-                        value: c.id,
-                      })),
-                    ]}
+                    options={
+                      countryLoading
+                        ? [{ label: <BaseLoader />, value: "" }]
+                        : [
+                            {
+                              label: selectLabel(CONSTANTS.Country),
+                              value: "",
+                            },
+                            ...countries.map((c) => ({
+                              label: c.country_name,
+                              value: c.id,
+                            })),
+                          ]
+                    }
                     disabled={!isEditing}
-                    required={true}
                   />
                   {formik.touched.country && formik.errors.country ? (
                     <FormFeedback className="d-block">
@@ -432,7 +474,7 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={4}>
+                <Col md={4} className="mb-3">
                   <BaseSelectInput
                     id={CONSTANTS.state}
                     name={CONSTANTS.state}
@@ -441,15 +483,18 @@ const UserProfile = () => {
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    options={[
-                      { label: selectLabel(CONSTANTS.State), value: "" },
-                      ...states.map((s) => ({
-                        label: s.state_name,
-                        value: s.id,
-                      })),
-                    ]}
+                    options={
+                      stateLoading
+                        ? [{ label: <BaseLoader />, value: "" }]
+                        : [
+                            { label: selectLabel(CONSTANTS.State), value: "" },
+                            ...states.map((s) => ({
+                              label: s.state_name,
+                              value: s.id,
+                            })),
+                          ]
+                    }
                     disabled={!isEditing}
-                    required={true}
                   />
                   {formik.touched.state && formik.errors.state ? (
                     <FormFeedback className="d-block">
@@ -458,7 +503,7 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={4}>
+                <Col md={4} className="mb-3">
                   <BaseSelectInput
                     id={CONSTANTS.city}
                     name={CONSTANTS.city}
@@ -467,16 +512,19 @@ const UserProfile = () => {
                     type={CONSTANTS.select}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    options={[
-                      { label: selectLabel(CONSTANTS.City), value: "" },
-                      ...cities.map((ci) => ({
-                        label: ci.city_name,
-                        value: ci.id,
-                      })),
-                    ]}
+                    options={
+                      cityLoading
+                        ? [{ label: <BaseLoader />, value: "" }]
+                        : [
+                            { label: selectLabel(CONSTANTS.City), value: "" },
+                            ...cities.map((ci) => ({
+                              label: ci.city_name,
+                              value: ci.id,
+                            })),
+                          ]
+                    }
                     formik={formik}
                     disabled={!isEditing}
-                    required={true}
                   />
                   {formik.touched.city && formik.errors.city ? (
                     <FormFeedback className="d-block">
@@ -485,7 +533,7 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={12}>
+                <Col md={12} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.address_line1}
                     name={CONSTANTS.address_line1}
@@ -497,7 +545,6 @@ const UserProfile = () => {
                     formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
-                    required={true}
                   />
                   {formik.touched.address_line1 &&
                   formik.errors.address_line1 ? (
@@ -507,7 +554,7 @@ const UserProfile = () => {
                   ) : null}
                 </Col>
 
-                <Col md={12}>
+                <Col md={12} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.address_line2}
                     name={CONSTANTS.address_line2}
@@ -516,25 +563,22 @@ const UserProfile = () => {
                     onChange={formik.handleChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.address_line2)}
-                    formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
                   />
                 </Col>
 
-                <Col md={6}>
+                <Col md={6} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.postal_code}
                     name={CONSTANTS.postal_code}
                     label={CONSTANTS.Postal_code}
                     value={formik.values.postal_code}
-                    onChange={formik.handleChange}
+                    onChange={handlePostalCodeChange}
                     type={CONSTANTS.text}
                     placeholder={inputField(CONSTANTS.Postal_code)}
-                    formik={formik}
                     disabled={!isEditing}
                     onBlur={formik.handleBlur}
-                    required={true}
                   />
                   {formik.touched.postal_code && formik.errors.postal_code ? (
                     <FormFeedback className="d-block">
@@ -548,7 +592,7 @@ const UserProfile = () => {
             </Form>
           </CardBody>
         </Card>
-        <div className="d-flex justify-content-end gap-2 m-3">
+        <div className="d-flex justify-content-start gap-2 m-3">
           {isEditing ? (
             <>
               <BaseButton
@@ -559,7 +603,7 @@ const UserProfile = () => {
                 loading={saveLoading}
                 disabled={!!error}
               >
-                {!saveLoading ? "Save" : null}
+                {!saveLoading ? "Update Profile" : null}
               </BaseButton>
               <BaseButton
                 type="button"

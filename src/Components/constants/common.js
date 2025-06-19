@@ -53,6 +53,7 @@ export const CONSTANTS = {
   Confirm_password: "Confirm password",
   file: "file",
   image: "image",
+  Image: "Image",
   price: "price",
   Quantity: "Quantity",
   ProductName: "Product name",

@@ -59,7 +59,8 @@ const ForgetPasswordPage = () => {
 
       [CONSTANTS.otp]: Yup.string()
         .matches(otpRegex, otpValidation.minLength(CONSTANTS.OTP, 6))
-        .required(otpValidation.required),
+        .required(otpValidation.required)
+        .length(6,otpValidation.fixLength(CONSTANTS.OTP, 6)),
 
       [CONSTANTS.newPassword]: Yup.string()
         .required(passwordValidation.required)
@@ -70,7 +71,7 @@ const ForgetPasswordPage = () => {
         .oneOf(
           [Yup.ref(CONSTANTS.newPassword)],
           confirmPasswordValidation.passwordsMatch(
-            CONSTANTS.ConfirmPassword,
+            CONSTANTS.password,
             CONSTANTS.ConfirmPassword
           )
         )
@@ -111,10 +112,9 @@ const ForgetPasswordPage = () => {
             confirmPassword: values[CONSTANTS.confirmPassword],
           });
           toast.success(response?.data.message);
-          setTimeout(() => {
+        
             navigate(LoginRoutes.LOGIN);
-          }, 1500);
-        } catch (error) {
+  
           toast.error(error?.response?.data?.message);
         } finally {
           setLoading(false);
@@ -129,11 +129,11 @@ const ForgetPasswordPage = () => {
       validation.handleChange(e);
     }
   };
-  document.title = "forgot-password";
+  document.title = "Forgot-password";
 
   return (
     <ParticlesAuth>
-      <div className="auth-page-content">
+      <div className="auth-page-content min-vh-100">
         <Container>
           <Row>
             <Col lg={12}>
@@ -162,20 +162,24 @@ const ForgetPasswordPage = () => {
                       Forgot Password?
                     </h5>
 
-                    <lord-icon
-                      src="https://cdn.lordicon.com/rhvddzym.json"
-                      trigger="loop"
-                      colors="primary:#0ab39c"
-                      className="avatar-xl email-lord-icon"
-                    ></lord-icon>
+                    {!submitted && (
+                      <lord-icon
+                        src="https://cdn.lordicon.com/rhvddzym.json"
+                        trigger="loop"
+                        colors="primary:#0ab39c"
+                        className="avatar-xl email-lord-icon"
+                      ></lord-icon>
+                    )}
                   </div>
 
-                  <Alert
-                    className="border-0 alert-warning text-center mb-2 mx-2"
-                    role="alert"
-                  >
-                    Enter your email and instructions will be sent to you!
-                  </Alert>
+                  {!submitted && (
+                    <Alert
+                      className="border-0 alert-warning text-center mb-2 mx-2"
+                      role="alert"
+                    >
+                      Enter your email and instructions will be sent to you!
+                    </Alert>
+                  )}
 
                   <div className="p-2">
                     <Form onSubmit={validation.handleSubmit}>
@@ -298,7 +302,7 @@ const ForgetPasswordPage = () => {
             </Col>
           </Row>
         </Container>
-        <div className="main-content mb-0 mt-5">
+        <div className="main-content">
           <Footer />
         </div>
       </div>
