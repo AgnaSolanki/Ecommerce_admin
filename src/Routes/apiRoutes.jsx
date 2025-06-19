@@ -10,8 +10,6 @@ export const LoginRoutes = {
   VIEW_PRODUCT: "/product/view",
   EDIT_PRODUCT: "/product/edit",
   CATEGORY_LIST: "/category",
-  ADD_CATEGORY: "/add-category",
-  EDIT_CATEGORY: "/category/edit",
   MAIN_DASHBOARD: "/main-dashboard",
   REPORT: "/report"
 };

@@ -53,6 +53,7 @@ export const CONSTANTS = {
   Confirm_password: "Confirm password",
   file: "file",
   image: "image",
+  Image: "Image",
   price: "price",
   Quantity: "Quantity",
   ProductName: "Product name",
@@ -73,11 +74,14 @@ export const CONSTANTS = {
   description: "description",
   category_name: "category_name",
   categoryName: "category name",
-  OrderSearch: "order-search",
+  CategoryImage: "Category Image",
+  TotalOrder: "Total Orders",
+  cancelledOrder: "Cancelled Orders",
+  pendingOrder: "Pending Orders",
+  totalCustomer: "Total Customers",  OrderSearch: "order-search",
   orderSearch: "orderSearch",
   order_Search: "Search Order..",
   UserSearch: "User-search",
   userSearch: "userSearch",
   User_Search: "Search User.."
 };
-

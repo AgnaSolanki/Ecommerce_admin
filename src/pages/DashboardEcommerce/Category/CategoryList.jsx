@@ -76,7 +76,9 @@ const CategoryList = () => {
   };
 
   const handleEdit = (categoryId) => {
-    const category = categoryList.find((cat) => cat.id === categoryId);
+    const category = categoryList.find(
+      (categories) => categories.id === categoryId
+    );
     setEditCategory(category);
     setModalOpen(true);
   };
@@ -85,22 +87,7 @@ const CategoryList = () => {
     const trimmedName = String(form.category_name || "").trim();
     const trimmedDesc = String(form.description || "").trim();
 
-    let imageValue = null;
-
-    if (typeof form.category_image === "string" && form.category_image !== "") {
-      imageValue = form.category_image;
-    } else if (typeof form.category_image === "object" && form.category_image) {
-      const imageForm = new FormData();
-      imageForm.append("image", form.category_image);
-
-      try {
-        const imageUploadResponse = await userApi.uploadImage(imageForm);
-        imageValue = imageUploadResponse?.data?.data?.file_name;
-      } catch (err) {
-        toast.error(err.message);
-        return;
-      }
-    }
+    let imageValue = form.category_image;
 
     setModalLoading(true);
     try {
@@ -159,25 +146,31 @@ const CategoryList = () => {
   };
 
   const renderPagination = () => {
-    let pages = [];
+    const pages = [];
 
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (page <= 3) {
-        pages = [1, 2, 3, 4, "...", totalPages];
-      } else if (page >= totalPages - 2) {
-        pages = [
+    switch (true) {
+      case totalPages <= 5:
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+        break;
+
+      case page <= 3:
+        pages.push(1, 2, 3, 4, "...", totalPages);
+        break;
+
+      case page >= totalPages - 2:
+        pages.push(
           1,
           "...",
           totalPages - 3,
           totalPages - 2,
           totalPages - 1,
-          totalPages,
-        ];
-      } else {
-        pages = [1, "...", page - 1, page, page + 1, "...", totalPages];
-      }
+          totalPages
+        );
+        break;
+
+      default:
+        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
+        break;
     }
 
     return (
@@ -194,12 +187,12 @@ const CategoryList = () => {
 
         {pages.map((item, index) =>
           item === "..." ? (
-            <span key={index} className="me-2">
+            <span key={`ellipsis-${index}`} className="me-2">
               ...
             </span>
           ) : (
             <BaseButton
-              key={index}
+              key={`page-${item}`}
               size="sm"
               color={item === page ? "dark" : "secondary"}
               className="me-2"
@@ -257,13 +250,7 @@ const CategoryList = () => {
     });
 
     useEffect(() => {
-      if (typeof formik.values.category_image === "string") {
-        setImagePreview(
-          `${import.meta.env.VITE_BASE_IMAGE}${formik.values.category_image}`
-        );
-      } else {
-        setImagePreview("");
-      }
+      setImagePreview(`${IMAGE_BASE_URL}${formik.values.category_image}`);
     }, [formik.values.category_image]);
 
     const handleImageUpload = async (file) => {
@@ -275,7 +262,7 @@ const CategoryList = () => {
 
           if (fileName) {
             formik.setFieldValue("category_image", fileName);
-            const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+            const imageURL = `${IMAGE_BASE_URL}${fileName}`;
             setImagePreview(imageURL);
           }
         } catch (err) {
@@ -296,8 +283,8 @@ const CategoryList = () => {
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <BaseInput
-              label="Category Name"
-              name="category_name"
+              label={CONSTANTS.categoryName}
+              name={CONSTANTS.category_name}
               type={CONSTANTS.text}
               value={formik.values.category_name}
               placeholder={inputField(CONSTANTS.categoryName)}
@@ -311,7 +298,7 @@ const CategoryList = () => {
             )}
 
             <BaseInput
-              label="Description"
+              label={CONSTANTS.Description}
               name={CONSTANTS.description}
               type="textarea"
               placeholder={inputField(CONSTANTS.description)}
@@ -326,8 +313,8 @@ const CategoryList = () => {
             )}
 
             <BaseFileInput
-              label="Category Image"
-              name="category_image"
+              label={CONSTANTS.CategoryImage}
+              name={CONSTANTS.category_image}
               onChange={(e) => handleImageUpload(e.target.files[0])}
             />
 
@@ -373,8 +360,10 @@ const CategoryList = () => {
               }}
               options={[
                 { label: "5", value: 5 },
-                { label: "15", value: 15 },
-                { label: "25", value: 25 },
+                { label: "10", value: 10 },
+                { label: "20", value: 20 },
+                { label: "50", value: 50 },
+                { label: "100", value: 100 },
               ]}
             />
           </Col>
@@ -407,21 +396,21 @@ const CategoryList = () => {
                 </thead>
                 <tbody>
                   {categoryList.length > 0 ? (
-                    categoryList.map((cat, index) => {
-                      const imagePath = cat?.category_image;
+                    categoryList.map((categories, index) => {
+                      const imagePath = categories?.category_image;
 
                       let imageUrl = avatar;
                       if (imagePath && !imagePath.startsWith("http")) {
-                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                        imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
                       } else if (imagePath) {
                         imageUrl = imagePath;
                       }
 
                       return (
-                        <tr key={cat.id}>
+                        <tr key={categories.id}>
                           <td>{(page - 1) * limit + index + 1}</td>
-                          <td>{cat.category_name}</td>
-                          <td>{cat.description}</td>
+                          <td>{categories.category_name}</td>
+                          <td>{categories.description}</td>
                           <td>
                             <img
                               src={imageUrl}
@@ -439,7 +428,7 @@ const CategoryList = () => {
                             <BaseButton
                               size="sm"
                               color="warning"
-                              onClick={() => handleEdit(cat.id)}
+                              onClick={() => handleEdit(categories.id)}
                               className="me-2"
                             >
                               Edit
@@ -447,7 +436,7 @@ const CategoryList = () => {
                             <BaseButton
                               size="sm"
                               color="danger"
-                              onClick={() => confirmDelete(cat.id)}
+                              onClick={() => confirmDelete(categories.id)}
                             >
                               Delete
                             </BaseButton>

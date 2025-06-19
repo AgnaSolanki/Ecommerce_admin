@@ -17,6 +17,7 @@ import ReactApexChart from "react-apexcharts";
 import userApi from "../../../api/userApi";
 import { toast } from "react-toastify";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
+import { CONSTANTS } from "../../../Components/constants/common";
 
 const Dashboard = () => {
   document.title = "Dashboard";
@@ -143,7 +144,7 @@ const Dashboard = () => {
 
   const cardData = [
     {
-      label: "Total Orders",
+      label: CONSTANTS.TotalOrder,
       counter: stats.total_order,
       badgeClass: "success",
       link: "View Orders",
@@ -151,7 +152,7 @@ const Dashboard = () => {
       icon: "ri-shopping-bag-line",
     },
     {
-      label: "Cancelled Orders",
+      label: CONSTANTS.cancelledOrder,
       counter: stats.total_cancel_order,
       badgeClass: "danger",
       link: "View Cancelled",
@@ -159,7 +160,7 @@ const Dashboard = () => {
       icon: "ri-close-circle-line",
     },
     {
-      label: "Pending Orders",
+      label: CONSTANTS.pendingOrder,
       counter: stats.total_pending_order,
       badgeClass: "warning",
       link: "View Pending",
@@ -167,7 +168,7 @@ const Dashboard = () => {
       icon: "ri-timer-line",
     },
     {
-      label: "Total Customers",
+      label: CONSTANTS.totalCustomer,
       counter: stats.total_customer,
       badgeClass: "info",
       link: "View Customers",
@@ -205,8 +206,7 @@ const Dashboard = () => {
                     </div>
                     <div className="avatar-sm flex-shrink-0">
                       <span
-                        className={`avatar-title rounded-circle fs-4 bg-${item.bgcolor}-subtle text-${item.bgcolor}`}
-                        style={{ width: "42px", height: "42px" }}
+                        className={`avatar-title rounded-circle fs-4 bg-${item.bgcolor}-subtle text-${item.bgcolor} `}
                       >
                         <i className={item.icon}></i>
                       </span>
@@ -268,10 +268,9 @@ const Dashboard = () => {
 
               <div
                 className="card-body d-flex justify-content-center align-items-center"
-                style={{ minHeight: "320px" }}
               >
                 {pieLoading ? (
-                  <Spinner color="primary" />
+                  <BaseLoader />
                 ) : (
                   <PieChartComponent series={pieData} labels={pieLabels} />
                 )}
@@ -289,7 +288,7 @@ const Dashboard = () => {
               <CardBody>
                 {orders.length === 0 ? (
                   <div className="text-center my-4">
-                    <BaseLoader size="20" />
+                    <BaseLoader size="17" />
                   </div>
                 ) : (
                   <div className="table-responsive table-card">
