@@ -73,6 +73,11 @@ export const CONSTANTS = {
   description: "description",
   category_name: "category_name",
   categoryName: "category name",
-
+  OrderSearch: "order-search",
+  orderSearch: "orderSearch",
+  order_Search: "Search Order..",
+  UserSearch: "User-search",
+  userSearch: "userSearch",
+  User_Search: "Search User.."
 };
 

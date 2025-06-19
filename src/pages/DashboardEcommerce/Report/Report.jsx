@@ -14,7 +14,8 @@ import { Search } from "lucide-react";
 import { toast } from "react-toastify";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
 import BaseInput from "../../../Components/BASE/BaseInput";
-import { dateRegex } from "../../../Components/constants/validation";
+import { dateRegex, inputField } from "../../../Components/constants/validation";
+import { CONSTANTS } from "../../../Components/constants/common";
 
 const Report = () => {
   document.title = "Report";
@@ -117,35 +118,39 @@ const Report = () => {
     }
   };
 
-  const renderPagination = (page, totalPages, setPage) => {
-    let pages = [];
+ const renderPagination = (page, totalPages, setPage) => {
+    const pages = [];
 
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (page <= 3) {
-        pages = [1, 2, 3, 4, "...", totalPages];
-      } else if (page >= totalPages - 2) {
-        pages = [
+    switch (true) {
+      case totalPages <= 5:
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+        break;
+
+      case page <= 3:
+        pages.push(1, 2, 3, 4, "...", totalPages);
+        break;
+
+      case page >= totalPages - 2:
+        pages.push(
           1,
           "...",
           totalPages - 3,
           totalPages - 2,
           totalPages - 1,
-          totalPages,
-        ];
-      } else {
-        pages = [1, "...", page - 1, page, page + 1, "...", totalPages];
-      }
+          totalPages
+        );
+        break;
+
+      default:
+        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
+        break;
     }
 
     return (
-      <div className="d-flex justify-content-end flex-wrap mt-4">
+      <div className="d-flex justify-content-end mt-3">
         <BaseButton
-          color="primary"
           size="sm"
+          color="primary"
           className="me-2"
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
@@ -155,12 +160,12 @@ const Report = () => {
 
         {pages.map((item, index) =>
           item === "..." ? (
-            <span key={index} className="me-2">
+            <span key={`ellipsis-${index}`} className="me-2">
               ...
             </span>
           ) : (
             <BaseButton
-              key={index}
+              key={`page-${item}`}
               size="sm"
               color={item === page ? "dark" : "secondary"}
               className="me-2"
@@ -172,9 +177,8 @@ const Report = () => {
         )}
 
         <BaseButton
-          color="primary"
           size="sm"
-          className="ms-2"
+          color="primary"
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
         >
@@ -183,7 +187,6 @@ const Report = () => {
       </div>
     );
   };
-
   if (loading) {
     return (
       <div className="page-content mt-4">
@@ -208,10 +211,10 @@ const Report = () => {
                 <h4 className="card-title mb-0">Customer Activity Report</h4>
                 <div className="d-flex align-items-center">
                   <BaseInput
-                    id="user-search"
-                    name="userSearch"
-                    type="text"
-                    placeholder="Search Users..."
+                    id={CONSTANTS.UserSearch}
+                    name={CONSTANTS.userSearch}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.User_Search)}
                     value={userSearchInput}
                     onChange={(e) => setUserSearchInput(e.target.value)}
                     onIconClick={() => {
@@ -277,13 +280,12 @@ const Report = () => {
                 <h4 className="card-title mb-0">Recent Orders Report</h4>
                 <div
                   className="d-flex align-items-center"
-                  style={{ minWidth: "300px" }}
                 >
                   <BaseInput
-                    id="order-search"
-                    name="orderSearch"
-                    type="text"
-                    placeholder="Search Orders..."
+                    id={CONSTANTS.OrderSearch}
+                    name={CONSTANTS.orderSearch}
+                    type={CONSTANTS.text}
+                    placeholder={inputField(CONSTANTS.order_Search)}
                     value={orderSearchInput}
                     onChange={(e) => setOrderSearchInput(e.target.value)}
                     onIconClick={() => {
