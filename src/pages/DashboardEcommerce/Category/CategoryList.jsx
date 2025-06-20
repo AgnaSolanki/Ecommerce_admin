@@ -28,7 +28,6 @@ import { CONSTANTS } from "../../../Components/constants/common";
 import BaseInput from "../../../Components/BASE/BaseInput";
 import BaseFileInput from "../../../Components/BASE/BaseFileInput";
 import { Search } from "lucide-react";
-import { HiMiniCog6Tooth } from "react-icons/hi2";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
 
 const CategoryList = () => {
@@ -66,14 +65,17 @@ const CategoryList = () => {
       setTotalPages(data?.totalPage || 1);
       setTotalRecords(data?.totalItems || 0);
     } catch (err) {
-      toast.error(err?.message);
+      toast.error(err?.response?.data.message);
+      setNoData(true);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategories();
+    if (search.trim() !== "" || searchInput.trim() === "") {
+      fetchCategories();
+    }
   }, [page, limit, search]);
 
   const handleAddCategory = () => {
@@ -246,9 +248,22 @@ const CategoryList = () => {
             255,
             descriptionValidation.maxLength(CONSTANTS.Description, 255)
           ),
-        category_image: editCategory
-          ? Yup.mixed()
-          : Yup.mixed().required(imageValidation.required),
+        category_image: Yup.mixed()
+          .nullable()
+          .test("required-image", imageValidation.required, function (value) {
+            const isEditMode = !!editCategory;
+            if (!isEditMode && !value) return false;
+            return true;
+          })
+          .test(
+            "fileSize",
+            imageValidation.imageSize,
+            function (value) {
+              if (!value) return true;
+              if (typeof value === "string") return true;
+              return value.size <= 1024 * 1024;
+            }
+          ),
       }),
       onSubmit: (values) => {
         onSave(values);
@@ -260,20 +275,38 @@ const CategoryList = () => {
     }, [formik.values.category_image]);
 
     const handleImageUpload = async (file) => {
-      if (file) {
-        try {
-          const uploadRes = await userApi.fileUpload(file);
-          const fileData = uploadRes.data?.data;
-          const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+      if (!file) return;
 
-          if (fileName) {
-            formik.setFieldValue("category_image", fileName);
-            const imageURL = `${IMAGE_BASE_URL}${fileName}`;
-            setImagePreview(imageURL);
-          }
-        } catch (err) {
-          toast.error(err.message);
+      const schema = Yup.mixed()
+        .required(imageValidation.required)
+        .test("fileSize",imageValidation.imageSize, (value) => {
+          if (!value) return true;
+          if (typeof value === "string") return true;
+          return value.size <= 1024 * 1024;
+        });
+
+      try {
+        await schema.validate(file);
+
+        const uploadRes = await userApi.fileUpload(file);
+        const fileData = uploadRes.data?.data;
+        const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+        if (fileName) {
+          const imageURL = `${IMAGE_BASE_URL}${fileName}`;
+
+          formik.setFieldValue("category_image", fileName);
+          setImagePreview(imageURL);
+          formik.setFieldError("category_image", ""); 
         }
+      } catch (err) {
+        toast.error(err?.message);
+
+        formik.setFieldError(
+          "category_image",
+          err?.message
+        );
+        formik.setTouched({ ...formik.touched, category_image: true });
       }
     };
 
@@ -296,13 +329,14 @@ const CategoryList = () => {
               placeholder={inputField(CONSTANTS.categoryName)}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              required={true}
             />
             {formik.touched.category_name && formik.errors.category_name && (
               <FormFeedback className="d-block">
                 {formik.errors.category_name}
               </FormFeedback>
             )}
-
+            <br />
             <BaseInput
               label={CONSTANTS.Description}
               name={CONSTANTS.description}
@@ -311,18 +345,27 @@ const CategoryList = () => {
               value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              required={true}
             />
             {formik.touched.description && formik.errors.description && (
               <FormFeedback className="d-block">
                 {formik.errors.description}
               </FormFeedback>
             )}
+            <br />
 
             <BaseFileInput
               label={CONSTANTS.CategoryImage}
               name={CONSTANTS.category_image}
+              formik={formik}
               onChange={(e) => handleImageUpload(e.target.files[0])}
+              required={true}
             />
+            {formik.touched.category_image && formik.errors.category_image && (
+              <FormFeedback className="d-block">
+                {formik.errors.category_image}
+              </FormFeedback>
+            )}
 
             {imagePreview && (
               <img
@@ -352,7 +395,7 @@ const CategoryList = () => {
   document.title = "Category";
 
   return (
-    <div className="page-content mt-4">
+    <div className="page-content">
       <Container fluid>
         <Row className="mb-3 align-items-center">
           <Col md="4">
@@ -380,114 +423,120 @@ const CategoryList = () => {
           </Col>
         </Row>
 
-          <Row>
-            <Col md="6" className="mb-2">
-              <BaseInput
-                id="productSearch"
-                name="productSearch"
-                type="text"
-                placeholder="Search products..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onIconClick={() => {
-                  setSearch(searchInput);
-                  setPage(1);
-                }}
-                icon={<Search size={16} />}
-              />
-            </Col>
-          </Row>
+        <Row>
+          <Col md="6" className="mb-2">
+            <BaseInput
+              id="categorySearch"
+              name="categorySearch"
+              type="text"
+              placeholder="Search categories..."
+              value={searchInput}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchInput(value);
+
+                setNoData(false);
+              }}
+              onIconClick={() => {
+                setSearch(searchInput);
+                setPage(1);
+              }}
+              icon={<Search size={16} />}
+            />
+          </Col>
+        </Row>
         <Card>
-          {noData ? (
-            <div className="text-center my-4">
-              <h5>No matching customers found.</h5>
-            </div>
-          ) : (
-            <CardBody>
-              {loading ? (
-               <div className="text-center">
-                  <BaseLoader size={20} />
-                </div>
-              ) : (
-                <Table bordered responsive hover>
-                  <thead className="table-light">
+          <CardBody>
+            {noData ? (
+              <div className="text-center my-4">
+                <h5>No matching customers found.</h5>
+              </div>
+            ) : (
+              <Table bordered responsive hover>
+                <thead className="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th className="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
                     <tr>
-                      <th>#</th>
-                      <th>Category Name</th>
-                      <th>Description</th>
-                      <th>Image</th>
-                      <th>Actions</th>
+                      <td colSpan="5">
+                        <div className="d-flex justify-content-center align-items-center my-5">
+                          <BaseLoader size={30} />
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {categoryList.length > 0 ? (
-                      categoryList.map((categories, index) => {
-                        const imagePath = categories?.category_image;
+                  ) : categoryList.length > 0 ? (
+                    categoryList.map((categories, index) => {
+                      const imagePath = categories?.category_image;
 
-                        let imageUrl = avatar;
-                        if (imagePath && !imagePath.startsWith("http")) {
-                          imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
-                        } else if (imagePath) {
-                          imageUrl = imagePath;
-                        }
+                      let imageUrl = avatar;
+                      if (imagePath && !imagePath.startsWith("http")) {
+                        imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
+                      } else if (imagePath) {
+                        imageUrl = imagePath;
+                      }
 
-                        return (
-                          <tr key={categories.id}>
-                            <td>{(page - 1) * limit + index + 1}</td>
-                            <td>{categories.category_name}</td>
-                            <td>{categories.description}</td>
-                            <td>
-                              <img
-                                src={imageUrl}
-                                alt="Category"
-                                width="50"
-                                height="50"
-                                className="image-category"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = avatar;
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <BaseButton
-                                size="sm"
-                                color="warning"
-                                onClick={() => handleEdit(categories.id)}
-                                className="me-2"
-                              >
-                                Edit
-                              </BaseButton>
-                              <BaseButton
-                                size="sm"
-                                color="danger"
-                                onClick={() => confirmDelete(categories.id)}
-                              >
-                                Delete
-                              </BaseButton>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan="5" className="text-center">
-                          No categories found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-              )}
-              {renderPagination()}
-            </CardBody>
-          )}
+                      return (
+                        <tr key={categories.id}>
+                          <td>{(page - 1) * limit + index + 1}</td>
+                          <td>{categories.category_name}</td>
+                          <td>{categories.description}</td>
+                          <td>
+                            <img
+                              src={imageUrl}
+                              alt="Category"
+                              width="50"
+                              height="50"
+                              className="image-category"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = avatar;
+                              }}
+                            />
+                          </td>
+                          <td className="d-flex justify-content-center gap-2 flex-wrap">
+                            <BaseButton
+                              size="sm"
+                              color="warning"
+                              onClick={() => handleEdit(categories.id)}
+                              className="me-2"
+                            >
+                              Edit
+                            </BaseButton>
+                            <BaseButton
+                              size="sm"
+                              color="danger"
+                              onClick={() => confirmDelete(categories.id)}
+                            >
+                              Delete
+                            </BaseButton>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center">
+                        No categories found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+            {renderPagination()}
+          </CardBody>
+        </Card>
         <h6>
           Showing {(page - 1) * limit + 1} to{" "}
           {Math.min(page * limit, totalRecords)} of {totalRecords}
         </h6>
-        </Card>
-        
       </Container>
 
       <CategoryModal
