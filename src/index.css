@@ -65,37 +65,71 @@ button:focus-visible {
   }
 }
 .custom-logout-modal {
-  max-width: 600px;
+  max-width: 400px;
   width: 90%;
-  border-radius: 12px;
-  margin-left: 40%;
+  border-radius: 16px;
+  margin: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  padding: 10px 25px;
+  text-align: center;
+
 }
+
+.custom-logout-modal .modal-header {
+  border-bottom: none;
+  padding: 24px 24px 0 24px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  justify-content: center;
+  padding-left: 30%;
+  padding-right: 0;
+}
+
+.custom-logout-modal .modal-body {
+  padding: 16px 24px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.custom-logout-modal .modal-footer {
+  border-top: none;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 0 20px 0;
+}
+
 .model-no,
 .model-yes {
   border: none !important;
-  display: inline inline-block !important;
-  width: 100px !important;
+  border-radius: 8px;
+  width: 100px;
+  padding: 10px 0;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .model-no {
-  background-color: #405189;
-  color: #ffffff;
+  background-color: #405189 !important;
+  color: #fff;
 }
 
 .model-no:hover {
   background-color: #2e3a5e;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .model-yes {
   background-color: #17a2b8 !important;
-  color: #ffffff;
+  color: #fff;
 }
 
 .model-yes:hover {
   background-color: #138a9b;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
+
 .float-en {
   display: flex;
   justify-content: flex-end;
@@ -175,7 +209,7 @@ input:-webkit-autofill {
   width: 75px;
   height: 75px;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,3 +236,9 @@ input:-webkit-autofill {
   object-fit: cover;
   border-radius: 8px;
 }
+input {
+  caret-color: black !important;
+}
+.back-to-top-arrow {
+  bottom: 10% !important; 
+  }

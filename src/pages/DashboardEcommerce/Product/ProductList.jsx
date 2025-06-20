@@ -19,6 +19,8 @@ import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
+import { Search } from "lucide-react";
+import BaseInput from "../../../Components/BASE/BaseInput";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -30,6 +32,9 @@ const ProductList = () => {
   const [loading, setLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [noData, setNoData] = useState(false);
 
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
@@ -41,14 +46,15 @@ const ProductList = () => {
         pageSize: limit,
         sortKey: "id",
         sortValue: "desc",
-        search: "",
+        search,
       });
 
       setProductList(response?.data?.data?.products || []);
       setTotalPages(response?.data?.data?.totalPage || 1);
       setTotalRecords(response?.data?.data?.totalItems || 0);
     } catch (err) {
-      toast.error(err?.message);
+      toast.error(err?.data?.data?.message);
+      setNoData(true);
     } finally {
       setLoading(false);
     }
@@ -56,7 +62,7 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, limit]);
+  }, [page, limit, search]);
 
   const goToPage = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -165,7 +171,11 @@ const ProductList = () => {
     <div className="page-content mt-lg-5 w-100">
       <Container fluid>
         <Row className="mb-3 align-items-center">
-          <Col md="4" xs="12" className="mb-2 mb-md-0 d-flex align-items-center">
+          <Col
+            md="4"
+            xs="12"
+            className="mb-2 mb-md-0 d-flex align-items-center"
+          >
             <label htmlFor="limitSelect" className="me-2 mb-0">
               Items per page:
             </label>
@@ -197,94 +207,116 @@ const ProductList = () => {
             </BaseButton>
           </Col>
         </Row>
-
-        <Card className="mb-4">
-          <CardBody>
-            {loading ? (
-              <div className="text-center">
-                <BaseLoader size={20} />
-              </div>
-            ) : (
-              <Table responsive bordered hover>
-                <thead className="table-light">
-                  <tr>
-                    <th>#</th>
-                    <th>Product Name</th>
-                    <th>Image</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productList.length > 0 ? (
-                    productList.map((product, index) => {
-                      const variant = product.variants?.[0] || {};
-                      const imagePath = variant?.image?.image_path;
-
-                      let imageUrl = avatar;
-                      if (imagePath && !imagePath.startsWith('http')) {
-                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
-                      } else if (imagePath) {
-                        imageUrl = imagePath;
-                      }
-
-                      return (
-                        <tr key={product.id}>
-                          <td>{(page - 1) * limit + index + 1}</td>
-                          <td>{product.name}</td>
-                          <td>
-                            <img
-                              src={imageUrl}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = avatar;
-                              }}
-                              alt="Product"
-                              width="50"
-                              height="50"
-                            />
-                          </td>
-                          <td>
-                            <BaseButton
-                              size="sm"
-                              color="info"
-                              className="me-2"
-                              onClick={() => handleView(product.id)}
-                            >
-                              View
-                            </BaseButton>
-                            <BaseButton
-                              size="sm"
-                              color="warning"
-                              className="me-2"
-                              onClick={() => handleEdit(product.id)}
-                            >
-                              Edit
-                            </BaseButton>
-                            <BaseButton
-                              size="sm"
-                              color="danger"
-                              onClick={() => confirmDelete(product.id)}
-                            >
-                              Delete
-                            </BaseButton>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
+        <Row>
+          <Col md="6" className="mb-2">
+            <BaseInput
+              id="productSearch"
+              name="productSearch"
+              type="text"
+              placeholder="Search products..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onIconClick={() => {
+                setSearch(searchInput);
+                setPage(1);
+              }}
+              icon={<Search size={16} />}
+            />
+          </Col>
+        </Row>
+        {noData ? (
+          <div className="text-center my-4">
+            <h5>No matching customers found.</h5>
+          </div>
+        ) : (
+          <Card className="mb-4">
+            <CardBody>
+              {loading ? (
+                <div className="text-center">
+                  <BaseLoader size={20} />
+                </div>
+              ) : (
+                <Table responsive bordered hover>
+                  <thead className="table-light">
                     <tr>
-                      <td colSpan="4" className="text-center">
-                        No Products Found
-                      </td>
+                      <th>#</th>
+                      <th>Product Name</th>
+                      <th>Image</th>
+                      <th>Actions</th>
                     </tr>
-                  )}
-                </tbody>
-              </Table>
-            )}
+                  </thead>
+                  <tbody>
+                    {productList.length > 0 ? (
+                      productList.map((product, index) => {
+                        const variant = product.variants?.[0] || {};
+                        const imagePath = variant?.image?.image_path;
 
-            {renderPagination()}
-          </CardBody>
-        </Card>
+                        let imageUrl = avatar;
+                        if (imagePath && !imagePath.startsWith("http")) {
+                          imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                        } else if (imagePath) {
+                          imageUrl = imagePath;
+                        }
+
+                        return (
+                          <tr key={product.id}>
+                            <td>{(page - 1) * limit + index + 1}</td>
+                            <td>{product.name}</td>
+                            <td>
+                              <img
+                                src={imageUrl}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = avatar;
+                                }}
+                                alt="Product"
+                                width="50"
+                                height="50"
+                              />
+                            </td>
+                            <td>
+                              <BaseButton
+                                size="sm"
+                                color="info"
+                                className="me-2"
+                                onClick={() => handleView(product.id)}
+                              >
+                                View
+                              </BaseButton>
+                              <BaseButton
+                                size="sm"
+                                color="warning"
+                                className="me-2"
+                                onClick={() => handleEdit(product.id)}
+                              >
+                                Edit
+                              </BaseButton>
+                              <BaseButton
+                                size="sm"
+                                color="danger"
+                                onClick={() => confirmDelete(product.id)}
+                              >
+                                Delete
+                              </BaseButton>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center">
+                          No Products Found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              )}
+
+              {renderPagination()}
+            </CardBody>
+          </Card>
+        )}
         <h6 className="mb-3">
           Showing {(page - 1) * limit + 1} to{" "}
           {Math.min(page * limit, totalRecords)} of {totalRecords} Results

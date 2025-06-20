@@ -24,7 +24,9 @@ import userApi from "../../api/userApi";
 import BaseButton from "../../Components/BASE/BaseButton";
 
 const ChangePasswordPage = () => {
-  const [passwordShow, setPasswordShow] = useState(false);
+  const [CurrentasswordShow, setCurrentPasswordShow] = useState(false);
+  const [newPasswordShow, setNewPasswordShow] = useState(false);
+  const [confirmPasswordShow, setConfirmPasswordShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -51,28 +53,30 @@ const ChangePasswordPage = () => {
 
     validationSchema: Yup.object({
       [CONSTANTS.currentPassword]: Yup.string()
+        .required(validationField(CONSTANTS.Currentpassword).required)
+        .min(8, validationField(CONSTANTS.Currentpassword).passwordMinLength)
         .matches(
           passwordRegex,
-          validationField(CONSTANTS.Password).passwordPattern
-        )
-        .required(validationField(CONSTANTS.Password).required),
+          validationField(CONSTANTS.Currentpassword).passwordComplexity
+        ),
 
       [CONSTANTS.newPassword]: Yup.string()
+        .required(validationField(CONSTANTS.Newpassword).required)
+        .min(8, validationField(CONSTANTS.Newpassword).passwordMinLength)
         .matches(
           passwordRegex,
-          validationField(CONSTANTS.Password).passwordPattern
-        )
-        .required(validationField(CONSTANTS.Password).required),
+          validationField(CONSTANTS.Newpassword).passwordComplexity
+        ),
 
       [CONSTANTS.confirmPassword]: Yup.string()
         .oneOf(
           [Yup.ref(CONSTANTS.newPassword)],
-          validationField(CONSTANTS.ConfirmPassword).passwordsMatch(
-            CONSTANTS.ConfirmPassword,
+          validationField(CONSTANTS.Confirmpassword).passwordsMatch(
+            CONSTANTS.password,
             CONSTANTS.ConfirmPassword
           )
         )
-        .required(validationField(CONSTANTS.ConfirmPassword).required),
+        .required(validationField(CONSTANTS.Confirmpassword).required),
     }),
 
     onSubmit: async (values) => {
@@ -105,94 +109,77 @@ const ChangePasswordPage = () => {
       <Container fluid>
         <Row className="justify-content-center">
           <Col md={8} lg={6} xl={5}>
-            <Card className="mt-4">
+            <Card className="mt-3">
               <CardBody className="p-4">
                 <div className="text-center mt-2">
-                  <h5 className="text-primary">Change Your Password</h5>
-                  <lord-icon
-                    src="https://cdn.lordicon.com/rhvddzym.json"
-                    trigger="loop"
-                    colors="primary:#0ab39c"
-                    className="avatar-xl lord-icon"
-                  ></lord-icon>
+                  <h5 className="text-primary">Change Password</h5>
                 </div>
 
                 <div className="p-2">
                   <Form onSubmit={validation.handleSubmit}>
-                    <div className="mb-4">
+                    <div className="mb-3">
                       <BaseInput
-                        id={CONSTANTS.email}
-                        name={CONSTANTS.email}
-                        label={CONSTANTS.Email}
-                        type={CONSTANTS.email}
-                        placeholder={inputField(CONSTANTS.Email)}
-                        value={email}
-                        disabled={true}
+                        id={CONSTANTS.currentPassword}
+                        name={CONSTANTS.currentPassword}
+                        label={CONSTANTS.Current_password}
+                        type={CONSTANTS.password}
+                        placeholder={inputField(CONSTANTS.CurrentPassword)}
+                        showPasswordToggle={true}
+                        passwordShown={CurrentasswordShow}
+                        setPasswordShown={setCurrentPasswordShow}
                         onChange={validation.handleChange}
                         onBlur={validation.handleBlur}
-                        className="cursor-not-allowed"
+                        required={true}
                       />
+                      {validation.touched.currentPassword &&
+                      validation.errors.currentPassword ? (
+                        <FormFeedback className="d-block">
+                          {validation.errors.currentPassword}
+                        </FormFeedback>
+                      ) : null}
                     </div>
-
-                    <BaseInput
-                      id={CONSTANTS.currentPassword}
-                      name={CONSTANTS.currentPassword}
-                      label={CONSTANTS.Current_password}
-                      type={CONSTANTS.password}
-                      placeholder={inputField(CONSTANTS.CurrentPassword)}
-                      showPasswordToggle={true}
-                      passwordShown={passwordShow}
-                      setPasswordShown={setPasswordShow}
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      required={true}
-                    />
-                    {validation.touched.currentPassword &&
-                    validation.errors.currentPassword ? (
-                      <FormFeedback className="d-block">
-                        {validation.errors.currentPassword}
-                      </FormFeedback>
-                    ) : null}
-
-                    <BaseInput
-                      id={CONSTANTS.newPassword}
-                      name={CONSTANTS.newPassword}
-                      label={CONSTANTS.New_password}
-                      type={CONSTANTS.password}
-                      placeholder={inputField(CONSTANTS.NewPassword)}
-                      showPasswordToggle={true}
-                      passwordShown={passwordShow}
-                      setPasswordShown={setPasswordShow}
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      required={true}
-                    />
-                    {validation.touched.newPassword &&
-                    validation.errors.newPassword ? (
-                      <FormFeedback className="d-block">
-                        {validation.errors.newPassword}
-                      </FormFeedback>
-                    ) : null}
-                    <BaseInput
-                      id={CONSTANTS.confirmPassword}
-                      name={CONSTANTS.confirmPassword}
-                      label={CONSTANTS.Confirm_password}
-                      type={CONSTANTS.password}
-                      placeholder={inputField(CONSTANTS.ConfirmPassword)}
-                      showPasswordToggle={true}
-                      passwordShown={passwordShow}
-                      setPasswordShown={setPasswordShow}
-                      onChange={validation.handleChange}
-                      onBlur={validation.handleBlur}
-                      required={true}
-                    />
-                    {validation.touched.confirmPassword &&
-                    validation.errors.confirmPassword ? (
-                      <FormFeedback className="d-block">
-                        {validation.errors.confirmPassword}
-                      </FormFeedback>
-                    ) : null}
-
+                    <div className="mb-3">
+                      <BaseInput
+                        id={CONSTANTS.newPassword}
+                        name={CONSTANTS.newPassword}
+                        label={CONSTANTS.New_password}
+                        type={CONSTANTS.password}
+                        placeholder={inputField(CONSTANTS.NewPassword)}
+                        showPasswordToggle={true}
+                        passwordShown={newPasswordShow}
+                        setPasswordShown={setNewPasswordShow}
+                        onChange={validation.handleChange}
+                        onBlur={validation.handleBlur}
+                        required={true}
+                      />
+                      {validation.touched.newPassword &&
+                      validation.errors.newPassword ? (
+                        <FormFeedback className="d-block">
+                          {validation.errors.newPassword}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="mb-3">
+                      <BaseInput
+                        id={CONSTANTS.confirmPassword}
+                        name={CONSTANTS.confirmPassword}
+                        label={CONSTANTS.Confirm_password}
+                        type={CONSTANTS.password}
+                        placeholder={inputField(CONSTANTS.ConfirmPassword)}
+                        showPasswordToggle={true}
+                        passwordShown={confirmPasswordShow}
+                        setPasswordShown={setConfirmPasswordShow}
+                        onChange={validation.handleChange}
+                        onBlur={validation.handleBlur}
+                        required={true}
+                      />
+                      {validation.touched.confirmPassword &&
+                      validation.errors.confirmPassword ? (
+                        <FormFeedback className="d-block">
+                          {validation.errors.confirmPassword}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
                     <div className="text-center mt-4">
                       <BaseButton
                         type="submit"

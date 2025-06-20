@@ -10,7 +10,6 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  Spinner,
 } from "reactstrap";
 import CountUp from "react-countup";
 import ReactApexChart from "react-apexcharts";

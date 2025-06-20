@@ -106,7 +106,7 @@ const RightSidebar = (props) => {
     <React.Fragment>
       <button
         onClick={() => toTop()}
-        className="btn btn-danger btn-icon"
+        className="btn btn-danger btn-icon back-to-top-arrow"
         id="back-to-top"
       >
         <i className="ri-arrow-up-line"></i>

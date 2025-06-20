@@ -11,8 +11,7 @@ export const validationField = (field) => ({
   format: (fieldName) => `${fieldName} should be in correct format.`,
   minLength: (field, min) =>
     `${field} must be at least ${min} characters long.`,
-  fixLength:(field, min) =>
-    `${field} should be ${min} digit..`,
+  fixLength: (field, min) => `${field} should be ${min} digit.`,
 });
 
 export const emailRegex = /^(?!.*\s)[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
