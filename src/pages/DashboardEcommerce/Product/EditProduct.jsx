@@ -200,7 +200,7 @@ const EditProduct = () => {
   };
 
   return (
-    <Container fluid className="page-content mt-lg-5 w-100">
+    <Container fluid className="page-content mt-lg-5 mb-4 w-100 mb-0">
       <Card className="p-4">
         <CardBody>
           {loading ? (

@@ -70,6 +70,7 @@ export const CONSTANTS = {
   Qty: "Qty",
   Title: "Title",
   name: "name",
+  Name: "Name",
   button: "button",
   category_id: "category_id",
   VariantTitle: "Variant Title",

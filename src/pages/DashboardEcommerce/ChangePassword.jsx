@@ -112,7 +112,7 @@ const ChangePasswordPage = () => {
             <Card className="mt-3">
               <CardBody className="p-4">
                 <div className="text-center mt-2">
-                  <h5 className="text-primary">Change Password</h5>
+                  <h5 className="text-primary welcome-text">Change Password</h5>
                 </div>
 
                 <div className="p-2">

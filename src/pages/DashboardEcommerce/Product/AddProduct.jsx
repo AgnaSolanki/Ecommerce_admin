@@ -46,7 +46,7 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
-  const nameValidation = validationField(CONSTANTS.name);
+  const nameValidation = validationField(CONSTANTS.Name);
   const categoryValidation = validationField(CONSTANTS.Category);
   const titleValidation = validationField(CONSTANTS.Title);
   const descriptionValidation = validationField(CONSTANTS.Description);
@@ -54,7 +54,7 @@ const AddProduct = () => {
   const sizeValidation = validationField(CONSTANTS.Size);
   const priceValidation = validationField(CONSTANTS.Price);
   const quantityValidation = validationField(CONSTANTS.Quantity);
-  const imageValidation = validationField(CONSTANTS.image);
+  const imageValidation = validationField(CONSTANTS.Image);
 
   const formik = useFormik({
     initialValues: {
@@ -83,7 +83,18 @@ const AddProduct = () => {
           size: Yup.string().required(sizeValidation.required),
           price: Yup.string().required(priceValidation.required),
           quantity: Yup.string().required(quantityValidation.required),
-          variant_image: Yup.mixed().required(imageValidation.required),
+          variant_image: Yup.mixed()
+            .required(imageValidation.required)
+            .nullable()
+            .test(
+              "fileSize",
+              validationField(CONSTANTS.Image).imageSize,
+              (value) => {
+                if (!value) return true;
+                if (typeof value === "string") return true;
+                return value.size <= 1024 * 1024;
+              }
+            ),
         })
       ),
     }),
@@ -151,32 +162,54 @@ const AddProduct = () => {
   };
 
   const handleFileChange = async (file, index) => {
-    if (file) {
-      try {
-        const res = await userApi.fileUpload(file);
-        const fileData = res.data?.data;
-        const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+  if (!file) return;
 
-        if (fileName) {
-          const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
-          setImagePreviews((prev) => ({
-            ...prev,
-            [`variant_image_preview_${index}`]: imageURL,
-          }));
-
-          formik.setFieldValue(
-            `product_variants[${index}].variant_image`,
-            fileName
-          );
+  const variantSchema = Yup.object().shape({
+    variant_image: Yup.mixed()
+      .required(imageValidation.required)
+      .test(
+        "fileSize",
+        imageValidation.imageSize,
+        (value) => {
+          if (!value) return true;
+          if (typeof value === "string") return true;
+          return value.size <= 1024 * 1024;
         }
-      } catch (err) {
-        toast.error(err.message);
-      }
+      ),
+  });
+
+  try {
+    await variantSchema.validate({ variant_image: file });
+
+    const res = await userApi.fileUpload(file);
+    const fileData = res.data?.data;
+    const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+    if (fileName) {
+      const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+
+      setImagePreviews((prev) => ({
+        ...prev,
+        [`variant_image_preview_${index}`]: imageURL,
+      }));
+
+      formik.setFieldValue(
+        `product_variants[${index}].variant_image`,
+        fileName
+      );
     }
-  };
+  } catch (error) {
+    toast.error(error?.message);
+    formik.setFieldError(
+      `product_variants[${index}].variant_image`,
+      error?.message
+    );
+  }
+};
+
 
   return (
-    <Container fluid className="page-content mt-lg-5 w-100">
+    <Container fluid className="page-content mt-lg-2 mb-3 w-100">
       <Card>
         <CardHeader>
           <h4 className="mb-0">Add New Product</h4>
@@ -226,15 +259,25 @@ const AddProduct = () => {
 
               <FieldArray
                 name="product_variants"
-                render={() => (
+                render={({ push, remove }) => (
                   <>
                     {formik.values.product_variants.map((variant, index) => (
                       <Card
                         key={index}
                         className="mb-4 border rounded shadow-sm"
                       >
-                        <CardHeader className="bg-light">
+                        <CardHeader className="bg-light d-flex justify-content-between align-items-center">
                           <h6 className="mb-0">Variant {index + 1}</h6>
+                          {formik.values.product_variants.length > 1 && (
+                            <BaseButton
+                              type="button"
+                              size="sm"
+                              color="danger"
+                              onClick={() => remove(index)}
+                            >
+                              Remove
+                            </BaseButton>
+                          )}
                         </CardHeader>
                         <CardBody>
                           <Row className="gy-3">
@@ -414,11 +457,31 @@ const AddProduct = () => {
                         </CardBody>
                       </Card>
                     ))}
+                    <div className="text-end mt-3 mb-4">
+                      <BaseButton
+                        type="button"
+                        size="sm"
+                        color="primary"
+                        onClick={() =>
+                          push({
+                            product_title_name: "",
+                            description: "",
+                            color: "",
+                            size: "",
+                            price: "",
+                            quantity: "",
+                            variant_image: null,
+                          })
+                        }
+                      >
+                        + Add Variant
+                      </BaseButton>
+                    </div>
                   </>
                 )}
               />
 
-              <div className="text-end mt-4">
+              <div className="text-start mt-4">
                 <BaseButton
                   color="success"
                   size="sm"

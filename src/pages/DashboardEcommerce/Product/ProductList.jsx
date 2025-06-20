@@ -53,7 +53,7 @@ const ProductList = () => {
       setTotalPages(response?.data?.data?.totalPage || 1);
       setTotalRecords(response?.data?.data?.totalItems || 0);
     } catch (err) {
-      toast.error(err?.data?.data?.message);
+      toast.error(err?.response?.data.message);
       setNoData(true);
     } finally {
       setLoading(false);
@@ -61,7 +61,9 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    if (search.trim() !== "" || searchInput.trim() === "") {
+      fetchProducts();
+    }
   }, [page, limit, search]);
 
   const goToPage = (newPage) => {
@@ -168,7 +170,7 @@ const ProductList = () => {
   };
 
   return (
-    <div className="page-content mt-lg-5 w-100">
+    <div className="page-content w-100">
       <Container fluid>
         <Row className="mb-3 align-items-center">
           <Col
@@ -215,7 +217,12 @@ const ProductList = () => {
               type="text"
               placeholder="Search products..."
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchInput(value);
+
+                setNoData(false);
+              }}
               onIconClick={() => {
                 setSearch(searchInput);
                 setPage(1);
@@ -224,61 +231,66 @@ const ProductList = () => {
             />
           </Col>
         </Row>
-        {noData ? (
-          <div className="text-center my-4">
-            <h5>No matching customers found.</h5>
-          </div>
-        ) : (
-          <Card className="mb-4">
-            <CardBody>
-              {loading ? (
-                <div className="text-center">
-                  <BaseLoader size={20} />
-                </div>
-              ) : (
-                <Table responsive bordered hover>
-                  <thead className="table-light">
+        <Card className="mb-4">
+          <CardBody>
+            {noData ? (
+              <div className="text-center my-4">
+                <h5>No matching customers found.</h5>
+              </div>
+            ) : (
+              <Table responsive bordered hover>
+                <thead className="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Image</th>
+                    <th className="text-center">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {loading ? (
                     <tr>
-                      <th>#</th>
-                      <th>Product Name</th>
-                      <th>Image</th>
-                      <th>Actions</th>
+                      <td colSpan="4">
+                        <div className="d-flex justify-content-center align-items-center my-5">
+                          <BaseLoader size={30} />
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {productList.length > 0 ? (
-                      productList.map((product, index) => {
-                        const variant = product.variants?.[0] || {};
-                        const imagePath = variant?.image?.image_path;
+                  ) : productList.length > 0 ? (
+                    productList.map((product, index) => {
+                      const variant = product.variants?.[0] || {};
+                      const imagePath = variant?.image?.image_path;
 
-                        let imageUrl = avatar;
-                        if (imagePath && !imagePath.startsWith("http")) {
-                          imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
-                        } else if (imagePath) {
-                          imageUrl = imagePath;
-                        }
+                      let imageUrl = avatar;
+                      if (imagePath && !imagePath.startsWith("http")) {
+                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                      } else if (imagePath) {
+                        imageUrl = imagePath;
+                      }
 
-                        return (
-                          <tr key={product.id}>
-                            <td>{(page - 1) * limit + index + 1}</td>
-                            <td>{product.name}</td>
-                            <td>
-                              <img
-                                src={imageUrl}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = avatar;
-                                }}
-                                alt="Product"
-                                width="50"
-                                height="50"
-                              />
-                            </td>
-                            <td>
+                      return (
+                        <tr key={product.id}>
+                          <td>{(page - 1) * limit + index + 1}</td>
+                          <td>{product.name}</td>
+                          <td>
+                            <img
+                              src={imageUrl}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = avatar;
+                              }}
+                              alt="Product"
+                              width="50"
+                              height="50"
+                            />
+                          </td>
+                          <td>
+                            <div className="d-flex justify-content-center gap-2 flex-wrap">
                               <BaseButton
                                 size="sm"
                                 color="info"
-                                className="me-2"
+                                className="me-4"
                                 onClick={() => handleView(product.id)}
                               >
                                 View
@@ -286,7 +298,7 @@ const ProductList = () => {
                               <BaseButton
                                 size="sm"
                                 color="warning"
-                                className="me-2"
+                                className="me-4"
                                 onClick={() => handleEdit(product.id)}
                               >
                                 Edit
@@ -298,25 +310,24 @@ const ProductList = () => {
                               >
                                 Delete
                               </BaseButton>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan="4" className="text-center">
-                          No Products Found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-              )}
-
-              {renderPagination()}
-            </CardBody>
-          </Card>
-        )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="text-center">
+                        No Products Found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+            {renderPagination()}
+          </CardBody>
+        </Card>
         <h6 className="mb-3">
           Showing {(page - 1) * limit + 1} to{" "}
           {Math.min(page * limit, totalRecords)} of {totalRecords} Results

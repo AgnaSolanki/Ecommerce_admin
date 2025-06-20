@@ -63,43 +63,37 @@ const UserProfile = () => {
     idx: idx,
   });
 
-  const firstNameValidation = validationField(CONSTANTS.FirstName);
-  const countryValidation = validationField(CONSTANTS.country);
-  const cityValidation = validationField(CONSTANTS.city);
-  const stateValidation = validationField(CONSTANTS.state);
-  const genderValidation = validationField(CONSTANTS.gender);
   const postalCodeValidation = validationField(CONSTANTS.PostalCode);
   const phoneValidation = validationField(CONSTANTS.phone_number);
-  const addressValidation = validationField(CONSTANTS.address_line1);
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: userProfile,
     validationSchema: Yup.object({
-      first_name: Yup.string().required(firstNameValidation.required),
-      phone: Yup.string()
-        .required(phoneValidation.required)
-        .length(10, phoneValidation.fixLength(CONSTANTS.phone_number, 10)),
-      gender: Yup.string().required(genderValidation.required),
-      country: Yup.string().required(countryValidation.required),
-      state: Yup.string().required(stateValidation.required),
-      city: Yup.string().required(cityValidation.required),
-      address_line1: Yup.string().required(addressValidation.required),
+      phone: Yup.string().length(
+        10,
+        phoneValidation.fixLength(CONSTANTS.phone_number, 10)
+      ),
       address_line2: Yup.string(),
       postal_code: Yup.string()
         .matches(
           postalCodeRegex,
           postalCodeValidation.minLength(CONSTANTS.PostalCode, 6)
         )
-        .required(postalCodeValidation.required)
         .length(6, postalCodeValidation.fixLength(CONSTANTS.PostalCode, 6)),
+     file: Yup.mixed()
+        .nullable()
+        .test("file", validationField(CONSTANTS.Image).imageSize, (file) => {
+          if (!file) return true;
+          return file.size <= 1024 * 1024;
+        }),
     }),
     onSubmit: async (values) => {
       try {
         setSaveLoading(true);
 
         const imagePath = selectedImage || avatarPreview;
-
+ 
         const payload = {
           name: values.first_name,
           email: values.email,
@@ -121,8 +115,11 @@ const UserProfile = () => {
         const res = await userApi.updateProfile(payload);
         toast.success(res?.data.message);
         setUserProfile({ ...formik.values });
-        setAvatarPreview(imagePath); 
+        setAvatarPreview(imagePath);
         setIsEditing(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
 
         setError("");
       } catch (error) {
@@ -245,26 +242,37 @@ const UserProfile = () => {
     }
   };
   const handleFileInputChange = async (e) => {
-    setImageUploading(true);
     const file = e.target.files[0];
-    if (file) {
-      try {
-        const uploadRes = await userApi.fileUpload(file);
-        const fileData = uploadRes.data?.data;
-        const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
 
-        if (fileName) {
-          setSelectedImage(fileName);
-          const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
-          setAvatarPreview(imageURL);
-        }
-      } catch (err) {
-        toast.error(err.message);
-      } finally {
-        setImageUploading(false);
+    formik.setFieldValue("file", file);
+    await formik.validateField("file");
+
+    const errors = await formik.validateForm();
+    const touched = { ...formik.touched, file: true };
+    formik.setTouched(touched);
+
+    if (errors.file) {
+      return;
+    }
+
+    setImageUploading(true);
+    try {
+      const uploadRes = await userApi.fileUpload(file);
+      const fileData = uploadRes.data?.data;
+      const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+
+      if (fileName) {
+        setSelectedImage(fileName);
+        const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+        setAvatarPreview(imageURL);
       }
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setImageUploading(false);
     }
   };
+
   const handlePostalCodeChange = (e) => {
     const { value } = e.target;
     if (postalCodeRegex.test(value)) {
@@ -299,8 +307,8 @@ const UserProfile = () => {
           <Col lg="12">
             <Card className="position-relative">
               <CardBody>
-                <div className="d-flex">
-                  <div className="profile-user position-relative d-inline-block mx-auto mb-4 user-img">
+                <div className="d-flex mb-0">
+                  <div className="profile-user position-relative d-inline-block mx-auto mb-0 user-img">
                     <img
                       src={avatarPreview}
                       onError={(e) => {
@@ -314,7 +322,7 @@ const UserProfile = () => {
                     />
                     {imageUploading && (
                       <div className="profile-loader-overlay">
-                       <BaseLoader size="15" />
+                        <BaseLoader size="15" />
                       </div>
                     )}
 
@@ -324,19 +332,14 @@ const UserProfile = () => {
                           <AiOutlineEdit className="text-size" />
                           <BaseFileInput
                             id="avatar-upload"
-                            name="avatar"
-                            value={formik.values[CONSTANTS.file]}
+                            name="file"
+                            value={formik.values.file}
                             type={CONSTANTS.file}
                             onChange={handleFileInputChange}
                             onBlur={formik.handleBlur}
                             isAvatarUpload={true}
                             onFileChange={onFileChange}
                           />
-                          {formik.touched.file && formik.errors.file ? (
-                            <FormFeedback className="d-block">
-                              {formik.errors.file}
-                            </FormFeedback>
-                          ) : null}
                         </label>
 
                         {selectedImage && (
@@ -354,6 +357,7 @@ const UserProfile = () => {
                       </>
                     )}
                   </div>
+
                   <div className="flex-grow-1 align-self-center">
                     <div className="text-muted">
                       <p className="mb-1">Email Id: {userProfile.email}</p>
@@ -361,6 +365,11 @@ const UserProfile = () => {
                     </div>
                   </div>
                 </div>
+                {formik.touched.file && formik.errors.file ? (
+                  <FormFeedback className="d-block mt-0">
+                    {formik.errors.file}
+                  </FormFeedback>
+                ) : null}
               </CardBody>
             </Card>
           </Col>
