@@ -32,6 +32,7 @@ const AddProduct = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,9 +47,9 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
-  const nameValidation = validationField(CONSTANTS.Name);
+  const productNameValidation = validationField(CONSTANTS.ProductName);
   const categoryValidation = validationField(CONSTANTS.Category);
-  const titleValidation = validationField(CONSTANTS.Title);
+  const variantTitleValidation = validationField(CONSTANTS.variantTitle);
   const descriptionValidation = validationField(CONSTANTS.Description);
   const colorValidation = validationField(CONSTANTS.Color);
   const sizeValidation = validationField(CONSTANTS.Size);
@@ -73,19 +74,24 @@ const AddProduct = () => {
       ],
     },
     validationSchema: Yup.object({
-      name: Yup.string().required(nameValidation.required),
+      name: Yup.string().required(productNameValidation.required),
       category_id: Yup.string().required(categoryValidation.required),
       product_variants: Yup.array().of(
         Yup.object().shape({
-          product_title_name: Yup.string().required(titleValidation.required),
+          product_title_name: Yup.string().required(
+            variantTitleValidation.required
+          ),
           description: Yup.string().required(descriptionValidation.required),
           color: Yup.string().required(colorValidation.required),
           size: Yup.string().required(sizeValidation.required),
           price: Yup.string().required(priceValidation.required),
           quantity: Yup.string().required(quantityValidation.required),
           variant_image: Yup.mixed()
-            .required(imageValidation.required)
             .nullable()
+            .test("required-image", imageValidation.required, (value) => {
+              if (typeof value === "string" || value) return true;
+              return false;
+            })
             .test(
               "fileSize",
               validationField(CONSTANTS.Image).imageSize,
@@ -162,51 +168,59 @@ const AddProduct = () => {
   };
 
   const handleFileChange = async (file, index) => {
-  if (!file) return;
+    if (!file) return;
 
-  const variantSchema = Yup.object().shape({
-    variant_image: Yup.mixed()
-      .required(imageValidation.required)
-      .test(
-        "fileSize",
-        imageValidation.imageSize,
-        (value) => {
+    const variantSchema = Yup.object().shape({
+      variant_image: Yup.mixed()
+        .required(imageValidation.required)
+        .test("fileSize", imageValidation.imageSize, (value) => {
           if (!value) return true;
           if (typeof value === "string") return true;
           return value.size <= 1024 * 1024;
-        }
-      ),
-  });
+        }),
+    });
 
-  try {
-    await variantSchema.validate({ variant_image: file });
+    try {
+      await variantSchema.validate({ variant_image: file });
 
-    const res = await userApi.fileUpload(file);
-    const fileData = res.data?.data;
-    const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
+      const res = await userApi.fileUpload(file);
+      const fileData = res.data?.data;
+      const fileName = Array.isArray(fileData) ? fileData[0] : fileData;
 
-    if (fileName) {
-      const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
+      if (fileName) {
+        const imageURL = `${import.meta.env.VITE_BASE_IMAGE}${fileName}`;
 
-      setImagePreviews((prev) => ({
-        ...prev,
-        [`variant_image_preview_${index}`]: imageURL,
-      }));
+        setImagePreviews((prev) => ({
+          ...prev,
+          [`variant_image_preview_${index}`]: imageURL,
+        }));
 
-      formik.setFieldValue(
+        formik.setFieldValue(
+          `product_variants[${index}].variant_image`,
+          fileName
+        );
+      }
+    } catch (error) {
+      toast.error(error?.message);
+      formik.setFieldError(
         `product_variants[${index}].variant_image`,
-        fileName
+        error?.message
       );
+      formik.setFieldTouched(`product_variants[${index}].variant_image`, true);
     }
-  } catch (error) {
-    toast.error(error?.message);
-    formik.setFieldError(
-      `product_variants[${index}].variant_image`,
-      error?.message
-    );
-  }
-};
+  };
 
+  const isVariantFilled = (variant) => {
+    return (
+      variant.product_title_name &&
+      variant.description &&
+      variant.color &&
+      variant.size &&
+      variant.price &&
+      variant.quantity &&
+      variant.variant_image
+    );
+  };
 
   return (
     <Container fluid className="page-content mt-lg-2 mb-3 w-100">
@@ -268,7 +282,8 @@ const AddProduct = () => {
                       >
                         <CardHeader className="bg-light d-flex justify-content-between align-items-center">
                           <h6 className="mb-0">Variant {index + 1}</h6>
-                          {formik.values.product_variants.length > 1 && (
+                          {isVariantFilled(variant) &&
+                          formik.values.product_variants.length > 1 ? (
                             <BaseButton
                               type="button"
                               size="sm"
@@ -277,8 +292,29 @@ const AddProduct = () => {
                             >
                               Remove
                             </BaseButton>
+                          ) : (
+                            <BaseButton
+                              type="button"
+                              size="sm"
+                              color="primary"
+                              onClick={() =>
+                                push({
+                                  product_title_name: "",
+                                  description: "",
+                                  color: "",
+                                  size: "",
+                                  price: "",
+                                  quantity: "",
+                                  variant_image: null,
+                                })
+                              }
+                              disabled={!isVariantFilled(variant)}
+                            >
+                              + Add Variant
+                            </BaseButton>
                           )}
                         </CardHeader>
+
                         <CardBody>
                           <Row className="gy-3">
                             <Col md={6}>
@@ -457,26 +493,6 @@ const AddProduct = () => {
                         </CardBody>
                       </Card>
                     ))}
-                    <div className="text-end mt-3 mb-4">
-                      <BaseButton
-                        type="button"
-                        size="sm"
-                        color="primary"
-                        onClick={() =>
-                          push({
-                            product_title_name: "",
-                            description: "",
-                            color: "",
-                            size: "",
-                            price: "",
-                            quantity: "",
-                            variant_image: null,
-                          })
-                        }
-                      >
-                        + Add Variant
-                      </BaseButton>
-                    </div>
                   </>
                 )}
               />
@@ -490,7 +506,7 @@ const AddProduct = () => {
                   loading={saveLoading}
                   className="me-2"
                 >
-                  {!saveLoading ? "Submit Product" : null}
+                  {!saveLoading ? "Submit" : null}
                 </BaseButton>
                 <BaseButton
                   type={CONSTANTS.button}

@@ -7,9 +7,7 @@ import {
   Row,
   Col,
   Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+  Tooltip,
 } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import { LoginRoutes } from "../../../Routes/apiRoutes";
@@ -19,8 +17,9 @@ import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
 import BaseLoader from "../../../Components/BASE/BaseLoader";
-import { Search } from "lucide-react";
 import BaseInput from "../../../Components/BASE/BaseInput";
+import { FaSortUp, FaSortDown } from "react-icons/fa";
+import { Eye, Edit, Trash2, Search } from "lucide-react";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -35,41 +34,70 @@ const ProductList = () => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [noData, setNoData] = useState(false);
+  const [sortKey, setSortKey] = useState("id");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [tooltip, setTooltip] = useState({
+    view: null,
+    edit: null,
+    delete: null,
+  });
 
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
   const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await userApi.productList({
-        page,
-        pageSize: limit,
-        sortKey: "id",
-        sortValue: "desc",
-        search,
-      });
+  try {
+    setLoading(true);
+    const response = await userApi.productList({
+      page,
+      pageSize: limit,
+      sortKey: sortKey,
+      sortValue: sortOrder,
+      search,
+    });
 
-      setProductList(response?.data?.data?.products || []);
-      setTotalPages(response?.data?.data?.totalPage || 1);
-      setTotalRecords(response?.data?.data?.totalItems || 0);
-    } catch (err) {
-      toast.error(err?.response?.data.message);
+    const products = response?.data?.data?.products || [];
+    setProductList(products);
+    setTotalPages(response?.data?.data?.totalPage || 1);
+    setTotalRecords(response?.data?.data?.totalItems || 0);
+
+    if (products.length === 0) {
       setNoData(true);
-    } finally {
-      setLoading(false);
+    } else {
+      setNoData(false);
     }
-  };
+  } catch (err) {
+    const status = err?.response?.status;
+
+    if (status !== 404) {
+      toast.error(err?.response?.data?.message);
+    }
+
+    setNoData(true);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
-    if (search.trim() !== "" || searchInput.trim() === "") {
-      fetchProducts();
-    }
-  }, [page, limit, search]);
+    fetchProducts();
+  }, [page, limit, search, sortKey, sortOrder]);
 
   const goToPage = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
     }
+  };
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const handleView = (productId) => {
@@ -86,19 +114,20 @@ const ProductList = () => {
   };
 
   const handleDelete = async () => {
+    setDeleteLoading(true);
+
     try {
       const response = await userApi.deleteProduct(selectedProductId);
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
         fetchProducts();
-      } else {
-        toast.error(response?.data?.message);
-      }
+      } 
     } catch (err) {
       toast.error(err?.message);
     } finally {
       setDeleteModal(false);
       setSelectedProductId(null);
+      setDeleteLoading(false);
     }
   };
 
@@ -125,6 +154,8 @@ const ProductList = () => {
         pages = [1, "...", page - 1, page, page + 1, "...", totalPages];
       }
     }
+
+    document.title = "Product";
 
     return (
       <div className="d-flex flex-end align-items-center justify-content-end flex-wrap mt-3">
@@ -172,34 +203,8 @@ const ProductList = () => {
   return (
     <div className="page-content w-100">
       <Container fluid>
-        <Row className="mb-3 align-items-center">
-          <Col
-            md="4"
-            xs="12"
-            className="mb-2 mb-md-0 d-flex align-items-center"
-          >
-            <label htmlFor="limitSelect" className="me-2 mb-0">
-              Items per page:
-            </label>
-            <BaseSelectInput
-              id="limitSelect"
-              name="limitSelect"
-              value={limit}
-              onChange={(e) => {
-                const selectedValue = parseInt(e.target.value, 10);
-                setLimit(selectedValue);
-                setPage(1);
-              }}
-              options={[
-                { label: "5", value: 5 },
-                { label: "10", value: 10 },
-                { label: "20", value: 20 },
-                { label: "50", value: 50 },
-                { label: "100", value: 100 },
-              ]}
-            />
-          </Col>
-          <Col md="8" xs="12" className="text-md-end">
+        <Row className="mb-3 align-items-end">
+          <Col className="text-end mb-2">
             <BaseButton
               color="primary"
               size="sm"
@@ -209,122 +214,215 @@ const ProductList = () => {
             </BaseButton>
           </Col>
         </Row>
-        <Row>
-          <Col md="6" className="mb-2">
-            <BaseInput
-              id="productSearch"
-              name="productSearch"
-              type="text"
-              placeholder="Search products..."
-              value={searchInput}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSearchInput(value);
 
-                setNoData(false);
-              }}
-              onIconClick={() => {
-                setSearch(searchInput);
-                setPage(1);
-              }}
-              icon={<Search size={16} />}
-            />
+        <Row className="mb-3 align-items-end">
+          <Col md="6">
+            <div className="d-flex align-items-center">
+              <label className="me-2 mb-0 fw-semibold">Items per page:</label>
+              <BaseSelectInput
+                name="limitSelect"
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+                options={[
+                  { label: "5", value: 5 },
+                  { label: "10", value: 10 },
+                  { label: "20", value: 20 },
+                  { label: "50", value: 50 },
+                  { label: "100", value: 100 },
+                ]}
+              />
+            </div>
+          </Col>
+
+          <Col md="6" className="text-end">
+            <div className="d-flex justify-content-end align-items-center gap-2">
+              <BaseInput
+                id="productSearch"
+                name="productSearch"
+                type="text"
+                placeholder="Search products..."
+                value={searchInput}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearchInput(value);
+                  setNoData(false);
+                }}
+                onIconClick={() => {
+                  setSearch(searchInput);
+                  setPage(1);
+                }}
+                icon={<Search size={16} />}
+              />
+
+              {searchInput.trim() !== "" && (
+                <BaseButton
+                  color="warning"
+                  size="sm"
+                  className="px-3 mt-3 py-1 d-flex align-items-center"
+                  onClick={() => {
+                    setSearchInput("");
+                    setSearch("");
+                    setPage(1);
+                  }}
+                >
+                  Discard
+                </BaseButton>
+              )}
+            </div>
           </Col>
         </Row>
+
         <Card className="mb-4">
           <CardBody>
-            {noData ? (
-              <div className="text-center my-4">
-                <h5>No matching customers found.</h5>
-              </div>
-            ) : (
-              <Table responsive bordered hover>
-                <thead className="table-light">
+            <Table responsive bordered hover>
+              <thead className="table-light">
+                <tr>
+                  <th>No.</th>
+                  <th
+                    onClick={() => handleSort("name")}
+                  >
+                    Product Name
+                    {sortKey === "name" &&
+                      (sortOrder === "asc" ? (
+                        <FaSortUp className="ms-1" />
+                      ) : (
+                        <FaSortDown className="ms-1" />
+                      ))}
+                  </th>
+                  <th>Image</th>
+                  <th className="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
                   <tr>
-                    <th>#</th>
-                    <th>Product Name</th>
-                    <th>Image</th>
-                    <th className="text-center">Actions</th>
+                    <td colSpan="4">
+                      <div className="d-flex justify-content-center align-items-center my-5">
+                        <BaseLoader size={30} />
+                      </div>
+                    </td>
                   </tr>
-                </thead>
+                ) : noData ? (
+                  <tr>
+                    <td colSpan="4">
+                      <div className="d-flex justify-content-center align-items-center my-5">
+                        <h5>Sorry! No result found.</h5>
+                      </div>
+                    </td>
+                  </tr>
+                ) : productList.length > 0 ? (
+                  productList.map((product, index) => {
+                    const variant = product.variants?.[0] || {};
+                    const imagePath = variant?.image?.image_path;
 
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="4">
-                        <div className="d-flex justify-content-center align-items-center my-5">
-                          <BaseLoader size={30} />
-                        </div>
-                      </td>
-                    </tr>
-                  ) : productList.length > 0 ? (
-                    productList.map((product, index) => {
-                      const variant = product.variants?.[0] || {};
-                      const imagePath = variant?.image?.image_path;
+                    let imageUrl = avatar;
+                    if (imagePath && !imagePath.startsWith("http")) {
+                      imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
+                    } else if (imagePath) {
+                      imageUrl = imagePath;
+                    }
 
-                      let imageUrl = avatar;
-                      if (imagePath && !imagePath.startsWith("http")) {
-                        imageUrl = `${IMAGE_BASE_URL}/${imagePath}`;
-                      } else if (imagePath) {
-                        imageUrl = imagePath;
-                      }
+                    return (
+                      <tr key={product.id}>
+                        <td>{(page - 1) * limit + index + 1}</td>
+                        <td>{product.name}</td>
+                        <td>
+                          <img
+                            src={imageUrl}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = avatar;
+                            }}
+                            alt="Product"
+                            width="50"
+                            height="50"
+                          />
+                        </td>
+                        <td>
+                          <div className="d-flex justify-content-center gap-2 flex-wrap">
+                            <span
+                              id={`viewBtn_${product.id}`}
+                              onClick={() => handleView(product.id)}
+                            >
+                              <Eye size={18} color="#0dcaf0" />
+                            </span>
+                            <Tooltip
+                              isOpen={tooltip.view === product.id}
+                              target={`viewBtn_${product.id}`}
+                              toggle={() =>
+                                setTooltip((prev) => ({
+                                  ...prev,
+                                  view:
+                                    prev.view === product.id
+                                      ? null
+                                      : product.id,
+                                }))
+                              }
+                            >
+                              View Product
+                            </Tooltip>
 
-                      return (
-                        <tr key={product.id}>
-                          <td>{(page - 1) * limit + index + 1}</td>
-                          <td>{product.name}</td>
-                          <td>
-                            <img
-                              src={imageUrl}
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = avatar;
-                              }}
-                              alt="Product"
-                              width="50"
-                              height="50"
-                            />
-                          </td>
-                          <td>
-                            <div className="d-flex justify-content-center gap-2 flex-wrap">
-                              <BaseButton
-                                size="sm"
-                                color="info"
-                                className="me-4"
-                                onClick={() => handleView(product.id)}
-                              >
-                                View
-                              </BaseButton>
-                              <BaseButton
-                                size="sm"
-                                color="warning"
-                                className="me-4"
-                                onClick={() => handleEdit(product.id)}
-                              >
-                                Edit
-                              </BaseButton>
-                              <BaseButton
-                                size="sm"
-                                color="danger"
-                                onClick={() => confirmDelete(product.id)}
-                              >
-                                Delete
-                              </BaseButton>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="text-center">
-                        No Products Found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            )}
+                            <span
+                              id={`editBtn_${product.id}`}
+                              onClick={() => handleEdit(product.id)}
+                            >
+                              <Edit size={18} color="#ffc107" />
+                            </span>
+                            <Tooltip
+                              isOpen={tooltip.edit === product.id}
+                              target={`editBtn_${product.id}`}
+                              toggle={() =>
+                                setTooltip((prev) => ({
+                                  ...prev,
+                                  edit:
+                                    prev.edit === product.id
+                                      ? null
+                                      : product.id,
+                                }))
+                              }
+                            >
+                              Edit Product
+                            </Tooltip>
+
+                            <span
+                              id={`deleteBtn_${product.id}`}
+                              onClick={() => confirmDelete(product.id)}
+                            >
+                              <Trash2 size={18} color="#dc3545" />
+                            </span>
+                            <Tooltip
+                              isOpen={tooltip.delete === product.id}
+                              target={`deleteBtn_${product.id}`}
+                              toggle={() =>
+                                setTooltip((prev) => ({
+                                  ...prev,
+                                  delete:
+                                    prev.delete === product.id
+                                      ? null
+                                      : product.id,
+                                }))
+                              }
+                            >
+                              Delete Product
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="text-center">
+                      No Products Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+
             {renderPagination()}
           </CardBody>
         </Card>
@@ -334,20 +432,24 @@ const ProductList = () => {
         </h6>
       </Container>
 
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)}>
-        <ModalHeader toggle={() => setDeleteModal(false)}>
-          Confirm Delete
-        </ModalHeader>
-        <ModalBody>Are you sure you want to delete this product?</ModalBody>
-        <ModalFooter>
-          <BaseButton color="danger" onClick={handleDelete}>
-            Delete
-          </BaseButton>{" "}
-          <BaseButton color="secondary" onClick={() => setDeleteModal(false)}>
-            Cancel
-          </BaseButton>
-        </ModalFooter>
+      <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)} centered>
+        <Card className="p-4 text-center border-0">
+          <h4 className="mb-3 fw-bold">Are you sure?</h4>
+          <p className="mb-4">Are you sure you want to remove this record?</p>
+
+          <div className="d-flex justify-content-center gap-3">
+            <BaseButton color="secondary" onClick={() => setDeleteModal(false)}>
+              Close
+            </BaseButton>
+            <BaseButton
+              color="danger"
+              onClick={handleDelete}
+              loading={deleteLoading}
+            >
+              {!deleteLoading ? "Yes, Delete It!" : null}
+            </BaseButton>
+          </div>
+        </Card>
       </Modal>
     </div>
   );

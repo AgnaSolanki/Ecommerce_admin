@@ -12,12 +12,12 @@ export const validationField = (field) => ({
   minLength: (field, min) =>
     `${field} must be at least ${min} characters long.`,
   fixLength: (field, min) => `${field} should be ${min} digit.`,
-  imageSize: ()=>`Image size should be less than 1 MB`,
+  imageSize: () => `Image size should be less than 1 MB`,
 });
 
 export const emailRegex = /^(?!.*\s)[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export const otpRegex = /^\d{0,6}$/;
-export const onlyNum = /^[0-9\b]+$/;
+export const onlyNum = /^[0-9]*$/;
 export const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 export const isNumber = (fieldName) => {

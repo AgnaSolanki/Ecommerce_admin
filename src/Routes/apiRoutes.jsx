@@ -11,5 +11,7 @@ export const LoginRoutes = {
   EDIT_PRODUCT: "/product/edit",
   CATEGORY_LIST: "/category",
   MAIN_DASHBOARD: "/main-dashboard",
-  REPORT: "/report"
+  REPORT: "/report",
+  ORDER_REPORT:"/order-report",
+  CUSTOMER_REPORT: "/customer-report"
 };
