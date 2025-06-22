@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, CardBody, Form, FormFeedback } from "reactstrap";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Form,
+  FormFeedback,
+} from "reactstrap";
 import { useFormik, FieldArray, FormikProvider } from "formik";
 import * as Yup from "yup";
 import BaseInput from "../../../Components/BASE/BaseInput";
@@ -23,6 +31,7 @@ import BaseLoader from "../../../Components/BASE/BaseLoader";
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const fileInputRefs = useRef([]);
 
   const [categories, setCategories] = useState([]);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -58,7 +67,7 @@ const EditProduct = () => {
 
         const newValues = {
           name: product.name || "",
-          category_id: product.category?.id?.toString() || "",
+          category_id: product.category?.id ? String(product.category.id) : "",
           id: String(product.id || ""),
           product_variants: mappedVariants,
         };
@@ -69,7 +78,7 @@ const EditProduct = () => {
         const previews = {};
         product.variants.forEach((v, idx) => {
           if (v.image?.image_path) {
-            previews[`variant_image_preview_${idx}`] =` ${
+            previews[`variant_image_preview_${idx}`] = ` ${
               import.meta.env.VITE_BASE_IMAGE
             }${v.image.image_path}`;
           }
@@ -258,8 +267,21 @@ const EditProduct = () => {
       navigate(LoginRoutes.PRODUCT_LIST);
     }, 500);
   };
+  const handleRemoveImage = (index) => {
+    formik.setFieldValue(`product_variants[${index}].variant_image`, null);
 
+    setImagePreviews((prev) => {
+      const updatedPreviews = { ...prev };
+      delete updatedPreviews[`variant_image_preview_${index}`];
+      return updatedPreviews;
+    });
 
+    if (fileInputRefs.current[index]) {
+      fileInputRefs.current[index].value = "";
+    }
+
+    formik.setFieldTouched(`product_variants[${index}].variant_image`, true);
+  };
 
   return (
     <Container fluid className="page-content mt-lg-5 mb-4 w-100 mb-0">
@@ -296,17 +318,27 @@ const EditProduct = () => {
                       label={CONSTANTS.Category}
                       type={CONSTANTS.select}
                       value={formik.values.category_id}
-                      options={[{ label: selectLabel(CONSTANTS.Category), value: "" }, ...categories.map((cat) => ({ label: cat.category_name, value: cat.id }))]}
+                      options={[
+                        { label: selectLabel(CONSTANTS.Category), value: "" },
+                        ...categories.map((cat) => ({
+                          label: cat.category_name,
+                          value: String(cat.id),
+                        })),
+                      ]}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       required={true}
-                      invalid={formik.touched.category_id && !!formik.errors.category_id}
+                      invalid={
+                        formik.touched.category_id &&
+                        !!formik.errors.category_id
+                      }
                     />
-                    {formik.touched.category_id && formik.errors.category_id && (
-                      <FormFeedback className="d-block">
-                        {formik.errors.category_id}
-                      </FormFeedback>
-                    )}
+                    {formik.touched.category_id &&
+                      formik.errors.category_id && (
+                        <FormFeedback className="d-block">
+                          {formik.errors.category_id}
+                        </FormFeedback>
+                      )}
                   </Col>
                 </Row>
 
@@ -316,7 +348,9 @@ const EditProduct = () => {
                     <>
                       {formik.values.product_variants.map((variant, index) => (
                         <Card key={index} className="my-4 shadow-sm p-3">
-                          <h5 className="mb-3">Variant {index + 1}</h5>
+                          <div className="bg-light p-2 rounded mb-3 d-flex align-items-center justify-content-between">
+                            <h5 className="mb-0">Variant {index + 1}</h5>
+                          </div>
                           <Row className="g-3">
                             <Col md={6}>
                               <BaseInput
@@ -327,13 +361,24 @@ const EditProduct = () => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 required={true}
-                                invalid={formik.touched.product_variants?.[index]?.product_title_name && !!formik.errors.product_variants?.[index]?.product_title_name}
+                                invalid={
+                                  formik.touched.product_variants?.[index]
+                                    ?.product_title_name &&
+                                  !!formik.errors.product_variants?.[index]
+                                    ?.product_title_name
+                                }
                               />
-                              {formik.touched.product_variants?.[index]?.product_title_name && formik.errors.product_variants?.[index]?.product_title_name && (
-                                <FormFeedback className="d-block">
-                                  {formik.errors.product_variants[index].product_title_name}
-                                </FormFeedback>
-                              )}
+                              {formik.touched.product_variants?.[index]
+                                ?.product_title_name &&
+                                formik.errors.product_variants?.[index]
+                                  ?.product_title_name && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .product_title_name
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={6}>
@@ -345,13 +390,24 @@ const EditProduct = () => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 required={true}
-                                invalid={formik.touched.product_variants?.[index]?.description && !!formik.errors.product_variants?.[index]?.description}
+                                invalid={
+                                  formik.touched.product_variants?.[index]
+                                    ?.description &&
+                                  !!formik.errors.product_variants?.[index]
+                                    ?.description
+                                }
                               />
-                              {formik.touched.product_variants?.[index]?.description && formik.errors.product_variants?.[index]?.description && (
-                                <FormFeedback className="d-block">
-                                  {formik.errors.product_variants[index].description}
-                                </FormFeedback>
-                              )}
+                              {formik.touched.product_variants?.[index]
+                                ?.description &&
+                                formik.errors.product_variants?.[index]
+                                  ?.description && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .description
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={4}>
@@ -363,13 +419,24 @@ const EditProduct = () => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 required={true}
-                                invalid={formik.touched.product_variants?.[index]?.color && !!formik.errors.product_variants?.[index]?.color}
+                                invalid={
+                                  formik.touched.product_variants?.[index]
+                                    ?.color &&
+                                  !!formik.errors.product_variants?.[index]
+                                    ?.color
+                                }
                               />
-                              {formik.touched.product_variants?.[index]?.color && formik.errors.product_variants?.[index]?.color && (
-                                <FormFeedback className="d-block">
-                                  {formik.errors.product_variants[index].color}
-                                </FormFeedback>
-                              )}
+                              {formik.touched.product_variants?.[index]
+                                ?.color &&
+                                formik.errors.product_variants?.[index]
+                                  ?.color && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .color
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={4}>
@@ -381,13 +448,20 @@ const EditProduct = () => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 required={true}
-                                invalid={formik.touched.product_variants?.[index]?.size && !!formik.errors.product_variants?.[index]?.size}
+                                invalid={
+                                  formik.touched.product_variants?.[index]
+                                    ?.size &&
+                                  !!formik.errors.product_variants?.[index]
+                                    ?.size
+                                }
                               />
-                              {formik.touched.product_variants?.[index]?.size && formik.errors.product_variants?.[index]?.size && (
-                                <FormFeedback className="d-block">
-                                  {formik.errors.product_variants[index].size}
-                                </FormFeedback>
-                              )}
+                              {formik.touched.product_variants?.[index]?.size &&
+                                formik.errors.product_variants?.[index]
+                                  ?.size && (
+                                  <FormFeedback className="d-block">
+                                    {formik.errors.product_variants[index].size}
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={2}>
@@ -399,13 +473,24 @@ const EditProduct = () => {
                                 onBlur={formik.handleBlur}
                                 required={true}
                                 onChange={handleOtpChange}
-                                invalid={formik.touched.product_variants?.[index]?.price && !!formik.errors.product_variants?.[index]?.price}
+                                invalid={
+                                  formik.touched.product_variants?.[index]
+                                    ?.price &&
+                                  !!formik.errors.product_variants?.[index]
+                                    ?.price
+                                }
                               />
-                              {formik.touched.product_variants?.[index]?.price && formik.errors.product_variants?.[index]?.price && (
-                                <FormFeedback className="d-block">
-                                  {formik.errors.product_variants[index].price}
-                                </FormFeedback>
-                              )}
+                              {formik.touched.product_variants?.[index]
+                                ?.price &&
+                                formik.errors.product_variants?.[index]
+                                  ?.price && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .price
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={2}>
@@ -417,13 +502,24 @@ const EditProduct = () => {
                                 onBlur={formik.handleBlur}
                                 required={true}
                                 onChange={handleOtpChange}
-                                invalid={formik.touched.product_variants?.[index]?.quantity && !!formik.errors.product_variants?.[index]?.quantity}
+                                invalid={
+                                  formik.touched.product_variants?.[index]
+                                    ?.quantity &&
+                                  !!formik.errors.product_variants?.[index]
+                                    ?.quantity
+                                }
                               />
-                              {formik.touched.product_variants?.[index]?.quantity && formik.errors.product_variants?.[index]?.quantity && (
-                                <FormFeedback className="d-block">
-                                  {formik.errors.product_variants[index].quantity}
-                                </FormFeedback>
-                              )}
+                              {formik.touched.product_variants?.[index]
+                                ?.quantity &&
+                                formik.errors.product_variants?.[index]
+                                  ?.quantity && (
+                                  <FormFeedback className="d-block">
+                                    {
+                                      formik.errors.product_variants[index]
+                                        .quantity
+                                    }
+                                  </FormFeedback>
+                                )}
                             </Col>
 
                             <Col md={6}>
@@ -432,13 +528,22 @@ const EditProduct = () => {
                                 type={CONSTANTS.file}
                                 label={CONSTANTS.Image}
                                 isAvatarUpload={false}
-                                onChange={(e) => handleFileChange(e.target.files[0], index)}
+                                onChange={(e) =>
+                                  handleFileChange(e.target.files[0], index)
+                                }
                                 onBlur={formik.handleBlur}
                                 required={true}
+                                inputRef={(el) =>
+                                  (fileInputRefs.current[index] = el)
+                                }
                               />
                               <div className="mt-2">
                                 <img
-                                  src={imagePreviews[`variant_image_preview_${index}`] || avatar}
+                                  src={
+                                    imagePreviews[
+                                      `variant_image_preview_${index}`
+                                    ] || avatar
+                                  }
                                   onError={(e) => {
                                     e.target.onerror = null;
                                     e.target.src = avatar;
@@ -446,6 +551,19 @@ const EditProduct = () => {
                                   alt="Variant Preview"
                                   height="80"
                                 />
+                                {imagePreviews[
+                                  `variant_image_preview_${index}`
+                                ] && (
+                                  <BaseButton
+                                    type="button"
+                                    size="sm"
+                                    color="danger"
+                                    className="ms-2"
+                                    onClick={() => handleRemoveImage(index)}
+                                  >
+                                    Remove Image
+                                  </BaseButton>
+                                )}
                               </div>
                             </Col>
                           </Row>
@@ -457,10 +575,20 @@ const EditProduct = () => {
 
                 <Row className="mt-4">
                   <Col>
-                    <BaseButton type={CONSTANTS.submit} loading={saveLoading} color="primary">
+                    <BaseButton
+                      type={CONSTANTS.submit}
+                      loading={saveLoading}
+                      color="primary"
+                    >
                       {!saveLoading ? "Submit" : null}
                     </BaseButton>
-                    <BaseButton type={CONSTANTS.Button} loading={cancelLoading} color="secondary" className="ms-3" onClick={handleCancel}>
+                    <BaseButton
+                      type={CONSTANTS.Button}
+                      loading={cancelLoading}
+                      color="secondary"
+                      className="ms-3"
+                      onClick={handleCancel}
+                    >
                       {!cancelLoading ? "Cancel" : null}
                     </BaseButton>
                   </Col>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   Row,
@@ -32,6 +32,8 @@ const AddProduct = () => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
+  const fileInputRefs = useRef([]);
+
 
   const navigate = useNavigate();
 
@@ -221,6 +223,22 @@ const AddProduct = () => {
       variant.variant_image
     );
   };
+const handleRemoveImage = (index) => {
+  formik.setFieldValue(`product_variants[${index}].variant_image`, null);
+
+  setImagePreviews((prev) => {
+    const updatedPreviews = { ...prev };
+    delete updatedPreviews[`variant_image_preview_${index}`];
+    return updatedPreviews;
+  });
+
+  if (fileInputRefs.current[index]) {
+    fileInputRefs.current[index].value = "";
+  }
+
+  formik.setFieldTouched(`product_variants[${index}].variant_image`, true);
+};
+
 
   return (
     <Container fluid className="page-content mt-lg-2 mb-3 w-100">
@@ -447,6 +465,7 @@ const AddProduct = () => {
 
                             <Col md={6}>
                               <BaseFileInput
+                              inputRef={(el) => (fileInputRefs.current[index] = el)}
                                 name={`product_variants[${index}].variant_image`}
                                 label={CONSTANTS.Image}
                                 type={CONSTANTS.file}
@@ -473,19 +492,30 @@ const AddProduct = () => {
                                 {imagePreviews[
                                   `variant_image_preview_${index}`
                                 ] && (
-                                  <img
-                                    src={
-                                      imagePreviews[
-                                        `variant_image_preview_${index}`
-                                      ]
-                                    }
-                                    onError={(e) => {
-                                      e.target.onerror = null;
-                                      e.target.src = avatar;
-                                    }}
-                                    className="rounded avatar-lg img-thumbnail variant_img"
-                                    alt="variant preview"
-                                  />
+                                  <>
+                                    <img
+                                      src={
+                                        imagePreviews[
+                                          `variant_image_preview_${index}`
+                                        ]
+                                      }
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = avatar;
+                                      }}
+                                      className="rounded avatar-lg img-thumbnail variant_img"
+                                      alt="variant preview"
+                                    />
+                                    <BaseButton
+                                      type="button"
+                                      size="sm"
+                                      color="danger"
+                                      className="mt-2 d-block mx-auto"
+                                      onClick={() => handleRemoveImage(index)}
+                                    >
+                                      Remove Image
+                                    </BaseButton>
+                                  </>
                                 )}
                               </div>
                             </Col>
