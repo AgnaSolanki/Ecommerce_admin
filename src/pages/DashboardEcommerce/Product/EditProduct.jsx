@@ -4,6 +4,7 @@ import {
   Row,
   Col,
   Card,
+  CardHeader,
   CardBody,
   Form,
   FormFeedback,
@@ -209,7 +210,17 @@ const EditProduct = () => {
       }
     },
   });
-
+  const isVariantFilled = (variant) => {
+    return (
+      variant.product_title_name &&
+      variant.description &&
+      variant.color &&
+      variant.size &&
+      variant.price &&
+      variant.quantity &&
+      variant.variant_image
+    );
+  };
   const handleFileChange = async (file, index) => {
     if (!file) return;
 
@@ -242,6 +253,7 @@ const EditProduct = () => {
           `product_variants[${index}].variant_image`,
           fileName
         );
+  
       }
     } catch (error) {
       toast.error(error?.message);
@@ -344,231 +356,283 @@ const EditProduct = () => {
 
                 <FieldArray
                   name="product_variants"
-                  render={() => (
+                  render={({ push, remove }) => (
                     <>
                       {formik.values.product_variants.map((variant, index) => (
-                        <Card key={index} className="my-4 shadow-sm p-3">
-                          <div className="bg-light p-2 rounded mb-3 d-flex align-items-center justify-content-between">
-                            <h5 className="mb-0">Variant {index + 1}</h5>
-                          </div>
-                          <Row className="g-3">
-                            <Col md={6}>
-                              <BaseInput
-                                type={CONSTANTS.text}
-                                name={`product_variants[${index}].product_title_name`}
-                                value={variant.product_title_name}
-                                label={CONSTANTS.VariantTitle}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                invalid={
-                                  formik.touched.product_variants?.[index]
-                                    ?.product_title_name &&
-                                  !!formik.errors.product_variants?.[index]
-                                    ?.product_title_name
+                        <Card
+                          key={index}
+                          className="mb-4 border rounded shadow-sm"
+                        >
+                          <CardHeader className="bg-light d-flex justify-content-between align-items-center">
+                            <h6 className="mb-0">Variant {index + 1}</h6>
+                            {isVariantFilled(variant) &&
+                            formik.values.product_variants.length > 1 ? (
+                              <BaseButton
+                                type="button"
+                                size="sm"
+                                color="danger"
+                                onClick={() => remove(index)}
+                              >
+                                Remove
+                              </BaseButton>
+                            ) : (
+                              <BaseButton
+                                type="button"
+                                size="sm"
+                                color="primary"
+                                onClick={() =>
+                                  push({
+                                    product_title_name: "",
+                                    description: "",
+                                    color: "",
+                                    size: "",
+                                    price: "",
+                                    quantity: "",
+                                    variant_image: null,
+                                  })
                                 }
-                              />
-                              {formik.touched.product_variants?.[index]
-                                ?.product_title_name &&
-                                formik.errors.product_variants?.[index]
-                                  ?.product_title_name && (
-                                  <FormFeedback className="d-block">
-                                    {
-                                      formik.errors.product_variants[index]
-                                        .product_title_name
-                                    }
-                                  </FormFeedback>
-                                )}
-                            </Col>
-
-                            <Col md={6}>
-                              <BaseInput
-                                type={CONSTANTS.text}
-                                name={`product_variants[${index}].description`}
-                                value={variant.description}
-                                label={CONSTANTS.Description}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                invalid={
-                                  formik.touched.product_variants?.[index]
-                                    ?.description &&
-                                  !!formik.errors.product_variants?.[index]
-                                    ?.description
-                                }
-                              />
-                              {formik.touched.product_variants?.[index]
-                                ?.description &&
-                                formik.errors.product_variants?.[index]
-                                  ?.description && (
-                                  <FormFeedback className="d-block">
-                                    {
-                                      formik.errors.product_variants[index]
-                                        .description
-                                    }
-                                  </FormFeedback>
-                                )}
-                            </Col>
-
-                            <Col md={4}>
-                              <BaseInput
-                                type={CONSTANTS.text}
-                                name={`product_variants[${index}].color`}
-                                value={variant.color}
-                                label={CONSTANTS.Color}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                invalid={
-                                  formik.touched.product_variants?.[index]
-                                    ?.color &&
-                                  !!formik.errors.product_variants?.[index]
-                                    ?.color
-                                }
-                              />
-                              {formik.touched.product_variants?.[index]
-                                ?.color &&
-                                formik.errors.product_variants?.[index]
-                                  ?.color && (
-                                  <FormFeedback className="d-block">
-                                    {
-                                      formik.errors.product_variants[index]
-                                        .color
-                                    }
-                                  </FormFeedback>
-                                )}
-                            </Col>
-
-                            <Col md={4}>
-                              <BaseInput
-                                type={CONSTANTS.text}
-                                name={`product_variants[${index}].size`}
-                                value={variant.size}
-                                label={CONSTANTS.Size}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                invalid={
-                                  formik.touched.product_variants?.[index]
-                                    ?.size &&
-                                  !!formik.errors.product_variants?.[index]
-                                    ?.size
-                                }
-                              />
-                              {formik.touched.product_variants?.[index]?.size &&
-                                formik.errors.product_variants?.[index]
-                                  ?.size && (
-                                  <FormFeedback className="d-block">
-                                    {formik.errors.product_variants[index].size}
-                                  </FormFeedback>
-                                )}
-                            </Col>
-
-                            <Col md={2}>
-                              <BaseInput
-                                label={CONSTANTS.Price}
-                                type={CONSTANTS.text}
-                                name={`product_variants[${index}].price`}
-                                value={variant.price}
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                onChange={handleOtpChange}
-                                invalid={
-                                  formik.touched.product_variants?.[index]
-                                    ?.price &&
-                                  !!formik.errors.product_variants?.[index]
-                                    ?.price
-                                }
-                              />
-                              {formik.touched.product_variants?.[index]
-                                ?.price &&
-                                formik.errors.product_variants?.[index]
-                                  ?.price && (
-                                  <FormFeedback className="d-block">
-                                    {
-                                      formik.errors.product_variants[index]
-                                        .price
-                                    }
-                                  </FormFeedback>
-                                )}
-                            </Col>
-
-                            <Col md={2}>
-                              <BaseInput
-                                label={CONSTANTS.Qty}
-                                name={`product_variants[${index}].quantity`}
-                                value={variant.quantity}
-                                type={CONSTANTS.text}
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                onChange={handleOtpChange}
-                                invalid={
-                                  formik.touched.product_variants?.[index]
-                                    ?.quantity &&
-                                  !!formik.errors.product_variants?.[index]
-                                    ?.quantity
-                                }
-                              />
-                              {formik.touched.product_variants?.[index]
-                                ?.quantity &&
-                                formik.errors.product_variants?.[index]
-                                  ?.quantity && (
-                                  <FormFeedback className="d-block">
-                                    {
-                                      formik.errors.product_variants[index]
-                                        .quantity
-                                    }
-                                  </FormFeedback>
-                                )}
-                            </Col>
-
-                            <Col md={6}>
-                              <BaseFileInput
-                                name={`product_variants[${index}].variant_image`}
-                                type={CONSTANTS.file}
-                                label={CONSTANTS.Image}
-                                isAvatarUpload={false}
-                                onChange={(e) =>
-                                  handleFileChange(e.target.files[0], index)
-                                }
-                                onBlur={formik.handleBlur}
-                                required={true}
-                                inputRef={(el) =>
-                                  (fileInputRefs.current[index] = el)
-                                }
-                              />
-                              <div className="mt-3 text-center position-relative d-inline-block">
-                                {imagePreviews[
-                                  `variant_image_preview_${index}`
-                                ] && (
-                                  <div className="position-relative d-inline-block">
-                                    <img
-                                      src={
-                                        imagePreviews[
-                                          `variant_image_preview_${index}`
-                                        ]
+                                disabled={!isVariantFilled(variant)}
+                              >
+                                + Add Variant
+                              </BaseButton>
+                            )}
+                          </CardHeader>
+                          <CardBody>
+                            <Row className="g-3">
+                              <Col md={6}>
+                                <BaseInput
+                                  type={CONSTANTS.text}
+                                  name={`product_variants[${index}].product_title_name`}
+                                  value={variant.product_title_name}
+                                  label={CONSTANTS.VariantTitle}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  invalid={
+                                    formik.touched.product_variants?.[index]
+                                      ?.product_title_name &&
+                                    !!formik.errors.product_variants?.[index]
+                                      ?.product_title_name
+                                  }
+                                />
+                                {formik.touched.product_variants?.[index]
+                                  ?.product_title_name &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.product_title_name && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .product_title_name
                                       }
-                                      onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = avatar;
-                                      }}
-                                      className="rounded avatar-lg img-thumbnail variant_img"
-                                      alt="variant preview"
-                                    />
-                                    <BaseButton
-                                      type="button"
-                                      color="danger"
-                                      size="sm"
-                                      className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
-                                      onClick={() => handleRemoveImage(index)}
-                                    >
-                                      ✕
-                                    </BaseButton>
-                                  </div>
-                                )}
-                              </div>
-                            </Col>
-                          </Row>
+                                    </FormFeedback>
+                                  )}
+                              </Col>
+
+                              <Col md={6}>
+                                <BaseInput
+                                  type={CONSTANTS.text}
+                                  name={`product_variants[${index}].description`}
+                                  value={variant.description}
+                                  label={CONSTANTS.Description}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  invalid={
+                                    formik.touched.product_variants?.[index]
+                                      ?.description &&
+                                    !!formik.errors.product_variants?.[index]
+                                      ?.description
+                                  }
+                                />
+                                {formik.touched.product_variants?.[index]
+                                  ?.description &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.description && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .description
+                                      }
+                                    </FormFeedback>
+                                  )}
+                              </Col>
+
+                              <Col md={3}>
+                                <BaseInput
+                                  type={CONSTANTS.text}
+                                  name={`product_variants[${index}].color`}
+                                  value={variant.color}
+                                  label={CONSTANTS.Color}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  invalid={
+                                    formik.touched.product_variants?.[index]
+                                      ?.color &&
+                                    !!formik.errors.product_variants?.[index]
+                                      ?.color
+                                  }
+                                />
+                                {formik.touched.product_variants?.[index]
+                                  ?.color &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.color && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .color
+                                      }
+                                    </FormFeedback>
+                                  )}
+                              </Col>
+
+                              <Col md={3}>
+                                <BaseInput
+                                  type={CONSTANTS.text}
+                                  name={`product_variants[${index}].size`}
+                                  value={variant.size}
+                                  label={CONSTANTS.Size}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  invalid={
+                                    formik.touched.product_variants?.[index]
+                                      ?.size &&
+                                    !!formik.errors.product_variants?.[index]
+                                      ?.size
+                                  }
+                                />
+                                {formik.touched.product_variants?.[index]
+                                  ?.size &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.size && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .size
+                                      }
+                                    </FormFeedback>
+                                  )}
+                              </Col>
+
+                              <Col md={3}>
+                                <BaseInput
+                                  label={CONSTANTS.Price}
+                                  type={CONSTANTS.text}
+                                  name={`product_variants[${index}].price`}
+                                  value={variant.price}
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  onChange={handleOtpChange}
+                                  invalid={
+                                    formik.touched.product_variants?.[index]
+                                      ?.price &&
+                                    !!formik.errors.product_variants?.[index]
+                                      ?.price
+                                  }
+                                />
+                                {formik.touched.product_variants?.[index]
+                                  ?.price &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.price && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .price
+                                      }
+                                    </FormFeedback>
+                                  )}
+                              </Col>
+
+                              <Col md={3}>
+                                <BaseInput
+                                  label={CONSTANTS.Qty}
+                                  name={`product_variants[${index}].quantity`}
+                                  value={variant.quantity}
+                                  type={CONSTANTS.text}
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  onChange={handleOtpChange}
+                                  invalid={
+                                    formik.touched.product_variants?.[index]
+                                      ?.quantity &&
+                                    !!formik.errors.product_variants?.[index]
+                                      ?.quantity
+                                  }
+                                />
+                                {formik.touched.product_variants?.[index]
+                                  ?.quantity &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.quantity && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .quantity
+                                      }
+                                    </FormFeedback>
+                                  )}
+                              </Col>
+
+                              <Col md={4}>
+                                <BaseFileInput
+                                  name={`product_variants[${index}].variant_image`}
+                                  type={CONSTANTS.file}
+                                  label={CONSTANTS.Image}
+                                  isAvatarUpload={false}
+                                  onChange={(e) =>
+                                    handleFileChange(e.target.files[0], index)
+                                  }
+                                  onBlur={formik.handleBlur}
+                                  required={true}
+                                  inputRef={(el) =>
+                                    (fileInputRefs.current[index] = el)
+                                  }
+                                />
+                                       {formik.touched.product_variants?.[index]
+                                  ?.variant_image &&
+                                  formik.errors.product_variants?.[index]
+                                    ?.variant_image && (
+                                    <FormFeedback className="d-block">
+                                      {
+                                        formik.errors.product_variants[index]
+                                          .variant_image
+                                      }
+                                    </FormFeedback>
+                                  )}
+                                <div className="mt-3 text-center position-relative d-inline-block">
+                                  {imagePreviews[
+                                    `variant_image_preview_${index}`
+                                  ] && (
+                                    <div className="position-relative d-inline-block">
+                                      <img
+                                        src={
+                                          imagePreviews[
+                                            `variant_image_preview_${index}`
+                                          ]
+                                        }
+                                        onError={(e) => {
+                                          e.target.onerror = null;
+                                          e.target.src = avatar;
+                                        }}
+                                        className="rounded avatar-lg img-thumbnail variant_img"
+                                        alt="variant preview"
+                                      />
+                                      <BaseButton
+                                        type="button"
+                                        color="danger"
+                                        size="sm"
+                                        className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
+                                        onClick={() => handleRemoveImage(index)}
+                                      >
+                                        ✕
+                                      </BaseButton>
+                                    </div>
+                                  )}
+                                </div>
+                               
+                              </Col>
+                            </Row>
+                          </CardBody>
                         </Card>
                       ))}
                     </>

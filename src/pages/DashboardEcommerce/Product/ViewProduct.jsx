@@ -59,7 +59,7 @@ const ViewProduct = () => {
         <BaseButton
           size="md"
           color="danger"
-          className="d-flex align-items-center gap-2"
+          className="d-flex align-items-center gap-1"
           onClick={() => navigate(LoginRoutes.PRODUCT_LIST)}
         >
           <IoMdArrowRoundBack size={18} />
@@ -68,18 +68,18 @@ const ViewProduct = () => {
 
       <Card className="shadow-sm p-4 bg-light mb-4">
         <h4 className="mb-3 fw-bold">Basic Information</h4>
-        <Row className="mb-2">
-          <Col md={4} className="mb-3 d-flex flex-wrap align-items-center">
+        <Row className="gy-2">
+          <Col xs={12} md={4}>
             <span className="fw-semibold me-2">Product ID:</span>
             <Badge color="primary" pill>
               {product.id}
             </Badge>
           </Col>
-          <Col md={4} className="mb-3 d-flex flex-wrap align-items-center">
+          <Col xs={12} md={4}>
             <span className="fw-semibold me-2">Product Name:</span>
             {product.name}
           </Col>
-          <Col md={4} className="mb-3 d-flex flex-wrap align-items-center">
+          <Col xs={12} md={4}>
             <span className="fw-semibold me-2">Category:</span>
             <Badge color="info" pill className="me-1">
               {product.category?.category_name}
@@ -96,58 +96,53 @@ const ViewProduct = () => {
         product.variants.map((variant, index) => (
           <Card key={index} className="mb-4 p-3 border-0 shadow-sm">
             <CardBody>
-              <Row>
+              <Row className="align-items-center">
                 <Col
+                  xs={12}
                   md={2}
                   className="d-flex justify-content-center align-items-center mb-3 mb-md-0"
                 >
-                  {variant.image?.image_path ? (
-                    <img
-                      src={`${import.meta.env.VITE_BASE_IMAGE}/${variant.image.image_path}`}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = avatar;
-                      }}
-                      alt="Variant"
-                      className="rounded border variant_img"
-                    
-                    />
-                  ) : (
-                    <img
-                      src={avatar}
-                      alt="No Image"
-                      className="rounded border variant_img"
-                    
-                    />
-                  )}
+                  <img
+                    src={
+                      variant.image?.image_path
+                        ? `${import.meta.env.VITE_BASE_IMAGE}/${variant.image.image_path}`
+                        : avatar
+                    }
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = avatar;
+                    }}
+                    alt="Variant"
+                    className="rounded border img-fluid variant-image"
+                  />
                 </Col>
 
-                <Col md={10}>
+                <Col xs={12} md={10}>
                   <h5 className="fw-bold mb-2">{variant.product_title_name}</h5>
 
-                  <p className="mb-2 d-flex flex-wrap">
+                  <p className="mb-2 d-flex flex-wrap align-items-center">
                     <span className="text-success fw-bold me-3">
-                      Price: ${variant.price}
+                      Price: ₹{variant.price}
                     </span>
-                    <span className="fw-semibold me-1">Color:</span>
+                    <span className="fw-semibold me-2">Color:</span>
                     {variant.color}
                   </p>
 
                   <p className="mb-2">{variant.description}</p>
 
-                  <Row>
-                    <Col xs={6} md={2} className="mb-2">
-                      <span className="fw-semibold me-2">ID:</span>
+                  <Row className="gy-2">
+                    <Col xs={12} sm={4} md={2}>
+                      <span className="fw-semibold me-1">ID:</span>
                       <Badge color="primary" pill>
                         {variant.id}
                       </Badge>
                     </Col>
-                    <Col xs={6} md={2} className="mb-2">
-                      <span className="fw-semibold me-2">Size:</span>
+                    <Col xs={12} sm={4} md={2}>
+                      <span className="fw-semibold me-1">Size:</span>
                       {variant.size}
                     </Col>
-                    <Col xs={6} md={2} className="mb-2">
-                      <span className="fw-semibold me-2">Quantity:</span>
+                    <Col xs={12} sm={4} md={2}>
+                      <span className="fw-semibold me-1">Quantity:</span>
                       {variant.quantity}
                     </Col>
                   </Row>

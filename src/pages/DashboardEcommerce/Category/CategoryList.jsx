@@ -278,18 +278,12 @@ const CategoryList = () => {
           .required(categoryValidation.required)
           .max(50, categoryValidation.maxLength(CONSTANTS.Category, 50)),
         description: Yup.string()
-          .required(descriptionValidation.required)
           .max(
             255,
             descriptionValidation.maxLength(CONSTANTS.Description, 255)
           ),
         category_image: Yup.mixed()
           .nullable()
-          .test("required-image", imageValidation.required, function (value) {
-            const isEditMode = !!editCategory;
-            if (!isEditMode && !value) return false;
-            return true;
-          })
           .test("fileSize", imageValidation.imageSize, function (value) {
             if (!value) return true;
             if (typeof value === "string") return true;
@@ -309,7 +303,6 @@ const CategoryList = () => {
       if (!file) return;
 
       const schema = Yup.mixed()
-        .required(imageValidation.required)
         .test("fileSize", imageValidation.imageSize, (value) => {
           if (!value) return true;
           if (typeof value === "string") return true;
@@ -373,13 +366,7 @@ const CategoryList = () => {
               value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              required={true}
             />
-            {formik.touched.description && formik.errors.description && (
-              <FormFeedback className="d-block">
-                {formik.errors.description}
-              </FormFeedback>
-            )}
             <br />
 
             <BaseFileInput
@@ -387,7 +374,6 @@ const CategoryList = () => {
               name={CONSTANTS.category_image}
               formik={formik}
               onChange={(e) => handleImageUpload(e.target.files[0])}
-              required={true}
             />
             {formik.touched.category_image && formik.errors.category_image && (
               <FormFeedback className="d-block">

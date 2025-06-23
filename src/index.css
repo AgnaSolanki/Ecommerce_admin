@@ -249,17 +249,35 @@ input {
   background-position: right 6px center !important;
   padding: 5px 20px 5px 10px !important;
 }
-.img-close{
-  background-color: red !important;
-  opacity: 1 !important;
-  border-radius: 50% !important;
-  padding: 5px !important;
+.img-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1;
+  border: none;
+  transition: background-color 0.3s ease;
 }
 
-.fix-button{
+.img-close:hover {
+  background-color: rgba(255, 0, 0, 1);
+  color: white;
+  cursor: pointer;
+}
+
+.fix-button {
   min-width: 100px;
 }
-.fix-button-delete{
-    min-width: 130px !important;
-
+.fix-button-delete {
+  min-width: 130px !important;
+}
+.variant-image {
+  max-height: 120px;
+  object-fit: contain;
+}
+.react-datepicker__portal {
+  z-index: 9999 !important;
 }

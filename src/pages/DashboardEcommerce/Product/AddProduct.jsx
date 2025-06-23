@@ -377,7 +377,7 @@ const AddProduct = () => {
                                 )}
                             </Col>
 
-                            <Col md={4}>
+                            <Col md={3}>
                               <BaseInput
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].color`}
@@ -399,7 +399,7 @@ const AddProduct = () => {
                                 )}
                             </Col>
 
-                            <Col md={4}>
+                            <Col md={3}>
                               <BaseInput
                                 type={CONSTANTS.text}
                                 name={`product_variants[${index}].size`}
@@ -417,7 +417,7 @@ const AddProduct = () => {
                                 )}
                             </Col>
 
-                            <Col md={2}>
+                            <Col md={3}>
                               <BaseInput
                                 label={CONSTANTS.Price}
                                 value={variant.price}
@@ -439,7 +439,7 @@ const AddProduct = () => {
                                 )}
                             </Col>
 
-                            <Col md={2}>
+                            <Col md={3}>
                               <BaseInput
                                 label={CONSTANTS.Qty}
                                 value={variant.quantity}
@@ -461,7 +461,7 @@ const AddProduct = () => {
                                 )}
                             </Col>
 
-                            <Col md={6}>
+                            <Col md={4}>
                               <BaseFileInput
                                 inputRef={(el) =>
                                   (fileInputRefs.current[index] = el)
@@ -510,7 +510,7 @@ const AddProduct = () => {
                                       type="button"
                                       color="danger"
                                       size="sm"
-                                      className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center"
+                                      className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
                                       onClick={() => handleRemoveImage(index)}
                                     >
                                       ✕
