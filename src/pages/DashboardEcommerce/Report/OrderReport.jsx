@@ -266,9 +266,17 @@ const OrderReport = () => {
                         selected={parseDate(tempStartDate)}
                         onChange={(date) => handleStartDateChange(date)}
                         dateFormat="yyyy-MM-dd"
-                        className="form-control"
+                        className="form-control mb-1 ms-1"
                         isClearable
                         placeholderText="Start Date"
+                        popperModifiers={[
+                          {
+                            name: "zIndex",
+                            options: {
+                              zIndex: 9999,
+                            },
+                          },
+                        ]}
                       />
                     </Col>
 
@@ -278,9 +286,17 @@ const OrderReport = () => {
                         selected={parseDate(tempEndDate)}
                         onChange={(date) => handleEndDateChange(date)}
                         dateFormat="yyyy-MM-dd"
-                        className="form-control"
+                        className="form-control mb-1 ms-1"
                         isClearable
                         placeholderText="End Date"
+                        popperModifiers={[
+                          {
+                            name: "zIndex",
+                            options: {
+                              zIndex: 9999,
+                            },
+                          },
+                        ]}
                       />
                     </Col>
                   </Row>

@@ -53,7 +53,7 @@ const Navdata = () => {
       id: "dashboard",
       label: "Dashboard",
       icon: RiDashboard2Line,
-      link: LoginRoutes.MAIN_DASHBOARD,
+      link: LoginRoutes.DASHBOARD_ROUTE,
       stateVariables: isDashboard,
       click: function (e) {
         e.preventDefault();

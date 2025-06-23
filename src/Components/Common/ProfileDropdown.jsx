@@ -89,7 +89,7 @@ const ProfileDropdown = () => {
           </DropdownItem>
           <DropdownItem className="p-0">
             <Link to={LoginRoutes.CHANGE_PASSWORD} className="dropdown-item">
-              <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
+              <i className="mdi mdi-lock text-muted fs-16 align-middle me-1"></i>
               <span className="align-middle">Change Password</span>
             </Link>
           </DropdownItem>
@@ -108,12 +108,10 @@ const ProfileDropdown = () => {
         centered
         contentClassName="custom-logout-modal"
       >
-        <ModalHeader
-         
-        >
-          Confirm Logout
-        </ModalHeader>
-        <ModalBody className="mt-1">Are you sure you want to log out?</ModalBody>
+        <ModalHeader>Confirm Logout</ModalHeader>
+        <ModalBody className="mt-1">
+          Are you sure you want to log out?
+        </ModalBody>
         <ModalFooter className="model-footer">
           <BaseButton
             className="model-no"

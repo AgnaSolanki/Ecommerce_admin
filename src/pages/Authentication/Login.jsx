@@ -87,7 +87,7 @@ const Login = () => {
             role: decodedToken.role,
           })
         );
-        navigate(LoginRoutes.MAIN_DASHBOARD);
+        navigate(LoginRoutes.DASHBOARD_ROUTE);
       } catch (err) {
         let errorMessage = err?.response?.data?.message;
         if (Array.isArray(errorMessage)) {
