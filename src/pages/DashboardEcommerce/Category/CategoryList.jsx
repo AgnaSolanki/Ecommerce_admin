@@ -23,6 +23,7 @@ import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
+import { useMemo } from "react";
 
 import {
   inputField,
@@ -50,7 +51,7 @@ const CategoryList = () => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [noData, setNoData] = useState(false);
-  const [sortKey, setSortKey] = useState("category_name");
+  const [sortKey, setSortKey] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [editTooltip, setEditTooltip] = useState(null);
   const [deleteTooltip, setDeleteTooltip] = useState(null);
@@ -58,46 +59,51 @@ const CategoryList = () => {
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
   const fetchCategories = async () => {
-  try {
-    setLoading(true);
-    const response = await userApi.categoryList({
-      page,
-      pageSize: limit,
-      sortKey: sortKey,
-      sortValue: sortOrder,
-      search,
-    });
+    try {
+      setLoading(true);
+      const response = await userApi.categoryList({
+        page,
+        pageSize: limit,
+        sortKey: sortKey,
+        sortValue: sortOrder,
+        search,
+      });
 
-    const data = response?.data?.data;
-    const categories = data?.categories || [];
+      const data = response?.data?.data;
+      const newCategories = data?.categories || [];
 
-    setCategoryList(categories);
-    setTotalPages(data?.totalPage || 1);
-    setTotalRecords(data?.totalItems || 0);
+      if (JSON.stringify(newCategories) !== JSON.stringify(categoryList)) {
+        setCategoryList(newCategories);
+      }
 
-    if (categories.length === 0) {
+      setTotalPages(data?.totalPage || 1);
+      setTotalRecords(data?.totalItems || 0);
+      setNoData(newCategories.length === 0);
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status !== 404) {
+        toast.error(err?.response?.data?.message);
+      }
       setNoData(true);
-    } else {
-      setNoData(false);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    const status = err?.response?.status;
-
-    if (status !== 404) {
-      toast.error(err?.response?.data?.message);
-    }
-    setNoData(true);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   useEffect(() => {
-    if (search.trim() !== "" || searchInput.trim() === "") {
+   
       fetchCategories();
-    }
+  
   }, [page, limit, search, sortKey, sortOrder]);
+  const initialFormData = useMemo(() => {
+    return editCategory
+      ? editCategory
+      : {
+          category_name: "",
+          description: "",
+          category_image: null,
+        };
+  }, [editCategory]);
 
   const handleAddCategory = () => {
     setEditCategory(null);
@@ -105,26 +111,25 @@ const CategoryList = () => {
   };
 
   const handleEdit = (categoryId) => {
-    const category = categoryList.find(
-      (categories) => categories.id === categoryId
-    );
-    setEditCategory(category);
-    setModalOpen(true);
+    const category = categoryList.find((c) => c.id === categoryId);
+    if (category) {
+      setEditCategory(category);
+     setModalOpen(true);
+    }
   };
-
   const handleSaveCategory = async (form) => {
     const trimmedName = String(form.category_name || "").trim();
     const trimmedDesc = String(form.description || "").trim();
 
     let imageValue = form.category_image;
 
-    setModalLoading(true);
     try {
       const payload = {
         category_name: trimmedName,
         description: trimmedDesc,
         category_image: imageValue,
       };
+
       if (editCategory?.id) {
         const res = await userApi.updateCategory(editCategory.id, payload);
         toast.success(res?.data?.message);
@@ -134,7 +139,7 @@ const CategoryList = () => {
       }
 
       setModalOpen(false);
-      setEditCategory(null);
+
       fetchCategories();
     } catch (err) {
       const errorMessages = err?.response?.data?.message;
@@ -148,7 +153,6 @@ const CategoryList = () => {
       setModalLoading(false);
     }
   };
-
   const confirmDelete = (categoryId) => {
     setSelectedCategoryId(categoryId);
     setDeleteModal(true);
@@ -265,7 +269,7 @@ const CategoryList = () => {
     const [imagePreview, setImagePreview] = useState("");
     const categoryValidation = validationField(CONSTANTS.Category);
     const descriptionValidation = validationField(CONSTANTS.Description);
-    const imageValidation = validationField(CONSTANTS.category_image);
+    const imageValidation = validationField(CONSTANTS.CategoryImage);
     const formik = useFormik({
       initialValues: initialData,
       enableReinitialize: true,
@@ -404,7 +408,12 @@ const CategoryList = () => {
             )}
           </ModalBody>
           <ModalFooter>
-            <BaseButton type="submit" color="primary" loading={loading}>
+            <BaseButton
+              type="submit"
+              color="primary"
+              loading={loading}
+              className="fix-button"
+            >
               {!loading ? title : null}
             </BaseButton>
             <BaseButton type="button" color="secondary" onClick={handleClose}>
@@ -450,172 +459,162 @@ const CategoryList = () => {
             </div>
           </Col>
 
-               <Col md="6" className="text-end">
-                     <div className="d-flex justify-content-end align-items-center gap-2">
-            <BaseInput
-              id="categorySearch"
-              name="categorySearch"
-              type="text"
-              placeholder="Search categories..."
-              value={searchInput}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSearchInput(value);
-                setNoData(false);
-              }}
-              onIconClick={() => {
-                setSearch(searchInput);
-                setPage(1);
-              }}
-              icon={<Search size={16} />}
-            />
-            {searchInput.trim() !== "" && (
-                <BaseButton
-                  color="warning"
-                  size="sm"
-                  className="px-3 mt-3 py-1 d-flex align-items-center"
-                  onClick={() => {
-                    setSearchInput("");
-                    setSearch("");
-                    setPage(1);
-                  }}
-                >
-                  Discard
-                </BaseButton>
-              )}
+          <Col md="6" className="text-end">
+            <div className="d-flex justify-content-end align-items-center gap-2">
+              <BaseInput
+                id="categorySearch"
+                name="categorySearch"
+                type="text"
+                placeholder="Search categories..."
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setPage(1);
+                  setLoading(true);
+                  setSearch(e.target.value.trim());
+                }}
+                icon={<Search size={16} />}
+              />
             </div>
           </Col>
         </Row>
 
         <Card>
           <CardBody>
-         
-             <Table bordered responsive hover>
-  <thead className="table-light">
-    <tr>
-      <th>No.</th>
-      <th
-        onClick={() => handleSort("category_name")}
-      >
-        Category Name{" "}
-        {sortKey === "category_name" &&
-          (sortOrder === "asc" ? (
-            <FaSortUp size={14} />
-          ) : (
-            <FaSortDown size={14} />
-          ))}
-      </th>
-      <th
-        onClick={() => handleSort("description")}
-      >
-        Description{" "}
-        {sortKey === "description" &&
-          (sortOrder === "asc" ? (
-            <FaSortUp size={14} />
-          ) : (
-            <FaSortDown size={14} />
-          ))}
-      </th>
-      <th>Image</th>
-      <th className="text-center">Actions</th>
-    </tr>
-  </thead>
+            <Table bordered responsive hover>
+              <thead className="table-light">
+                <tr>
+                  <th>No.</th>
+                  <th
+                    className="cursor"
+                    onClick={() => handleSort("category_name")}
+                  >
+                    Category Name{" "}
+                    {sortKey === "category_name" &&
+                      (sortOrder === "asc" ? (
+                        <FaSortUp size={14} />
+                      ) : (
+                        <FaSortDown size={14} />
+                      ))}
+                  </th>
+                  <th
+                    className="cursor"
+                    onClick={() => handleSort("description")}
+                  >
+                    Description{" "}
+                    {sortKey === "description" &&
+                      (sortOrder === "asc" ? (
+                        <FaSortUp size={14} />
+                      ) : (
+                        <FaSortDown size={14} />
+                      ))}
+                  </th>
+                  <th>Image</th>
+                  <th className="text-center">Actions</th>
+                </tr>
+              </thead>
 
-  <tbody>
-    {loading ? (
-      <tr>
-        <td colSpan="5">
-          <div className="d-flex justify-content-center align-items-center my-5">
-            <BaseLoader size={30} />
-          </div>
-        </td>
-      </tr>
-    ) : noData ? (
-      <tr>
-        <td colSpan="5">
-          <div className="text-center my-5">
-            <h5>Sorry! No data found.</h5>
-          </div>
-        </td>
-      </tr>
-    ) : categoryList.length > 0 ? (
-      categoryList.map((categories, index) => {
-        const imagePath = categories?.category_image;
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="5">
+                      <div className="d-flex justify-content-center align-items-center my-5">
+                        <BaseLoader size={30} />
+                      </div>
+                    </td>
+                  </tr>
+                ) : noData ? (
+                  <tr>
+                    <td colSpan="5">
+                      <div className="text-center my-5">
+                        <h5>Sorry! No data found.</h5>
+                      </div>
+                    </td>
+                  </tr>
+                ) : categoryList.length > 0 ? (
+                  categoryList.map((categories, index) => {
+                    const imagePath = categories?.category_image;
 
-        let imageUrl = avatar;
-        if (imagePath && !imagePath.startsWith("http")) {
-          imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
-        } else if (imagePath) {
-          imageUrl = imagePath;
-        }
+                    let imageUrl = avatar;
+                    if (imagePath && !imagePath.startsWith("http")) {
+                      imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
+                    } else if (imagePath) {
+                      imageUrl = imagePath;
+                    }
 
-        return (
-          <tr key={categories.id}>
-            <td>{(page - 1) * limit + index + 1}</td>
-            <td>{categories.category_name}</td>
-            <td>{categories.description}</td>
-            <td>
-              <img
-                src={imageUrl}
-                alt="Category"
-                width="50"
-                height="50"
-                className="image-category"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = avatar;
-                }}
-              />
-            </td>
-            <td className="d-flex justify-content-center gap-2 flex-wrap">
-              <span
-                id={`edit-${categories.id}`}
-                onClick={() => handleEdit(categories.id)}
-              >
-                <FiEdit size={18} color="#f0ad4e" />
-              </span>
-              <Tooltip
-                isOpen={editTooltip === categories.id}
-                target={`edit-${categories.id}`}
-                toggle={() =>
-                  setEditTooltip(
-                    editTooltip === categories.id ? null : categories.id
-                  )
-                }
-              >
-                Edit
-              </Tooltip>
+                    return (
+                      <tr key={categories.id}>
+                        <td>{(page - 1) * limit + index + 1}</td>
+                        <td>{categories.category_name}</td>
+                        <td>{categories.description}</td>
+                        <td>
+                          <img
+                            src={imageUrl}
+                            alt="Category"
+                            width="50"
+                            height="50"
+                            className="image-category"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = avatar;
+                            }}
+                          />
+                        </td>
+                        <td className="d-flex justify-content-center gap-2 flex-wrap">
+                          <span
+                            id={`edit-${categories.id}`}
+                            onClick={() => handleEdit(categories.id)}
+                            className="cursor"
+                          >
+                            <FiEdit size={18} color="#f0ad4e" />
+                          </span>
+                          <Tooltip
+                            isOpen={editTooltip === categories.id}
+                            target={`edit-${categories.id}`}
+                            toggle={() =>
+                              setEditTooltip(
+                                editTooltip === categories.id
+                                  ? null
+                                  : categories.id
+                              )
+                            }
+                          >
+                            Edit
+                          </Tooltip>
 
-              <span
-                id={`delete-${categories.id}`}
-                onClick={() => confirmDelete(categories.id)}
-              >
-                <FiTrash2 size={18} color="#dc3545" />
-              </span>
-              <Tooltip
-                isOpen={deleteTooltip === categories.id}
-                target={`delete-${categories.id}`}
-                toggle={() =>
-                  setDeleteTooltip(
-                    deleteTooltip === categories.id ? null : categories.id
-                  )
-                }
-              >
-                Delete
-              </Tooltip>
-            </td>
-          </tr>
-        );
-      })
-    ) : (
-      <tr>
-        <td colSpan="5" className="text-center">
-          No categories found
-        </td>
-      </tr>
-    )}
-  </tbody>
-</Table>
+                          <span
+                            id={`delete-${categories.id}`}
+                            onClick={() => confirmDelete(categories.id)}
+                            className="cursor"
+                          >
+                            <FiTrash2 size={18} color="#dc3545" />
+                          </span>
+                          <Tooltip
+                            isOpen={deleteTooltip === categories.id}
+                            target={`delete-${categories.id}`}
+                            toggle={() =>
+                              setDeleteTooltip(
+                                deleteTooltip === categories.id
+                                  ? null
+                                  : categories.id
+                              )
+                            }
+                          >
+                            Delete
+                          </Tooltip>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center">
+                      No categories found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
 
             {renderPagination()}
           </CardBody>
@@ -626,20 +625,16 @@ const CategoryList = () => {
         </h6>
       </Container>
 
-      <CategoryModal
-        isOpen={modalOpen}
-        toggle={() => setModalOpen(false)}
-        onSave={handleSaveCategory}
-        initialData={
-          editCategory || {
-            category_name: "",
-            description: "",
-            category_image: null,
-          }
-        }
-        loading={modalLoading}
-        title={editCategory ? "Update Category" : "Add Category"}
-      />
+      {modalOpen && (
+        <CategoryModal
+          isOpen={modalOpen}
+          toggle={() => setModalOpen(false)}
+          onSave={handleSaveCategory}
+          initialData={initialFormData}
+          loading={modalLoading}
+          title={editCategory ? "Update" : "Submit"}
+        />
+      )}
 
       <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)} centered>
         <Card className="p-4 text-center border-0">
@@ -658,6 +653,7 @@ const CategoryList = () => {
               color="danger"
               onClick={handleDelete}
               loading={deleteLoading}
+              className="fix-button-delete"
             >
               {!deleteLoading ? "Yes, Delete It!" : null}
             </BaseButton>

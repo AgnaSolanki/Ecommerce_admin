@@ -17,9 +17,11 @@ import BaseInput from "../../../Components/BASE/BaseInput";
 import { dateRegex } from "../../../Components/constants/validation";
 import { CONSTANTS } from "../../../Components/constants/common";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const OrderReport = () => {
-  document.title = "Report";
+  document.title = "Order Report";
 
   const [orderReportData, setOrderReportData] = useState([]);
   const [orderSearch, setOrderSearch] = useState("");
@@ -37,6 +39,9 @@ const OrderReport = () => {
   const [tempEndDate, setTempEndDate] = useState("");
   const [noOrderData, setNoOrderData] = useState(false);
 
+  const parseDate = (dateString) => {
+    return dateString ? new Date(dateString) : null;
+  };
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -200,20 +205,31 @@ const OrderReport = () => {
       </div>
     );
   };
+  const handleStartDateChange = (date) => {
+    if (date === null) {
+      setTempStartDate("");
+      setOrderStartDate("");
+      setOrderPage(1);
+    } else {
+      const formattedDate = date.toISOString().split("T")[0];
+      setTempStartDate(formattedDate);
+      setOrderStartDate(formattedDate);
+      setOrderPage(1);
+    }
+  };
 
-  if (loading) {
-    return (
-      <div className="page-content mt-4">
-        <Container fluid>
-          <Row>
-            <Col xs={12} className="text-center mt-5">
-              <BaseLoader size={20} />
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    );
-  }
+  const handleEndDateChange = (date) => {
+    if (date === null) {
+      setTempEndDate("");
+      setOrderEndDate("");
+      setOrderPage(1);
+    } else {
+      const formattedDate = date.toISOString().split("T")[0];
+      setTempEndDate(formattedDate);
+      setOrderEndDate(formattedDate);
+      setOrderPage(1);
+    }
+  };
 
   return (
     <div className="page-content mt-4">
@@ -222,36 +238,22 @@ const OrderReport = () => {
           <Col xl={12}>
             <Card className="shadow-sm">
               <CardHeader className="d-flex justify-content-between align-items-center rounded-top-4 flex-wrap gap-3">
-                <h4 className="card-title mb-0">Recent Orders Report</h4>
+                <h4 className="card-title mb-0">Recent orders report</h4>
                 <div className="d-flex align-items-center gap-2">
                   <BaseInput
                     id={CONSTANTS.OrderSearch}
                     name={CONSTANTS.orderSearch}
                     type={CONSTANTS.text}
-                    placeholder="Search order..."
+                    placeholder={CONSTANTS.Order_Search}
                     value={orderSearchInput}
-                    onChange={(e) => setOrderSearchInput(e.target.value)}
-                    onIconClick={() => {
-                      setOrderSearch(orderSearchInput);
+                    onChange={(e) => {
+                      setOrderSearchInput(e.target.value);
                       setOrderPage(1);
+                      setLoading(true);
+                      setOrderSearch(e.target.value.trim());
                     }}
                     icon={<Search size={16} />}
                   />
-
-                  {orderSearchInput.trim() !== "" && (
-                    <BaseButton
-                      color="warning"
-                      size="sm"
-                      className="px-3 mt-3 py-1 d-flex align-items-center"
-                      onClick={() => {
-                        setOrderSearchInput("");
-                        setOrderSearch("");
-                        setOrderPage(1);
-                      }}
-                    >
-                      Discard
-                    </BaseButton>
-                  )}
                 </div>
               </CardHeader>
 
@@ -260,19 +262,25 @@ const OrderReport = () => {
                   <Row className="mb-3">
                     <Col md="3">
                       <label>Start Date</label>
-                      <Input
-                        type="date"
-                        value={tempStartDate}
-                        onChange={(e) => setTempStartDate(e.target.value)}
+                      <DatePicker
+                        selected={parseDate(tempStartDate)}
+                        onChange={(date) => handleStartDateChange(date)}
+                        dateFormat="yyyy-MM-dd"
+                        className="form-control"
+                        isClearable
+                        placeholderText="Start Date"
                       />
                     </Col>
 
                     <Col md="3">
                       <label>End Date</label>
-                      <Input
-                        type="date"
-                        value={tempEndDate}
-                        onChange={(e) => setTempEndDate(e.target.value)}
+                      <DatePicker
+                        selected={parseDate(tempEndDate)}
+                        onChange={(date) => handleEndDateChange(date)}
+                        dateFormat="yyyy-MM-dd"
+                        className="form-control"
+                        isClearable
+                        placeholderText="End Date"
                       />
                     </Col>
                   </Row>
@@ -284,9 +292,7 @@ const OrderReport = () => {
                       <tr>
                         <th>No.</th>
 
-                        <th
-                          onClick={() => handleSort("id")}
-                        >
+                        <th className="cursor" onClick={() => handleSort("id")}>
                           Order ID
                           {sortKey === "id" &&
                             (sortOrder === "asc" ? (
@@ -299,6 +305,7 @@ const OrderReport = () => {
                         <th>Customer Name</th>
 
                         <th
+                          className="cursor"
                           onClick={() => handleSort("order_name")}
                         >
                           Order Name

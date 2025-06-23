@@ -293,7 +293,7 @@ const UserProfile = () => {
               size="sm"
               onClick={() => setIsEditing(true)}
             >
-              Edit Profile
+              Edit
             </BaseButton>
           )}
         </div>
@@ -370,10 +370,58 @@ const UserProfile = () => {
           </Col>
         </Row>
 
-        <Card>
-          <CardBody>
-            <Form onSubmit={formik.handleSubmit}>
-              <Row>
+     {!isEditing ? (
+
+  <Card className="shadow-sm border-0">
+    <CardBody>
+      <h5 className="mb-4 fw-semibold text-primary">User Information</h5>
+      <Row className="gy-3">
+        <Col md={6}>
+          <p className="mb-1 text-muted"><strong>Name:</strong></p>
+          <p>{userProfile.first_name || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Phone:</strong></p>
+          <p>{userProfile.phone || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Gender:</strong></p>
+          <p>{userProfile.gender || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Country:</strong></p>
+          <p>{countries.find(c => c.id === +userProfile.country)?.country_name || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>State:</strong></p>
+          <p>{states.find(s => s.id === +userProfile.state)?.state_name || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>City:</strong></p>
+          <p>{cities.find(ci => ci.id === +userProfile.city)?.city_name || "-"}</p>
+        </Col>
+
+        <Col md={6}>
+          <p className="mb-1 text-muted"><strong>Role:</strong></p>
+          <p>{role || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Email:</strong></p>
+          <p>{userProfile.email || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Postal Code:</strong></p>
+          <p>{userProfile.postal_code || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Address Line 1:</strong></p>
+          <p>{userProfile.address_line1 || "-"}</p>
+
+          <p className="mb-1 text-muted"><strong>Address Line 2:</strong></p>
+          <p>{userProfile.address_line2 || "-"}</p>
+        </Col>
+      </Row>
+    </CardBody>
+  </Card>
+
+
+) : (
+  <Card>
+    <CardBody>
+      <Form onSubmit={formik.handleSubmit}>
+        <Row>
                 <Col md={6} className="mb-3">
                   <BaseInput
                     id={CONSTANTS.first_name}
@@ -598,6 +646,7 @@ const UserProfile = () => {
             </Form>
           </CardBody>
         </Card>
+        )}
         <div className="d-flex justify-content-start gap-2 m-3">
           {isEditing ? (
             <>
@@ -608,6 +657,7 @@ const UserProfile = () => {
                 onClick={formik.handleSubmit}
                 loading={saveLoading}
                 disabled={!!error}
+                className="fix-button"
               >
                 {!saveLoading ? "Update" : null}
               </BaseButton>
@@ -615,6 +665,7 @@ const UserProfile = () => {
                 type="button"
                 color="secondary"
                 size="sm"
+                className="fix-button"
                 onClick={() => {
                   setCancelLoading(true);
                   fetchProfile().finally(() => {

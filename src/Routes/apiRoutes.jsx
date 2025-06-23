@@ -5,7 +5,7 @@ export const LoginRoutes = {
   RESET: "/forgot-password",
   PROFILE: "/profile",
   CHANGE_PASSWORD: "/change-password",
-  PRODUCT_LIST: "/products",
+  PRODUCT_LIST: "/product",
   ADD_PRODUCT: "/add-product",
   VIEW_PRODUCT: "/product/view",
   EDIT_PRODUCT: "/product/edit",
@@ -13,5 +13,5 @@ export const LoginRoutes = {
   MAIN_DASHBOARD: "/main-dashboard",
   REPORT: "/report",
   ORDER_REPORT:"/order-report",
-  CUSTOMER_REPORT: "/customer-report"
+  CUSTOMER_REPORT: "/user-report"
 };

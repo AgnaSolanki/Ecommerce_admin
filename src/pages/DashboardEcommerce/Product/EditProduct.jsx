@@ -537,32 +537,34 @@ const EditProduct = () => {
                                   (fileInputRefs.current[index] = el)
                                 }
                               />
-                              <div className="mt-2">
-                                <img
-                                  src={
-                                    imagePreviews[
-                                      `variant_image_preview_${index}`
-                                    ] || avatar
-                                  }
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = avatar;
-                                  }}
-                                  alt="Variant Preview"
-                                  height="80"
-                                />
+                              <div className="mt-3 text-center position-relative d-inline-block">
                                 {imagePreviews[
                                   `variant_image_preview_${index}`
                                 ] && (
-                                  <BaseButton
-                                    type="button"
-                                    size="sm"
-                                    color="danger"
-                                    className="ms-2"
-                                    onClick={() => handleRemoveImage(index)}
-                                  >
-                                    Remove Image
-                                  </BaseButton>
+                                  <div className="position-relative d-inline-block">
+                                    <img
+                                      src={
+                                        imagePreviews[
+                                          `variant_image_preview_${index}`
+                                        ]
+                                      }
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = avatar;
+                                      }}
+                                      className="rounded avatar-lg img-thumbnail variant_img"
+                                      alt="variant preview"
+                                    />
+                                    <BaseButton
+                                      type="button"
+                                      color="danger"
+                                      size="sm"
+                                      className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
+                                      onClick={() => handleRemoveImage(index)}
+                                    >
+                                      ✕
+                                    </BaseButton>
+                                  </div>
                                 )}
                               </div>
                             </Col>
@@ -579,6 +581,7 @@ const EditProduct = () => {
                       type={CONSTANTS.submit}
                       loading={saveLoading}
                       color="primary"
+                      className="fix-button"
                     >
                       {!saveLoading ? "Submit" : null}
                     </BaseButton>
@@ -586,7 +589,7 @@ const EditProduct = () => {
                       type={CONSTANTS.Button}
                       loading={cancelLoading}
                       color="secondary"
-                      className="ms-3"
+                      className="ms-3 fix-button"
                       onClick={handleCancel}
                     >
                       {!cancelLoading ? "Cancel" : null}

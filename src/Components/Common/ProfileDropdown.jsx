@@ -109,7 +109,7 @@ const ProfileDropdown = () => {
         contentClassName="custom-logout-modal"
       >
         <ModalHeader
-          toggle={() => setShowLogoutModal(false)}
+         
         >
           Confirm Logout
         </ModalHeader>

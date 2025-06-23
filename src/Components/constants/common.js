@@ -89,4 +89,6 @@ export const CONSTANTS = {
   orderSearch: "orderSearch",
   UserSearch: "User-search",
   userSearch: "userSearch",
+  User_Search: "Search User...",
+  Order_Search: "Search Order..."
 };
