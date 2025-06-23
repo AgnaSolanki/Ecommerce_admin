@@ -294,7 +294,7 @@ const Dashboard = () => {
                     <table className="table table-borderless table-centered align-middle table-nowrap mb-0">
                       <thead className="text-muted table-light">
                         <tr>
-                          <th scope="col">#</th>
+                          <th scope="col">No.</th>
                           <th scope="col">Customer id</th>
                           <th scope="col">Customer</th>
                           <th scope="col">Total Purchase Amount</th>

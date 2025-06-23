@@ -19,8 +19,7 @@ import { CONSTANTS } from "../../Components/constants/common";
 import { AiOutlineEdit } from "react-icons/ai";
 import {
   inputField,
-  phoneNumberRegex,
-  postalCodeRegex,
+  onlyNum,
   selectLabel,
   validationField,
 } from "../../Components/constants/validation";
@@ -76,10 +75,6 @@ const UserProfile = () => {
       ),
       address_line2: Yup.string(),
       postal_code: Yup.string()
-        .matches(
-          postalCodeRegex,
-          postalCodeValidation.minLength(CONSTANTS.PostalCode, 6)
-        )
         .length(6, postalCodeValidation.fixLength(CONSTANTS.PostalCode, 6)),
      file: Yup.mixed()
         .nullable()
@@ -275,13 +270,13 @@ const UserProfile = () => {
 
   const handlePostalCodeChange = (e) => {
     const { value } = e.target;
-    if (postalCodeRegex.test(value)) {
+    if (onlyNum.test(value)) {
       formik.handleChange(e);
     }
   };
   const handlePhoneNumberChange = (e) => {
     const { value } = e.target;
-    if (phoneNumberRegex.test(value)) {
+    if (onlyNum.test(value)) {
       formik.handleChange(e);
     }
   };
@@ -614,7 +609,7 @@ const UserProfile = () => {
                 loading={saveLoading}
                 disabled={!!error}
               >
-                {!saveLoading ? "Update Profile" : null}
+                {!saveLoading ? "Update" : null}
               </BaseButton>
               <BaseButton
                 type="button"

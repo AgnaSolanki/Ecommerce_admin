@@ -74,6 +74,7 @@ export const CONSTANTS = {
   button: "button",
   category_id: "category_id",
   VariantTitle: "Variant Title",
+  variantTitle: "Variant title",
   product_variants: "product_variants",
   category_image: "category image",
   description: "description",
@@ -86,8 +87,6 @@ export const CONSTANTS = {
   totalCustomer: "Total Customers",
   OrderSearch: "order-search",
   orderSearch: "orderSearch",
-  order_Search: "Search Order..",
   UserSearch: "User-search",
   userSearch: "userSearch",
-  User_Search: "Search User..",
 };

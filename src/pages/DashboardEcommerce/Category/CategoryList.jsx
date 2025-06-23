@@ -12,6 +12,7 @@ import {
   ModalFooter,
   Form,
   FormFeedback,
+  Tooltip,
 } from "reactstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -20,6 +21,9 @@ import avatar from "../../../assets/images/users/user-dummy-img.jpg";
 import BaseButton from "../../../Components/BASE/BaseButton";
 import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FaSortUp, FaSortDown } from "react-icons/fa";
+
 import {
   inputField,
   validationField,
@@ -46,37 +50,54 @@ const CategoryList = () => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [noData, setNoData] = useState(false);
+  const [sortKey, setSortKey] = useState("category_name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [editTooltip, setEditTooltip] = useState(null);
+  const [deleteTooltip, setDeleteTooltip] = useState(null);
 
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
   const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const response = await userApi.categoryList({
-        page,
-        pageSize: limit,
-        sortKey: "category_name",
-        sortValue: "asc",
-        search,
-      });
+  try {
+    setLoading(true);
+    const response = await userApi.categoryList({
+      page,
+      pageSize: limit,
+      sortKey: sortKey,
+      sortValue: sortOrder,
+      search,
+    });
 
-      const data = response?.data?.data;
-      setCategoryList(data?.categories || []);
-      setTotalPages(data?.totalPage || 1);
-      setTotalRecords(data?.totalItems || 0);
-    } catch (err) {
-      toast.error(err?.response?.data.message);
+    const data = response?.data?.data;
+    const categories = data?.categories || [];
+
+    setCategoryList(categories);
+    setTotalPages(data?.totalPage || 1);
+    setTotalRecords(data?.totalItems || 0);
+
+    if (categories.length === 0) {
       setNoData(true);
-    } finally {
-      setLoading(false);
+    } else {
+      setNoData(false);
     }
-  };
+  } catch (err) {
+    const status = err?.response?.status;
+
+    if (status !== 404) {
+      toast.error(err?.response?.data?.message);
+    }
+    setNoData(true);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     if (search.trim() !== "" || searchInput.trim() === "") {
       fetchCategories();
     }
-  }, [page, limit, search]);
+  }, [page, limit, search, sortKey, sortOrder]);
 
   const handleAddCategory = () => {
     setEditCategory(null);
@@ -149,8 +170,17 @@ const CategoryList = () => {
     } finally {
       setDeleteModal(false);
       setSelectedCategoryId(null);
-      setDeleteLoading(true);
+      setDeleteLoading(false);
     }
+  };
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const renderPagination = () => {
@@ -181,6 +211,7 @@ const CategoryList = () => {
         break;
     }
 
+    document.title = "Category";
     return (
       <div className="d-flex justify-content-end mt-3">
         <BaseButton
@@ -255,15 +286,11 @@ const CategoryList = () => {
             if (!isEditMode && !value) return false;
             return true;
           })
-          .test(
-            "fileSize",
-            imageValidation.imageSize,
-            function (value) {
-              if (!value) return true;
-              if (typeof value === "string") return true;
-              return value.size <= 1024 * 1024;
-            }
-          ),
+          .test("fileSize", imageValidation.imageSize, function (value) {
+            if (!value) return true;
+            if (typeof value === "string") return true;
+            return value.size <= 1024 * 1024;
+          }),
       }),
       onSubmit: (values) => {
         onSave(values);
@@ -279,7 +306,7 @@ const CategoryList = () => {
 
       const schema = Yup.mixed()
         .required(imageValidation.required)
-        .test("fileSize",imageValidation.imageSize, (value) => {
+        .test("fileSize", imageValidation.imageSize, (value) => {
           if (!value) return true;
           if (typeof value === "string") return true;
           return value.size <= 1024 * 1024;
@@ -297,15 +324,12 @@ const CategoryList = () => {
 
           formik.setFieldValue("category_image", fileName);
           setImagePreview(imageURL);
-          formik.setFieldError("category_image", ""); 
+          formik.setFieldError("category_image", "");
         }
       } catch (err) {
         toast.error(err?.message);
 
-        formik.setFieldError(
-          "category_image",
-          err?.message
-        );
+        formik.setFieldError("category_image", err?.message);
         formik.setTouched({ ...formik.touched, category_image: true });
       }
     };
@@ -398,33 +422,36 @@ const CategoryList = () => {
     <div className="page-content">
       <Container fluid>
         <Row className="mb-3 align-items-center">
-          <Col md="4">
-            <label className="me-2">Items per page:</label>
-            <BaseSelectInput
-              name="limitSelect"
-              value={limit}
-              onChange={(e) => {
-                setLimit(Number(e.target.value));
-                setPage(1);
-              }}
-              options={[
-                { label: "5", value: 5 },
-                { label: "10", value: 10 },
-                { label: "20", value: 20 },
-                { label: "50", value: 50 },
-                { label: "100", value: 100 },
-              ]}
-            />
-          </Col>
-          <Col md="8" className="text-end">
+          <Col className="text-end">
             <BaseButton color="primary" size="sm" onClick={handleAddCategory}>
               Add Category
             </BaseButton>
           </Col>
         </Row>
+        <Row className="mb-3 align-items-end">
+          <Col md="6">
+            <div className="d-flex align-items-center">
+              <label className="me-2 mb-0">Items per page:</label>
+              <BaseSelectInput
+                name="limitSelect"
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+                options={[
+                  { label: "5", value: 5 },
+                  { label: "10", value: 10 },
+                  { label: "20", value: 20 },
+                  { label: "50", value: 50 },
+                  { label: "100", value: 100 },
+                ]}
+              />
+            </div>
+          </Col>
 
-        <Row>
-          <Col md="6" className="mb-2">
+               <Col md="6" className="text-end">
+                     <div className="d-flex justify-content-end align-items-center gap-2">
             <BaseInput
               id="categorySearch"
               name="categorySearch"
@@ -434,7 +461,6 @@ const CategoryList = () => {
               onChange={(e) => {
                 const value = e.target.value;
                 setSearchInput(value);
-
                 setNoData(false);
               }}
               onIconClick={() => {
@@ -443,93 +469,154 @@ const CategoryList = () => {
               }}
               icon={<Search size={16} />}
             />
+            {searchInput.trim() !== "" && (
+                <BaseButton
+                  color="warning"
+                  size="sm"
+                  className="px-3 mt-3 py-1 d-flex align-items-center"
+                  onClick={() => {
+                    setSearchInput("");
+                    setSearch("");
+                    setPage(1);
+                  }}
+                >
+                  Discard
+                </BaseButton>
+              )}
+            </div>
           </Col>
         </Row>
+
         <Card>
           <CardBody>
-            {noData ? (
-              <div className="text-center my-4">
-                <h5>No matching customers found.</h5>
-              </div>
-            ) : (
-              <Table bordered responsive hover>
-                <thead className="table-light">
-                  <tr>
-                    <th>#</th>
-                    <th>Category Name</th>
-                    <th>Description</th>
-                    <th>Image</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="5">
-                        <div className="d-flex justify-content-center align-items-center my-5">
-                          <BaseLoader size={30} />
-                        </div>
-                      </td>
-                    </tr>
-                  ) : categoryList.length > 0 ? (
-                    categoryList.map((categories, index) => {
-                      const imagePath = categories?.category_image;
+         
+             <Table bordered responsive hover>
+  <thead className="table-light">
+    <tr>
+      <th>No.</th>
+      <th
+        onClick={() => handleSort("category_name")}
+      >
+        Category Name{" "}
+        {sortKey === "category_name" &&
+          (sortOrder === "asc" ? (
+            <FaSortUp size={14} />
+          ) : (
+            <FaSortDown size={14} />
+          ))}
+      </th>
+      <th
+        onClick={() => handleSort("description")}
+      >
+        Description{" "}
+        {sortKey === "description" &&
+          (sortOrder === "asc" ? (
+            <FaSortUp size={14} />
+          ) : (
+            <FaSortDown size={14} />
+          ))}
+      </th>
+      <th>Image</th>
+      <th className="text-center">Actions</th>
+    </tr>
+  </thead>
 
-                      let imageUrl = avatar;
-                      if (imagePath && !imagePath.startsWith("http")) {
-                        imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
-                      } else if (imagePath) {
-                        imageUrl = imagePath;
-                      }
+  <tbody>
+    {loading ? (
+      <tr>
+        <td colSpan="5">
+          <div className="d-flex justify-content-center align-items-center my-5">
+            <BaseLoader size={30} />
+          </div>
+        </td>
+      </tr>
+    ) : noData ? (
+      <tr>
+        <td colSpan="5">
+          <div className="text-center my-5">
+            <h5>Sorry! No data found.</h5>
+          </div>
+        </td>
+      </tr>
+    ) : categoryList.length > 0 ? (
+      categoryList.map((categories, index) => {
+        const imagePath = categories?.category_image;
 
-                      return (
-                        <tr key={categories.id}>
-                          <td>{(page - 1) * limit + index + 1}</td>
-                          <td>{categories.category_name}</td>
-                          <td>{categories.description}</td>
-                          <td>
-                            <img
-                              src={imageUrl}
-                              alt="Category"
-                              width="50"
-                              height="50"
-                              className="image-category"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = avatar;
-                              }}
-                            />
-                          </td>
-                          <td className="d-flex justify-content-center gap-2 flex-wrap">
-                            <BaseButton
-                              size="sm"
-                              color="warning"
-                              onClick={() => handleEdit(categories.id)}
-                              className="me-2"
-                            >
-                              Edit
-                            </BaseButton>
-                            <BaseButton
-                              size="sm"
-                              color="danger"
-                              onClick={() => confirmDelete(categories.id)}
-                            >
-                              Delete
-                            </BaseButton>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="text-center">
-                        No categories found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            )}
+        let imageUrl = avatar;
+        if (imagePath && !imagePath.startsWith("http")) {
+          imageUrl = `${IMAGE_BASE_URL}${imagePath}`;
+        } else if (imagePath) {
+          imageUrl = imagePath;
+        }
+
+        return (
+          <tr key={categories.id}>
+            <td>{(page - 1) * limit + index + 1}</td>
+            <td>{categories.category_name}</td>
+            <td>{categories.description}</td>
+            <td>
+              <img
+                src={imageUrl}
+                alt="Category"
+                width="50"
+                height="50"
+                className="image-category"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = avatar;
+                }}
+              />
+            </td>
+            <td className="d-flex justify-content-center gap-2 flex-wrap">
+              <span
+                id={`edit-${categories.id}`}
+                onClick={() => handleEdit(categories.id)}
+              >
+                <FiEdit size={18} color="#f0ad4e" />
+              </span>
+              <Tooltip
+                isOpen={editTooltip === categories.id}
+                target={`edit-${categories.id}`}
+                toggle={() =>
+                  setEditTooltip(
+                    editTooltip === categories.id ? null : categories.id
+                  )
+                }
+              >
+                Edit
+              </Tooltip>
+
+              <span
+                id={`delete-${categories.id}`}
+                onClick={() => confirmDelete(categories.id)}
+              >
+                <FiTrash2 size={18} color="#dc3545" />
+              </span>
+              <Tooltip
+                isOpen={deleteTooltip === categories.id}
+                target={`delete-${categories.id}`}
+                toggle={() =>
+                  setDeleteTooltip(
+                    deleteTooltip === categories.id ? null : categories.id
+                  )
+                }
+              >
+                Delete
+              </Tooltip>
+            </td>
+          </tr>
+        );
+      })
+    ) : (
+      <tr>
+        <td colSpan="5" className="text-center">
+          No categories found
+        </td>
+      </tr>
+    )}
+  </tbody>
+</Table>
+
             {renderPagination()}
           </CardBody>
         </Card>
@@ -554,23 +641,28 @@ const CategoryList = () => {
         title={editCategory ? "Update Category" : "Add Category"}
       />
 
-      <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)}>
-        <ModalHeader toggle={() => setDeleteModal(false)}>
-          Confirm Delete
-        </ModalHeader>
-        <ModalBody>Are you sure you want to delete this category?</ModalBody>
-        <ModalFooter>
-          <BaseButton
-            color="danger"
-            onClick={handleDelete}
-            loading={deleteLoading}
-          >
-            {!deleteLoading ? "Delete" : null}
-          </BaseButton>
-          <BaseButton color="secondary" onClick={() => setDeleteModal(false)}>
-            Cancel
-          </BaseButton>
-        </ModalFooter>
+      <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)} centered>
+        <Card className="p-4 text-center border-0">
+          <h4 className="mb-3 fw-bold">Are you sure?</h4>
+          <p className="mb-4">Are you sure you want to remove this record?</p>
+
+          <div className="d-flex justify-content-center gap-3">
+            <BaseButton
+              color="secondary"
+              onClick={() => setDeleteModal(false)}
+              disabled={deleteLoading}
+            >
+              Close
+            </BaseButton>
+            <BaseButton
+              color="danger"
+              onClick={handleDelete}
+              loading={deleteLoading}
+            >
+              {!deleteLoading ? "Yes, Delete It!" : null}
+            </BaseButton>
+          </div>
+        </Card>
       </Modal>
     </div>
   );

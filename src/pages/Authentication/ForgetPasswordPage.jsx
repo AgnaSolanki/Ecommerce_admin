@@ -155,8 +155,8 @@ const ForgetPasswordPage = () => {
 
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={5}>
-              <Card className="mt-2">
-                <CardBody className="p-4">
+              <Card className="mt-1">
+                <CardBody className="px-4 pt-2 pb-0">
                   <div className="text-center mt-1">
                     <h5 className="text-primary welcome-text">
                       Forgot Password?
@@ -268,7 +268,7 @@ const ForgetPasswordPage = () => {
                         </>
                       )}
 
-                      <div className="text-center mt-4">
+                      <div className="text-center mt-3">
                         <BaseButton
                           type="submit"
                           color="success"
@@ -288,7 +288,7 @@ const ForgetPasswordPage = () => {
                 </CardBody>
               </Card>
 
-              <div className="mt-2 text-center">
+              <div className="text-center">
                 <p className="mb-0">
                   Wait, I remember my password...{" "}
                   <Link
@@ -302,7 +302,7 @@ const ForgetPasswordPage = () => {
             </Col>
           </Row>
         </Container>
-        <div className="main-content">
+        <div className="main-content mt-0">
           <Footer />
         </div>
       </div>

@@ -33,11 +33,11 @@ const Navdata = () => {
     if (iscurrentState !== "isDashboard") {
       setISDashboard(false);
     }
-    if (iscurrentState !== "isProduct") {
-      setIsProduct(false);
-    }
     if (iscurrentState !== "isCategory") {
       setIsCategory(false);
+    }
+    if (iscurrentState !== "isProduct") {
+      setIsProduct(false);
     }
     if (iscurrentState !== "isReport") {
       setIsProduct(false);
@@ -63,19 +63,6 @@ const Navdata = () => {
       },
     },
     {
-      id: "product",
-      label: "Product",
-      icon: FiBox,
-      link: LoginRoutes.PRODUCT_LIST,
-      stateVariables: isProduct,
-      click: function (e) {
-        e.preventDefault();
-        setIsProduct(!isProduct);
-        setIscurrentState("Product");
-        updateIconSidebar(e);
-      },
-    },
-    {
       id: "category",
       label: "Category",
       icon: FiGrid,
@@ -89,19 +76,45 @@ const Navdata = () => {
       },
     },
     {
+      id: "product",
+      label: "Product",
+      icon: FiBox,
+      link: LoginRoutes.PRODUCT_LIST,
+      stateVariables: isProduct,
+      click: function (e) {
+        e.preventDefault();
+        setIsProduct(!isProduct);
+        setIscurrentState("Product");
+        updateIconSidebar(e);
+      },
+    },
+    {
       id: "report",
       label: "Report",
       icon: HiOutlineDocumentReport,
-      link: LoginRoutes.REPORT,
-      stateVariables: isReport,
+      link: LoginRoutes.CUSTOMER_REPORT,
       click: function (e) {
         e.preventDefault();
         setISReport(!isReport);
         setIscurrentState("Report");
         updateIconSidebar(e);
       },
+      stateVariables: isReport,
+          subItems: [
+            {
+              id: 1,
+              label: "User Report",
+              link: LoginRoutes.CUSTOMER_REPORT,
+              parentId: "report",
+            },
+            {
+              id: 2,
+              label: "order Report",
+              link: LoginRoutes.ORDER_REPORT,
+              parentId: "report",
+            },
+          ],
     },
   ];
-  return <React.Fragment>{menuItems}</React.Fragment>;
-};
+return menuItems; };
 export default Navdata;

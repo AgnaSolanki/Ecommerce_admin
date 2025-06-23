@@ -4,6 +4,7 @@ const BaseFileInput = ({
   id,
   name,
   label,
+  inputRef,
   disabled = false,
   isAvatarUpload = false,
   required = false,
@@ -28,6 +29,7 @@ const BaseFileInput = ({
         accept="image/*"
         disabled={disabled}
         onFileChange={onFileChange}
+        innerRef={inputRef}
       />
     </div>
   );
