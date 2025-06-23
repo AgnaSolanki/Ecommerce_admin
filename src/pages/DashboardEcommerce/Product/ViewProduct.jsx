@@ -55,29 +55,31 @@ const ViewProduct = () => {
 
   return (
     <Container fluid className="page-content">
-      <div className="d-flex justify-content-start">
+      <div className="d-flex justify-content-end mb-3">
         <BaseButton
           size="md"
-          className=" mb-1"
+          color="danger"
+          className="d-flex align-items-center gap-2"
           onClick={() => navigate(LoginRoutes.PRODUCT_LIST)}
         >
-          <IoMdArrowRoundBack size={17} />
+          <IoMdArrowRoundBack size={18} />
         </BaseButton>
       </div>
+
       <Card className="shadow-sm p-4 bg-light mb-4">
         <h4 className="mb-3 fw-bold">Basic Information</h4>
         <Row className="mb-2">
-          <Col md={4} className="mb-3 d-flex align-items-center">
+          <Col md={4} className="mb-3 d-flex flex-wrap align-items-center">
             <span className="fw-semibold me-2">Product ID:</span>
             <Badge color="primary" pill>
               {product.id}
             </Badge>
           </Col>
-          <Col md={4} className="mb-3 d-flex align-items-center">
+          <Col md={4} className="mb-3 d-flex flex-wrap align-items-center">
             <span className="fw-semibold me-2">Product Name:</span>
             {product.name}
           </Col>
-          <Col md={4} className="mb-3 d-flex align-items-center">
+          <Col md={4} className="mb-3 d-flex flex-wrap align-items-center">
             <span className="fw-semibold me-2">Category:</span>
             <Badge color="info" pill className="me-1">
               {product.category?.category_name}
@@ -101,21 +103,21 @@ const ViewProduct = () => {
                 >
                   {variant.image?.image_path ? (
                     <img
-                      src={`${import.meta.env.VITE_BASE_IMAGE}/${
-                        variant.image.image_path
-                      }`}
+                      src={`${import.meta.env.VITE_BASE_IMAGE}/${variant.image.image_path}`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = avatar;
                       }}
                       alt="Variant"
-                      className="rounded-circle border variant_img"
+                      className="rounded border variant_img"
+                    
                     />
                   ) : (
                     <img
                       src={avatar}
                       alt="No Image"
-                      className="rounded-circle border variant_img"
+                      className="rounded border variant_img"
+                    
                     />
                   )}
                 </Col>
@@ -123,28 +125,28 @@ const ViewProduct = () => {
                 <Col md={10}>
                   <h5 className="fw-bold mb-2">{variant.product_title_name}</h5>
 
-                  <p className="mb-2">
+                  <p className="mb-2 d-flex flex-wrap">
                     <span className="text-success fw-bold me-3">
-                      Price ${variant.price}
+                      Price: ${variant.price}
                     </span>
-                    <span className="fw-semibold me-1">Color:</span>{" "}
+                    <span className="fw-semibold me-1">Color:</span>
                     {variant.color}
                   </p>
 
                   <p className="mb-2">{variant.description}</p>
 
                   <Row>
-                    <Col md={2} className="mb-2">
+                    <Col xs={6} md={2} className="mb-2">
                       <span className="fw-semibold me-2">ID:</span>
                       <Badge color="primary" pill>
                         {variant.id}
                       </Badge>
                     </Col>
-                    <Col md={2} className="mb-2">
+                    <Col xs={6} md={2} className="mb-2">
                       <span className="fw-semibold me-2">Size:</span>
                       {variant.size}
                     </Col>
-                    <Col md={2} className="mb-2">
+                    <Col xs={6} md={2} className="mb-2">
                       <span className="fw-semibold me-2">Quantity:</span>
                       {variant.quantity}
                     </Col>

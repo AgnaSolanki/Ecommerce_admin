@@ -47,38 +47,38 @@ const ProductList = () => {
   const IMAGE_BASE_URL = import.meta.env.VITE_BASE_IMAGE || "";
 
   const fetchProducts = async () => {
-  try {
-    setLoading(true);
-    const response = await userApi.productList({
-      page,
-      pageSize: limit,
-      sortKey: sortKey,
-      sortValue: sortOrder,
-      search,
-    });
+    try {
+      setLoading(true);
+      const response = await userApi.productList({
+        page,
+        pageSize: limit,
+        sortKey: sortKey,
+        sortValue: sortOrder,
+        search,
+      });
 
-    const products = response?.data?.data?.products || [];
-    setProductList(products);
-    setTotalPages(response?.data?.data?.totalPage || 1);
-    setTotalRecords(response?.data?.data?.totalItems || 0);
+      const products = response?.data?.data?.products || [];
+      setProductList(products);
+      setTotalPages(response?.data?.data?.totalPage || 1);
+      setTotalRecords(response?.data?.data?.totalItems || 0);
 
-    if (products.length === 0) {
+      if (products.length === 0) {
+        setNoData(true);
+      } else {
+        setNoData(false);
+      }
+    } catch (err) {
+      const status = err?.response?.status;
+
+      if (status !== 404) {
+        toast.error(err?.response?.data?.message);
+      }
+
       setNoData(true);
-    } else {
-      setNoData(false);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    const status = err?.response?.status;
-
-    if (status !== 404) {
-      toast.error(err?.response?.data?.message);
-    }
-
-    setNoData(true);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -121,7 +121,7 @@ const ProductList = () => {
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
         fetchProducts();
-      } 
+      }
     } catch (err) {
       toast.error(err?.message);
     } finally {
@@ -246,31 +246,13 @@ const ProductList = () => {
                 placeholder="Search products..."
                 value={searchInput}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  setSearchInput(value);
-                  setNoData(false);
-                }}
-                onIconClick={() => {
-                  setSearch(searchInput);
+                  setSearchInput(e.target.value);
                   setPage(1);
+                  setLoading(true);
+                  setSearch(e.target.value.trim());
                 }}
                 icon={<Search size={16} />}
               />
-
-              {searchInput.trim() !== "" && (
-                <BaseButton
-                  color="warning"
-                  size="sm"
-                  className="px-3 mt-3 py-1 d-flex align-items-center"
-                  onClick={() => {
-                    setSearchInput("");
-                    setSearch("");
-                    setPage(1);
-                  }}
-                >
-                  Discard
-                </BaseButton>
-              )}
             </div>
           </Col>
         </Row>
@@ -281,9 +263,7 @@ const ProductList = () => {
               <thead className="table-light">
                 <tr>
                   <th>No.</th>
-                  <th
-                    onClick={() => handleSort("name")}
-                  >
+                  <th onClick={() => handleSort("name")} className="cursor">
                     Product Name
                     {sortKey === "name" &&
                       (sortOrder === "asc" ? (
@@ -346,6 +326,7 @@ const ProductList = () => {
                             <span
                               id={`viewBtn_${product.id}`}
                               onClick={() => handleView(product.id)}
+                              className="cursor"
                             >
                               <Eye size={18} color="#0dcaf0" />
                             </span>
@@ -368,6 +349,7 @@ const ProductList = () => {
                             <span
                               id={`editBtn_${product.id}`}
                               onClick={() => handleEdit(product.id)}
+                              className="cursor"
                             >
                               <Edit size={18} color="#ffc107" />
                             </span>
@@ -390,6 +372,7 @@ const ProductList = () => {
                             <span
                               id={`deleteBtn_${product.id}`}
                               onClick={() => confirmDelete(product.id)}
+                              className="cursor"
                             >
                               <Trash2 size={18} color="#dc3545" />
                             </span>
@@ -445,6 +428,8 @@ const ProductList = () => {
               color="danger"
               onClick={handleDelete}
               loading={deleteLoading}
+                            className="fix-button-delete"
+
             >
               {!deleteLoading ? "Yes, Delete It!" : null}
             </BaseButton>

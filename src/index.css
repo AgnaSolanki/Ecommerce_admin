@@ -72,16 +72,13 @@ button:focus-visible {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   padding: 10px 25px;
   text-align: center;
-
 }
 
 .custom-logout-modal .modal-header {
   border-bottom: none;
-  padding: 24px 24px 0 24px;
   font-weight: 600;
   font-size: 1.2rem;
   justify-content: center;
-  padding-left: 30%;
   padding-right: 0;
 }
 
@@ -240,6 +237,29 @@ input {
   caret-color: black !important;
 }
 .back-to-top-arrow {
-  bottom: 10% !important; 
- }
- 
+  bottom: 10% !important;
+}
+.cursor {
+  cursor: pointer;
+}
+.compact-dropdown {
+  min-height: 30px !important;
+  height: 32px !important;
+  font-size: 12px !important;
+  background-position: right 6px center !important;
+  padding: 5px 20px 5px 10px !important;
+}
+.img-close{
+  background-color: red !important;
+  opacity: 1 !important;
+  border-radius: 50% !important;
+  padding: 5px !important;
+}
+
+.fix-button{
+  min-width: 100px;
+}
+.fix-button-delete{
+    min-width: 130px !important;
+
+}

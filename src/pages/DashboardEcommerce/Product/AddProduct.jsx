@@ -34,7 +34,6 @@ const AddProduct = () => {
   const [imagePreviews, setImagePreviews] = useState({});
   const fileInputRefs = useRef([]);
 
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -223,22 +222,21 @@ const AddProduct = () => {
       variant.variant_image
     );
   };
-const handleRemoveImage = (index) => {
-  formik.setFieldValue(`product_variants[${index}].variant_image`, null);
+  const handleRemoveImage = (index) => {
+    formik.setFieldValue(`product_variants[${index}].variant_image`, null);
 
-  setImagePreviews((prev) => {
-    const updatedPreviews = { ...prev };
-    delete updatedPreviews[`variant_image_preview_${index}`];
-    return updatedPreviews;
-  });
+    setImagePreviews((prev) => {
+      const updatedPreviews = { ...prev };
+      delete updatedPreviews[`variant_image_preview_${index}`];
+      return updatedPreviews;
+    });
 
-  if (fileInputRefs.current[index]) {
-    fileInputRefs.current[index].value = "";
-  }
+    if (fileInputRefs.current[index]) {
+      fileInputRefs.current[index].value = "";
+    }
 
-  formik.setFieldTouched(`product_variants[${index}].variant_image`, true);
-};
-
+    formik.setFieldTouched(`product_variants[${index}].variant_image`, true);
+  };
 
   return (
     <Container fluid className="page-content mt-lg-2 mb-3 w-100">
@@ -465,7 +463,9 @@ const handleRemoveImage = (index) => {
 
                             <Col md={6}>
                               <BaseFileInput
-                              inputRef={(el) => (fileInputRefs.current[index] = el)}
+                                inputRef={(el) =>
+                                  (fileInputRefs.current[index] = el)
+                                }
                                 name={`product_variants[${index}].variant_image`}
                                 label={CONSTANTS.Image}
                                 type={CONSTANTS.file}
@@ -492,7 +492,7 @@ const handleRemoveImage = (index) => {
                                 {imagePreviews[
                                   `variant_image_preview_${index}`
                                 ] && (
-                                  <>
+                                  <div className="position-relative d-inline-block">
                                     <img
                                       src={
                                         imagePreviews[
@@ -508,14 +508,14 @@ const handleRemoveImage = (index) => {
                                     />
                                     <BaseButton
                                       type="button"
-                                      size="sm"
                                       color="danger"
-                                      className="mt-2 d-block mx-auto"
+                                      size="sm"
+                                      className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center"
                                       onClick={() => handleRemoveImage(index)}
                                     >
-                                      Remove Image
+                                      ✕
                                     </BaseButton>
-                                  </>
+                                  </div>
                                 )}
                               </div>
                             </Col>
@@ -534,7 +534,7 @@ const handleRemoveImage = (index) => {
                   type={CONSTANTS.submit}
                   onClick={formik.handleSubmit}
                   loading={saveLoading}
-                  className="me-2"
+                  className="me-2 fix-button"
                 >
                   {!saveLoading ? "Submit" : null}
                 </BaseButton>
@@ -544,6 +544,7 @@ const handleRemoveImage = (index) => {
                   size="sm"
                   onClick={handleCancel}
                   loading={cancelLoading}
+                  className="fix-button"
                 >
                   {!cancelLoading ? "Cancel" : null}
                 </BaseButton>

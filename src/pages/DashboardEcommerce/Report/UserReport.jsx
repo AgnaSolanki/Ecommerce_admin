@@ -36,7 +36,7 @@ const UserReport = () => {
 
   useEffect(() => {
     fetchReports();
-  }, [userPage, userSearch, sortKey, sortOrder]);
+  }, [userSearch, userPage, sortKey, sortOrder]);
 
   const fetchReports = async () => {
     setLoading(true);
@@ -162,20 +162,6 @@ const UserReport = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="page-content mt-4">
-        <Container fluid>
-          <Row>
-            <Col xs={12} className="text-center mt-5">
-              <BaseLoader size={20} />
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    );
-  }
-
   return (
     <div className="page-content mt-4">
       <Container fluid>
@@ -183,36 +169,22 @@ const UserReport = () => {
           <Col xl={12}>
             <Card className="shadow-sm">
               <CardHeader className="d-flex justify-content-between align-items-center rounded-top-4 flex-wrap gap-3">
-                <h4 className="card-title mb-0">Customer Activity Report</h4>
+                <h4 className="card-title mb-0">User activity report</h4>
                 <div className="d-flex align-items-center gap-2">
                   <BaseInput
                     id={CONSTANTS.UserSearch}
                     name={CONSTANTS.userSearch}
                     type={CONSTANTS.text}
-                    placeholder="Search User.."
+                    placeholder={CONSTANTS.User_Search}
                     value={userSearchInput}
-                    onChange={(e) => setUserSearchInput(e.target.value)}
-                    onIconClick={() => {
-                      setUserSearch(userSearchInput);
+                    onChange={(e) => {
+                      setUserSearchInput(e.target.value);
                       setUserPage(1);
+                      setLoading(true);
+                      setUserSearch(e.target.value.trim());
                     }}
                     icon={<Search size={16} />}
                   />
-
-                  {userSearchInput.trim() !== "" && (
-                    <BaseButton
-                      color="warning"
-                      size="sm"
-                      className="px-3 mt-3 py-1 d-flex align-items-center"
-                      onClick={() => {
-                        setUserSearchInput("");
-                        setUserSearch("");
-                        setUserPage(1);
-                      }}
-                    >
-                      Discard
-                    </BaseButton>
-                  )}
                 </div>
               </CardHeader>
 
@@ -224,6 +196,7 @@ const UserReport = () => {
                         <th>No.</th>
 
                         <th
+                          className="cursor"
                           onClick={() => handleSort("customer_name")}
                         >
                           Customer Name
@@ -236,6 +209,7 @@ const UserReport = () => {
                         </th>
 
                         <th
+                          className="cursor"
                           onClick={() => handleSort("email")}
                         >
                           Email
@@ -248,6 +222,7 @@ const UserReport = () => {
                         </th>
 
                         <th
+                          className="cursor"
                           onClick={() => handleSort("phone_number")}
                         >
                           Phone Number
@@ -260,6 +235,7 @@ const UserReport = () => {
                         </th>
 
                         <th
+                          className="cursor"
                           onClick={() => handleSort("gender")}
                         >
                           Gender
