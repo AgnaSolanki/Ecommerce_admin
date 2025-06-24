@@ -70,7 +70,7 @@ const Login = () => {
         const accessToken = response?.data?.data?.token;
         const decodedToken = jwtDecode(accessToken);
         if (decodedToken.role !== "admin") {
-          toast.error("Access denied. Only admin users can login.");
+          toast.error("Access denied. Only admin can login.");
           return;
         }
 

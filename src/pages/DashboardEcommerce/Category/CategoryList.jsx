@@ -277,15 +277,16 @@ const CategoryList = () => {
           }),
       }),
       onSubmit: async (values) => {
-        try {
-          await onSave(values);
-          toggle();
-        } catch (err) {
-          console.error("Error saving category:", err);
-        } finally {
-          setLoading(false);
-        }
-      },
+    try {
+      setLoading(true); 
+      await onSave(values);
+      toggle();
+    } catch (err) {
+      console.error("Error saving category:", err);
+    } finally {
+      setLoading(false); 
+    }
+  },
     });
 
     useEffect(() => {
@@ -339,16 +340,23 @@ const CategoryList = () => {
 
       formik.setFieldTouched("category_image", true);
     };
+    useEffect(() => {
+      if (formik.values.category_image) {
+        setImagePreview(`${IMAGE_BASE_URL}${formik.values.category_image}`);
+      } else {
+        setImagePreview("");
+      }
+    }, [formik.values.category_image]);
 
     return (
       <Modal isOpen={isOpen} toggle={handleClose} size="md">
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setLoading(true);
-            formik.handleSubmit();
-          }}
-        >
+       <Form
+  onSubmit={(e) => {
+    e.preventDefault();
+    formik.handleSubmit();
+  }}
+>
+
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <BaseInput
@@ -390,41 +398,39 @@ const CategoryList = () => {
               </FormFeedback>
             )}
 
-            <div className="mt-3 text-center position-relative d-inline-block">
-              {imagePreview && (
-                <div className="position-relative d-inline-block">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = avatar;
-                    }}
-                    className="rounded avatar-lg img-thumbnail variant_img"
-                  />
-                  <BaseButton
-                    type="button"
-                    color="danger"
-                    size="sm"
-                    className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
-                    onClick={handleRemoveImage}
-                  >
-                    ✕
-                  </BaseButton>
-                </div>
-              )}
-            </div>
+            {imagePreview && (
+              <div className="position-relative d-inline-block">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = avatar;
+                  }}
+                  className="rounded avatar-lg img-thumbnail variant_img"
+                />
+                <BaseButton
+                  type="button"
+                  color="danger"
+                  size="sm"
+                  className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
+                  onClick={handleRemoveImage}
+                >
+                  ✕
+                </BaseButton>
+              </div>
+            )}
           </ModalBody>
           <ModalFooter>
             <BaseButton
               type="submit"
-              color="primary"
+              color="secondary"
               loading={loading}
               className="fix-button"
             >
               {!loading ? (editCategory ? "Update" : "Submit") : null}
             </BaseButton>
-            <BaseButton type="button" color="secondary" onClick={handleClose}>
+            <BaseButton type="button" color="danger" onClick={handleClose}>
               Cancel
             </BaseButton>
           </ModalFooter>
@@ -562,10 +568,14 @@ const CategoryList = () => {
                             width="50"
                             height="50"
                             className="image-category"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = avatar;
-                            }}
+                            onError={
+                              editCategory
+                                ? (e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = avatar;
+                                  }
+                                : null
+                            }
                           />
                         </td>
                         <td className="d-flex justify-content-center gap-2 flex-wrap">

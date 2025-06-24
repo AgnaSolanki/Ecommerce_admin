@@ -81,7 +81,7 @@ export const CONSTANTS = {
   category_name: "category_name",
   categoryName: "category name",
   CategoryName: "Category name",
-  CategoryImage: "Category Image",
+  CategoryImage: "Category image",
   TotalOrder: "Total Orders",
   cancelledOrder: "Cancelled Orders",
   pendingOrder: "Pending Orders",

@@ -696,7 +696,7 @@ const UserProfile = () => {
           {isEditing ? (
             <>
               <BaseButton
-                color="success"
+                color="danger"
                 size="sm"
                 type={CONSTANTS.submit}
                 onClick={formik.handleSubmit}
