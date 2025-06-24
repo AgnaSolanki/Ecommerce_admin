@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useMemo } from "react";
 import {
   Container,
   Card,
@@ -23,7 +23,6 @@ import BaseSelectInput from "../../../Components/BASE/BaseSelectInput";
 import userApi from "../../../api/userApi";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
-import { useMemo } from "react";
 
 import {
   inputField,
@@ -45,7 +44,7 @@ const CategoryList = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalLoading, setModalLoading] = useState(false);
+  // const [modalLoading, setModalLoading] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -91,9 +90,7 @@ const CategoryList = () => {
   };
 
   useEffect(() => {
-   
-      fetchCategories();
-  
+    fetchCategories();
   }, [page, limit, search, sortKey, sortOrder]);
   const initialFormData = useMemo(() => {
     return editCategory
@@ -114,45 +111,41 @@ const CategoryList = () => {
     const category = categoryList.find((c) => c.id === categoryId);
     if (category) {
       setEditCategory(category);
-     setModalOpen(true);
+      setModalOpen(true);
     }
   };
-  const handleSaveCategory = async (form) => {
-    const trimmedName = String(form.category_name || "").trim();
-    const trimmedDesc = String(form.description || "").trim();
+ const handleSaveCategory = async (form) => {
+  const trimmedName = String(form.category_name || "").trim();
+  const trimmedDesc = String(form.description || "").trim();
+  let imageValue = form.category_image;
 
-    let imageValue = form.category_image;
+  try {
+    const payload = {
+      category_name: trimmedName,
+      description: trimmedDesc,
+      category_image: imageValue,
+    };
 
-    try {
-      const payload = {
-        category_name: trimmedName,
-        description: trimmedDesc,
-        category_image: imageValue,
-      };
-
-      if (editCategory?.id) {
-        const res = await userApi.updateCategory(editCategory.id, payload);
-        toast.success(res?.data?.message);
-      } else {
-        const res = await userApi.addCategory(payload);
-        toast.success(res?.data?.message);
-      }
-
-      setModalOpen(false);
-
-      fetchCategories();
-    } catch (err) {
-      const errorMessages = err?.response?.data?.message;
-      setNoData(true);
-      if (Array.isArray(errorMessages)) {
-        errorMessages.forEach((msg) => toast.error(msg));
-      } else {
-        toast.error(err?.message);
-      }
-    } finally {
-      setModalLoading(false);
+    if (editCategory?.id) {
+      const res = await userApi.updateCategory(editCategory.id, payload);
+      toast.success(res?.data?.message);
+    } else {
+      const res = await userApi.addCategory(payload);
+      toast.success(res?.data?.message);
     }
-  };
+
+    fetchCategories();
+  } catch (err) {
+    const errorMessages = err?.response?.data?.message;
+    if (Array.isArray(errorMessages)) {
+      errorMessages.forEach((msg) => toast.error(msg));
+    } else {
+      toast.error(err?.response?.data?.message);
+    }
+    throw err; 
+  }
+};
+
   const confirmDelete = (categoryId) => {
     setSelectedCategoryId(categoryId);
     setDeleteModal(true);
@@ -170,7 +163,7 @@ const CategoryList = () => {
         toast.error(response?.data?.message);
       }
     } catch (err) {
-      toast.error(err?.message);
+      toast.error(err?.response?.data?.message);
     } finally {
       setDeleteModal(false);
       setSelectedCategoryId(null);
@@ -263,11 +256,12 @@ const CategoryList = () => {
     toggle,
     onSave,
     initialData,
-    loading,
     title,
   }) => {
+    const [loading, setLoading] = useState(false);
+
     const [imagePreview, setImagePreview] = useState("");
-    const categoryValidation = validationField(CONSTANTS.Category);
+    const categoryValidation = validationField(CONSTANTS.CategoryName);
     const descriptionValidation = validationField(CONSTANTS.Description);
     const imageValidation = validationField(CONSTANTS.CategoryImage);
     const formik = useFormik({
@@ -277,11 +271,10 @@ const CategoryList = () => {
         category_name: Yup.string()
           .required(categoryValidation.required)
           .max(50, categoryValidation.maxLength(CONSTANTS.Category, 50)),
-        description: Yup.string()
-          .max(
-            255,
-            descriptionValidation.maxLength(CONSTANTS.Description, 255)
-          ),
+        description: Yup.string().max(
+          255,
+          descriptionValidation.maxLength(CONSTANTS.Description, 255)
+        ),
         category_image: Yup.mixed()
           .nullable()
           .test("fileSize", imageValidation.imageSize, function (value) {
@@ -290,9 +283,16 @@ const CategoryList = () => {
             return value.size <= 1024 * 1024;
           }),
       }),
-      onSubmit: (values) => {
-        onSave(values);
-      },
+     onSubmit: async (values) => {
+    try {
+      await onSave(values); 
+      toggle(); 
+    } catch (err) {
+      console.error("Error saving category:", err);
+    }finally {
+      setLoading(false); 
+    }
+  },
     });
 
     useEffect(() => {
@@ -302,12 +302,15 @@ const CategoryList = () => {
     const handleImageUpload = async (file) => {
       if (!file) return;
 
-      const schema = Yup.mixed()
-        .test("fileSize", imageValidation.imageSize, (value) => {
+      const schema = Yup.mixed().test(
+        "fileSize",
+        imageValidation.imageSize,
+        (value) => {
           if (!value) return true;
           if (typeof value === "string") return true;
           return value.size <= 1024 * 1024;
-        });
+        }
+      );
 
       try {
         await schema.validate(file);
@@ -336,14 +339,25 @@ const CategoryList = () => {
       toggle();
       setImagePreview("");
     };
+    const handleRemoveImage = () => {
+      formik.setFieldValue("category_image", null);
+
+      setImagePreview("");
+
+      formik.setFieldTouched("category_image", true);
+    };
 
     return (
       <Modal isOpen={isOpen} toggle={handleClose} size="md">
-        <Form onSubmit={formik.handleSubmit}>
+        <Form onSubmit={(e) => {
+  e.preventDefault();
+  setLoading(true);
+  formik.handleSubmit();
+}}>
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <BaseInput
-              label={CONSTANTS.categoryName}
+              label={CONSTANTS.CategoryName}
               name={CONSTANTS.category_name}
               type={CONSTANTS.text}
               value={formik.values.category_name}
@@ -381,17 +395,30 @@ const CategoryList = () => {
               </FormFeedback>
             )}
 
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = avatar;
-                }}
-                className="imgPreview"
-              />
-            )}
+            <div className="mt-3 text-center position-relative d-inline-block">
+              {imagePreview && (
+                <div className="position-relative d-inline-block">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = avatar;
+                    }}
+                    className="rounded avatar-lg img-thumbnail variant_img"
+                  />
+                  <BaseButton
+                    type="button"
+                    color="danger"
+                    size="sm"
+                    className="position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center img-close"
+                    onClick={handleRemoveImage}
+                  >
+                    ✕
+                  </BaseButton>
+                </div>
+              )}
+            </div>
           </ModalBody>
           <ModalFooter>
             <BaseButton
@@ -400,7 +427,7 @@ const CategoryList = () => {
               loading={loading}
               className="fix-button"
             >
-              {!loading ? title : null}
+              {!loading ? (editCategory ? "Update" : "Submit") : null}
             </BaseButton>
             <BaseButton type="button" color="secondary" onClick={handleClose}>
               Cancel
@@ -610,15 +637,14 @@ const CategoryList = () => {
           {Math.min(page * limit, totalRecords)} of {totalRecords}
         </h6>
       </Container>
-
       {modalOpen && (
         <CategoryModal
           isOpen={modalOpen}
           toggle={() => setModalOpen(false)}
           onSave={handleSaveCategory}
           initialData={initialFormData}
-          loading={modalLoading}
-          title={editCategory ? "Update" : "Submit"}
+          loading={loading}
+          title={editCategory ? "Update Category" : "Add Category"}
         />
       )}
 

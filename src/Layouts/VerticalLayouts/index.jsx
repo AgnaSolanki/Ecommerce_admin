@@ -1,13 +1,23 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Collapse } from "reactstrap";
 import navdata from "../LayoutMenuData";
 import withRouter from "../../Components/Common/withRouter";
 
+
 const VerticalLayout = (props) => {
+  const [openMenus, setOpenMenus] = useState({});
+
   const navData = navdata();
   const path = props.router.location.pathname;
+  const toggleMenu = (menuLabel) => {
+  setOpenMenus((prevState) => ({
+    ...prevState,
+    [menuLabel]: !prevState[menuLabel],
+  }));
+};
+
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -61,22 +71,23 @@ const VerticalLayout = (props) => {
             <li className="menu-title"></li>
           ) : item.subItems ? (
             <li className="nav-item">
-              <Link
-                onClick={item.click}
-                className="nav-link menu-link"
-                to={item.link ? item.link : "/#"}
-                data-bs-toggle="collapse"
-              >
+            <Link
+  onClick={(e) => {
+    e.preventDefault(); 
+    toggleMenu(item.label);
+  }}
+  className="nav-link menu-link"
+  to={item.link ? item.link : "/#"}
+>
                 <item.icon size={20} />
                 <span>{item.label}</span>
+                <i className={`menu-arrow ${openMenus[item.label] ? 'rotate' : ''}`}></i>
               </Link>
 
-              <Collapse
-                className="menu-dropdown"
-                isOpen={item.stateVariables}
-                id="sidebarApps"
-              >
-                <ul className="nav nav-sm flex-column">
+                          <Collapse
+  className="menu-dropdown"
+  isOpen={!!openMenus[item.label]}
+><ul className="nav nav-sm flex-column">
                   {item.subItems.map((subItem, key) => (
                     <React.Fragment key={key}>
                       {!subItem.isChildItem ? (
@@ -152,6 +163,7 @@ const VerticalLayout = (props) => {
                     {item.badgeName}
                   </span>
                 ) : null}
+                
               </Link>
             </li>
           )}

@@ -80,6 +80,7 @@ export const CONSTANTS = {
   description: "description",
   category_name: "category_name",
   categoryName: "category name",
+  CategoryName: "Category name",
   CategoryImage: "Category Image",
   TotalOrder: "Total Orders",
   cancelledOrder: "Cancelled Orders",

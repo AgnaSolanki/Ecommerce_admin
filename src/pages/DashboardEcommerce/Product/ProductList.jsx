@@ -123,7 +123,7 @@ const ProductList = () => {
         fetchProducts();
       }
     } catch (err) {
-      toast.error(err?.message);
+      toast.error(err?.response?.data?.message);
     } finally {
       setDeleteModal(false);
       setSelectedProductId(null);
@@ -343,7 +343,7 @@ const ProductList = () => {
                                 }))
                               }
                             >
-                              View Product
+                              View
                             </Tooltip>
 
                             <span
@@ -366,7 +366,7 @@ const ProductList = () => {
                                 }))
                               }
                             >
-                              Edit Product
+                              Edit
                             </Tooltip>
 
                             <span
@@ -389,7 +389,7 @@ const ProductList = () => {
                                 }))
                               }
                             >
-                              Delete Product
+                              Delete
                             </Tooltip>
                           </div>
                         </td>
@@ -428,8 +428,7 @@ const ProductList = () => {
               color="danger"
               onClick={handleDelete}
               loading={deleteLoading}
-                            className="fix-button-delete"
-
+              className="fix-button-delete"
             >
               {!deleteLoading ? "Yes, Delete It!" : null}
             </BaseButton>

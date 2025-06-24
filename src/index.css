@@ -246,8 +246,8 @@ input {
   min-height: 30px !important;
   height: 32px !important;
   font-size: 12px !important;
-  background-position: right 6px center !important;
-  padding: 5px 20px 5px 10px !important;
+background-position: right 3px center !important;
+  padding: 5px 23px 5px 10px !important;
 }
 .img-close {
   width: 24px;
@@ -280,4 +280,18 @@ input {
 }
 .react-datepicker__portal {
   z-index: 9999 !important;
+}
+.menu-arrow {
+  display: inline-block;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.menu-arrow::before {
+  content: "\f0142"; 
+  font-family: 'Material Design Icons';
+}
+
+.menu-arrow.rotate {
+  transform: rotate(90deg);
 }
