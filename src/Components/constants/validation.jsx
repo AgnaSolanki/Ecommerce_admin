@@ -14,6 +14,7 @@ export const validationField = (field) => ({
   fixLength: (field, min) => `${field} should be ${min} digit.`,
   imageSize: () => `Image size should be less than 1 MB`,
 });
+export const LoginMessage = "Access denied. Only admin can login.";
 
 export const emailRegex = /^(?!.*\s)[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export const otpRegex = /^\d{0,6}$/;

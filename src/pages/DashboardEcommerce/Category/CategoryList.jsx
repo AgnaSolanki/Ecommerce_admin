@@ -282,7 +282,7 @@ const CategoryList = () => {
       await onSave(values);
       toggle();
     } catch (err) {
-      console.error("Error saving category:", err);
+      toast.error(err?.message);
     } finally {
       setLoading(false); 
     }
