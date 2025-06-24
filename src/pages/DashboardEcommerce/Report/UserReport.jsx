@@ -286,15 +286,18 @@ const UserReport = () => {
                     </tbody>
                   </table>
                 </div>
-
-                {renderPagination(userPage, userTotalPages, setUserPage)}
                 <Row>
-                  <Col md="12" className="text-start">
-                    <h6>
+                  <Col className="mt-4">
+                    {" "}
+                    <h6 className="fw-bold">
                       Showing {(userPage - 1) * userLimit + 1} to{" "}
                       {Math.min(userPage * userLimit, userTotalRecords)} of{" "}
                       {userTotalRecords} Results
                     </h6>
+                  </Col>
+                  <Col className="mb-3">
+                    {" "}
+                    {renderPagination(userPage, userTotalPages, setUserPage)}
                   </Col>
                 </Row>
               </CardBody>

@@ -379,15 +379,20 @@ const OrderReport = () => {
                     </tbody>
                   </table>
                 </div>
-
-                {renderPagination(orderPage, orderTotalPages, setOrderPage)}
-                <Col md="12" className="text-start">
-                  <h6>
-                    Showing {(orderPage - 1) * orderLimit + 1} to{" "}
-                    {Math.min(orderPage * orderLimit, orderTotalRecords)} of{" "}
-                    {orderTotalRecords} Results
-                  </h6>
-                </Col>
+                <Row>
+                  <Col className="mt-4">
+                    {" "}
+                    <h6 className="fw-bold">
+                      Showing {(orderPage - 1) * orderLimit + 1} to{" "}
+                      {Math.min(orderPage * orderLimit, orderTotalRecords)} of{" "}
+                      {orderTotalRecords} Results
+                    </h6>
+                  </Col>
+                  <Col className="mb-3">
+                    {" "}
+                    {renderPagination(orderPage, orderTotalPages, setOrderPage)}
+                  </Col>
+                </Row>
               </CardBody>
             </Card>
           </Col>

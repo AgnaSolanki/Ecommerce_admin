@@ -529,7 +529,7 @@ const AddProduct = () => {
 
               <div className="text-start mt-4">
                 <BaseButton
-                  color="danger"
+                  color="secondary"
                   size="sm"
                   type={CONSTANTS.submit}
                   onClick={formik.handleSubmit}
@@ -540,7 +540,7 @@ const AddProduct = () => {
                 </BaseButton>
                 <BaseButton
                   type={CONSTANTS.button}
-                  color="secondary"
+                  color="danger"
                   size="sm"
                   onClick={handleCancel}
                   loading={cancelLoading}

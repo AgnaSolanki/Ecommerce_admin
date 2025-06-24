@@ -277,16 +277,16 @@ const CategoryList = () => {
           }),
       }),
       onSubmit: async (values) => {
-    try {
-      setLoading(true); 
-      await onSave(values);
-      toggle();
-    } catch (err) {
-      toast.error(err?.message);
-    } finally {
-      setLoading(false); 
-    }
-  },
+        try {
+          setLoading(true);
+          await onSave(values);
+          toggle();
+        } catch (err) {
+          toast.error(err?.message);
+        } finally {
+          setLoading(false);
+        }
+      },
     });
 
     useEffect(() => {
@@ -350,13 +350,12 @@ const CategoryList = () => {
 
     return (
       <Modal isOpen={isOpen} toggle={handleClose} size="md">
-       <Form
-  onSubmit={(e) => {
-    e.preventDefault();
-    formik.handleSubmit();
-  }}
->
-
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            formik.handleSubmit();
+          }}
+        >
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <BaseInput
@@ -634,13 +633,18 @@ const CategoryList = () => {
               </tbody>
             </Table>
 
-            {renderPagination()}
+            <Row>
+              <Col className="mt-4">
+                {" "}
+                <h6 className="fw-bold">
+                  Showing {(page - 1) * limit + 1} to{" "}
+                  {Math.min(page * limit, totalRecords)} of {totalRecords} Results
+                </h6>
+              </Col>
+              <Col className="mb-3"> {renderPagination()}</Col>
+            </Row>
           </CardBody>
         </Card>
-        <h6>
-          Showing {(page - 1) * limit + 1} to{" "}
-          {Math.min(page * limit, totalRecords)} of {totalRecords}
-        </h6>
       </Container>
       {modalOpen && (
         <CategoryModal
