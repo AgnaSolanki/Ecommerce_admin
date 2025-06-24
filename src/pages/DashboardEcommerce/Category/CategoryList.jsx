@@ -1,4 +1,4 @@
-import { useEffect, useState,useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Card,
@@ -44,7 +44,6 @@ const CategoryList = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  // const [modalLoading, setModalLoading] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -114,37 +113,37 @@ const CategoryList = () => {
       setModalOpen(true);
     }
   };
- const handleSaveCategory = async (form) => {
-  const trimmedName = String(form.category_name || "").trim();
-  const trimmedDesc = String(form.description || "").trim();
-  let imageValue = form.category_image;
+  const handleSaveCategory = async (form) => {
+    const trimmedName = String(form.category_name || "").trim();
+    const trimmedDesc = String(form.description || "").trim();
+    let imageValue = form.category_image;
 
-  try {
-    const payload = {
-      category_name: trimmedName,
-      description: trimmedDesc,
-      category_image: imageValue,
-    };
+    try {
+      const payload = {
+        category_name: trimmedName,
+        description: trimmedDesc,
+        category_image: imageValue,
+      };
 
-    if (editCategory?.id) {
-      const res = await userApi.updateCategory(editCategory.id, payload);
-      toast.success(res?.data?.message);
-    } else {
-      const res = await userApi.addCategory(payload);
-      toast.success(res?.data?.message);
+      if (editCategory?.id) {
+        const res = await userApi.updateCategory(editCategory.id, payload);
+        toast.success(res?.data?.message);
+      } else {
+        const res = await userApi.addCategory(payload);
+        toast.success(res?.data?.message);
+      }
+
+      fetchCategories();
+    } catch (err) {
+      const errorMessages = err?.response?.data?.message;
+      if (Array.isArray(errorMessages)) {
+        errorMessages.forEach((msg) => toast.error(msg));
+      } else {
+        toast.error(err?.response?.data?.message);
+      }
+      throw err;
     }
-
-    fetchCategories();
-  } catch (err) {
-    const errorMessages = err?.response?.data?.message;
-    if (Array.isArray(errorMessages)) {
-      errorMessages.forEach((msg) => toast.error(msg));
-    } else {
-      toast.error(err?.response?.data?.message);
-    }
-    throw err; 
-  }
-};
+  };
 
   const confirmDelete = (categoryId) => {
     setSelectedCategoryId(categoryId);
@@ -251,13 +250,7 @@ const CategoryList = () => {
     );
   };
 
-  const CategoryModal = ({
-    isOpen,
-    toggle,
-    onSave,
-    initialData,
-    title,
-  }) => {
+  const CategoryModal = ({ isOpen, toggle, onSave, initialData, title }) => {
     const [loading, setLoading] = useState(false);
 
     const [imagePreview, setImagePreview] = useState("");
@@ -283,16 +276,16 @@ const CategoryList = () => {
             return value.size <= 1024 * 1024;
           }),
       }),
-     onSubmit: async (values) => {
-    try {
-      await onSave(values); 
-      toggle(); 
-    } catch (err) {
-      console.error("Error saving category:", err);
-    }finally {
-      setLoading(false); 
-    }
-  },
+      onSubmit: async (values) => {
+        try {
+          await onSave(values);
+          toggle();
+        } catch (err) {
+          console.error("Error saving category:", err);
+        } finally {
+          setLoading(false);
+        }
+      },
     });
 
     useEffect(() => {
@@ -349,11 +342,13 @@ const CategoryList = () => {
 
     return (
       <Modal isOpen={isOpen} toggle={handleClose} size="md">
-        <Form onSubmit={(e) => {
-  e.preventDefault();
-  setLoading(true);
-  formik.handleSubmit();
-}}>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setLoading(true);
+            formik.handleSubmit();
+          }}
+        >
           <ModalHeader toggle={handleClose}>{title}</ModalHeader>
           <ModalBody>
             <BaseInput

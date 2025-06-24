@@ -5,19 +5,17 @@ import { Collapse } from "reactstrap";
 import navdata from "../LayoutMenuData";
 import withRouter from "../../Components/Common/withRouter";
 
-
 const VerticalLayout = (props) => {
   const [openMenus, setOpenMenus] = useState({});
 
   const navData = navdata();
   const path = props.router.location.pathname;
   const toggleMenu = (menuLabel) => {
-  setOpenMenus((prevState) => ({
-    ...prevState,
-    [menuLabel]: !prevState[menuLabel],
-  }));
-};
-
+    setOpenMenus((prevState) => ({
+      ...prevState,
+      [menuLabel]: !prevState[menuLabel],
+    }));
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -47,7 +45,10 @@ const VerticalLayout = (props) => {
     if (parentCollapseDiv) {
       parentCollapseDiv.classList.add("show");
       parentCollapseDiv.parentElement.children[0].classList.add("active");
-      parentCollapseDiv.parentElement.children[0].setAttribute("aria-expanded", "true");
+      parentCollapseDiv.parentElement.children[0].setAttribute(
+        "aria-expanded",
+        "true"
+      );
     }
   }
 
@@ -71,23 +72,28 @@ const VerticalLayout = (props) => {
             <li className="menu-title"></li>
           ) : item.subItems ? (
             <li className="nav-item">
-            <Link
-  onClick={(e) => {
-    e.preventDefault(); 
-    toggleMenu(item.label);
-  }}
-  className="nav-link menu-link"
-  to={item.link ? item.link : "/#"}
->
+              <Link
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleMenu(item.label);
+                }}
+                className="nav-link menu-link"
+                to={item.link ? item.link : "/#"}
+              >
                 <item.icon size={20} />
                 <span>{item.label}</span>
-                <i className={`menu-arrow ${openMenus[item.label] ? 'rotate' : ''}`}></i>
+                <i
+                  className={`menu-arrow ${
+                    openMenus[item.label] ? "rotate" : ""
+                  }`}
+                ></i>
               </Link>
 
-                          <Collapse
-  className="menu-dropdown"
-  isOpen={!!openMenus[item.label]}
-><ul className="nav nav-sm flex-column">
+              <Collapse
+                className="menu-dropdown"
+                isOpen={!!openMenus[item.label]}
+              >
+                <ul className="nav nav-sm flex-column">
                   {item.subItems.map((subItem, key) => (
                     <React.Fragment key={key}>
                       {!subItem.isChildItem ? (
@@ -99,7 +105,9 @@ const VerticalLayout = (props) => {
                             {subItem.label}
                             {subItem.badgeName ? (
                               <span
-                                className={"badge badge-pill bg-" + subItem.badgeColor}
+                                className={
+                                  "badge badge-pill bg-" + subItem.badgeColor
+                                }
                                 data-key="t-new"
                               >
                                 {subItem.badgeName}
@@ -116,7 +124,9 @@ const VerticalLayout = (props) => {
                             {subItem.label}
                             {subItem.badgeName ? (
                               <span
-                                className={"badge badge-pill bg-" + subItem.badgeColor}
+                                className={
+                                  "badge badge-pill bg-" + subItem.badgeColor
+                                }
                                 data-key="t-new"
                               >
                                 {subItem.badgeName}
@@ -134,7 +144,9 @@ const VerticalLayout = (props) => {
                                 subItem.childItems.map((childItem, key) => (
                                   <li className="nav-item" key={key}>
                                     <Link
-                                      to={childItem.link ? childItem.link : "/#"}
+                                      to={
+                                        childItem.link ? childItem.link : "/#"
+                                      }
                                       className="nav-link"
                                     >
                                       {childItem.label}
@@ -152,7 +164,10 @@ const VerticalLayout = (props) => {
             </li>
           ) : (
             <li className="nav-item">
-              <Link className="nav-link menu-link" to={item.link ? item.link : "/#"}>
+              <Link
+                className="nav-link menu-link"
+                to={item.link ? item.link : "/#"}
+              >
                 <item.icon size={20} />
                 <span>{item.label}</span>
                 {item.badgeName ? (
@@ -163,7 +178,6 @@ const VerticalLayout = (props) => {
                     {item.badgeName}
                   </span>
                 ) : null}
-                
               </Link>
             </li>
           )}
