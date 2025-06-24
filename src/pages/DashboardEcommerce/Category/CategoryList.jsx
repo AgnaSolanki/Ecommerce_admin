@@ -448,7 +448,7 @@ const CategoryList = () => {
         <Row className="mb-3 align-items-end">
           <Col md="6">
             <div className="d-flex align-items-center">
-              <label className="me-2 mb-0">Items per page:</label>
+              <label className="me-2 mb-0 fw-semibold">Items per page:</label>
               <BaseSelectInput
                 name="limitSelect"
                 value={limit}
