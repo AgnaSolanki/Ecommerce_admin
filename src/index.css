@@ -222,6 +222,19 @@ input:-webkit-autofill {
   width: 120px;
   height: 120px;
 }
+@media (max-width: 1100px) and (min-width: 600px) {
+  .variant-image {
+    max-width: 100px !important;
+    max-height: 100px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .variant-image {
+    max-width: 110px;
+    max-height: 110px;
+  }
+}
 .imgPreview {
   width: 100px;
   height: 100px;

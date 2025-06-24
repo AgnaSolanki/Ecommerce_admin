@@ -96,7 +96,8 @@ const ViewProduct = () => {
         product.variants.map((variant, index) => (
           <Card key={index} className="mb-4 p-3 border-0 shadow-sm">
             <CardBody>
-              <Row className="align-items-center">
+             <Row className="gy-4 flex-column flex-md-row align-items-start">
+
                 <Col
                   xs={12}
                   md={2}
@@ -117,7 +118,7 @@ const ViewProduct = () => {
                   />
                 </Col>
 
-                <Col xs={12} md={10}>
+                <Col xs={12} md={10} className="ps-4">
                   <h5 className="fw-bold mb-2">{variant.product_title_name}</h5>
 
                   <p className="mb-2 d-flex flex-wrap align-items-center">
