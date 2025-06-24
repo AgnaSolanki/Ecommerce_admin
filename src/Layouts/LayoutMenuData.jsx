@@ -109,7 +109,7 @@ const Navdata = () => {
             },
             {
               id: 2,
-              label: "order Report",
+              label: "Order Report",
               link: LoginRoutes.ORDER_REPORT,
               parentId: "report",
             },

@@ -268,7 +268,8 @@ const OrderReport = () => {
                         dateFormat="yyyy-MM-dd"
                         className="form-control mb-1 ms-1"
                         isClearable
-                        placeholderText="Start Date"
+                        placeholderText="Enter Start Date"
+                        maxDate={parseDate(tempEndDate) || new Date()}
                         popperModifiers={[
                           {
                             name: "zIndex",
@@ -288,7 +289,9 @@ const OrderReport = () => {
                         dateFormat="yyyy-MM-dd"
                         className="form-control mb-1 ms-1"
                         isClearable
-                        placeholderText="End Date"
+                        placeholderText="Enter End Date"
+                        minDate={parseDate(tempStartDate) || null}
+                        maxDate={new Date()}
                         popperModifiers={[
                           {
                             name: "zIndex",
