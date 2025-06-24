@@ -644,7 +644,7 @@ const EditProduct = () => {
                     <BaseButton
                       type={CONSTANTS.submit}
                       loading={saveLoading}
-                      color="primary"
+                      color="secondary"
                       className="fix-button"
                     >
                       {!saveLoading ? "Submit" : null}
@@ -652,7 +652,7 @@ const EditProduct = () => {
                     <BaseButton
                       type={CONSTANTS.Button}
                       loading={cancelLoading}
-                      color="secondary"
+                      color="danger"
                       className="ms-3 fix-button"
                       onClick={handleCancel}
                     >

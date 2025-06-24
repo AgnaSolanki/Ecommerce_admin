@@ -25,6 +25,7 @@ import {
   emailRegex,
   passwordRegex,
   inputField,
+  LoginMessage,
 } from "../../Components/constants/validation";
 import userApi from "../../api/userApi";
 import Footer from "../../Layouts/Footer";
@@ -70,7 +71,7 @@ const Login = () => {
         const accessToken = response?.data?.data?.token;
         const decodedToken = jwtDecode(accessToken);
         if (decodedToken.role !== "admin") {
-          toast.error("Access denied. Only admin users can login.");
+          toast.error(LoginMessage);
           return;
         }
 

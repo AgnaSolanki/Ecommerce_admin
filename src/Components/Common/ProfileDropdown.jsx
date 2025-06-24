@@ -114,12 +114,13 @@ const ProfileDropdown = () => {
         </ModalBody>
         <ModalFooter className="model-footer">
           <BaseButton
+            color="danger"
             className="model-no"
             onClick={() => setShowLogoutModal(false)}
           >
             No
           </BaseButton>
-          <BaseButton className="model-yes" onClick={handleLogout}>
+          <BaseButton color="secondary" className="model-yes" onClick={handleLogout}>
             Yes
           </BaseButton>
         </ModalFooter>
