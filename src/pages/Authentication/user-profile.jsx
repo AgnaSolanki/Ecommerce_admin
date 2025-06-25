@@ -696,7 +696,7 @@ const UserProfile = () => {
           {isEditing ? (
             <>
               <BaseButton
-                color="danger"
+                color="secondary"
                 size="sm"
                 type={CONSTANTS.submit}
                 onClick={formik.handleSubmit}
@@ -708,7 +708,7 @@ const UserProfile = () => {
               </BaseButton>
               <BaseButton
                 type="button"
-                color="secondary"
+                color="danger"
                 size="sm"
                 className="fix-button"
                 onClick={() => {
